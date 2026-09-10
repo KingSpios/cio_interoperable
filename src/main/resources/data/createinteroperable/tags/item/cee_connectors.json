@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    { "id": "electroenergetics:connector", "required": false },
+    { "id": "electroenergetics:double_connector", "required": false },
+    { "id": "electroenergetics:triple_connector", "required": false },
+    { "id": "electroenergetics:quad_connector", "required": false }
+  ]
+}

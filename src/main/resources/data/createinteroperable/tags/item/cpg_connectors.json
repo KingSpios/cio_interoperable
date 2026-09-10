@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    { "id": "powergrid:wire_connector", "required": false },
+    { "id": "powergrid:heavy_wire_connector", "required": false },
+    { "id": "powergrid:device_connector", "required": false },
+    { "id": "createinteroperable:cio_connector", "required": false },
+    { "id": "createinteroperable:cio_connector_glass", "required": false }
+  ]
+}

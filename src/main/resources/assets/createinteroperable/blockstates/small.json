@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=south": { "model": "createinteroperable:block/cio_transformer" },
+    "facing=west":  { "model": "createinteroperable:block/cio_transformer", "y": 90 },
+    "facing=north": { "model": "createinteroperable:block/cio_transformer", "y": 180 },
+    "facing=east":  { "model": "createinteroperable:block/cio_transformer", "y": 270 }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "neoforge:conditions": [
+    { "type": "neoforge:mod_loaded", "modid": "powergrid" },
+    { "type": "neoforge:mod_loaded", "modid": "electroenergetics" }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": { "item": "create:desk_bell" },
+    "C": { "item": "powergrid:device_connector" },
+    "V": { "item": "create:item_vault" },
+    "D": { "item": "create:display_link" }
+  },
+  "pattern": [
+    " B ",
+    "CVC",
+    " D "
+  ],
+  "result": {
+    "count": 1,
+    "id": "createinteroperable:telephone"
+  }
+}

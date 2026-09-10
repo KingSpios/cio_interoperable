@@ -1,0 +1,70 @@
+{
+	"credit": "Create: Interoperable - rough draft, refine in Blockbench. Sits ON TOP of a tank now (see SteamOutletBlock#canSurvive): mounting_plate is the bottom face (flush against the tank), pipe_connector_up is the top face (flush against a Create pipe above). The shaft/valve channel on the horizontal FACING-opposite side is unaffected by this — it was always independent of which face touches the tank.",
+	"parent": "block/block",
+	"texture_size": [64, 64],
+	"textures": {"1": "createinteroperable:block/steam_outlet"},
+	"elements": [
+		{
+			"name": "mounting_plate",
+			"from": [1, 0, 1],
+			"to": [15, 2, 15],
+			"faces": {
+				"north": {"uv": [2.5, 5.75, 3, 9.25], "texture": "#1"},
+				"east": {"uv": [9.25, 1.5, 5.75, 1], "texture": "#1"},
+				"south": {"uv": [2.5, 5.75, 3, 9.25], "texture": "#1"},
+				"west": {"uv": [9.25, 1, 5.75, 1.5], "texture": "#1"},
+				"up": {"uv": [0, 0, 3.5, 3.5], "texture": "#1"},
+				"down": {"uv": [0, 0, 3.5, 3.5], "texture": "#1"}
+			}
+		},
+		{
+			"name": "housing",
+			"from": [3, 2, 2],
+			"to": [13, 12, 11],
+			"faces": {
+				"north": {"uv": [0, 3.5, 2.5, 6], "texture": "#1"},
+				"east": {"uv": [3.5, 0, 5.75, 2.5], "texture": "#1"},
+				"south": {"uv": [0, 3.5, 2.5, 6], "texture": "#1"},
+				"west": {"uv": [3.5, 0, 5.75, 2.5], "texture": "#1"},
+				"up": {"uv": [5, 5.75, 2.5, 3.5], "texture": "#1"},
+				"down": {"uv": [5, 3.5, 2.5, 5.75], "texture": "#1"}
+			}
+		},
+		{
+			"name": "pipe_connector_up",
+			"from": [4, 12, 4],
+			"to": [12, 16, 12],
+			"faces": {
+				"north": {"uv": [5.75, 0, 7.75, 1], "texture": "#1"},
+				"east": {"uv": [5.75, 0, 7.75, 1], "texture": "#1"},
+				"south": {"uv": [5.75, 0, 7.75, 1], "texture": "#1"},
+				"west": {"uv": [5.75, 0, 7.75, 1], "texture": "#1"},
+				"up": {"uv": [7, 2.5, 5, 4.5], "texture": "#1"}
+			}
+		},
+		{
+			"name": "gauge_dial",
+			"from": [2, 5, 5],
+			"to": [3, 9, 9],
+			"faces": {
+				"north": {"uv": [5, 4.5, 6, 4.75], "texture": "#1"},
+				"south": {"uv": [5, 4.5, 6, 4.75], "texture": "#1"},
+				"up": {"uv": [5, 4.5, 6, 4.75], "texture": "#1"},
+				"down": {"uv": [5, 4.5, 6, 4.75], "texture": "#1"},
+				"west": {"uv": [5, 4.75, 6, 5.75], "texture": "#1"}
+			}
+		},
+		{
+			"name": "valve_collar",
+			"from": [5, 5, 11],
+			"to": [11, 11, 15],
+			"faces": {
+				"east": {"uv": [6, 4.5, 7, 5.5], "texture": "#1"},
+				"south": {"uv": [6, 4.5, 7.5, 5.5], "texture": "#1"},
+				"west": {"uv": [6, 4.5, 7, 5.5], "texture": "#1"},
+				"up": {"uv": [6, 4.5, 7.5, 5], "texture": "#1"},
+				"down": {"uv": [6, 4.5, 7.5, 5], "texture": "#1"}
+			}
+		}
+	]
+}

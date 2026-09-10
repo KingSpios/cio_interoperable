@@ -1,0 +1,21 @@
+{
+  "neoforge:conditions": [
+    { "type": "neoforge:mod_loaded", "modid": "electroenergetics" }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "power_kit",
+  "key": {
+    "D": { "item": "electroenergetics:double_connector" },
+    "V": { "item": "electroenergetics:variac" }
+  },
+  "pattern": [
+    "DDD",
+    "VVV",
+    "DDD"
+  ],
+  "result": {
+    "count": 1,
+    "id": "createinteroperable:cee_deb_rectifier_tier4"
+  }
+}

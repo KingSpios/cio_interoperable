@@ -1,0 +1,62 @@
+{
+  "credit": "Create: Interoperable — CEE-end segment (3 of 3, placed at the south end of the row). Outward face (south, Z=16) carries the Electro Energetics node. Styled after ConnectorBlock's default 'short' model (a small core cube = the wire attach point, matching CEE's own connector.json 6,6,6-10,10,10 core-cube convention) rather than PG's box-terminal look, so the two ends read as visually distinct mods even though the housing between them is continuous.",
+  "texture_size": [16, 16],
+  "textures": {
+    "0": "createinteroperable:block/interoperable_end_cee",
+    "particle": "createinteroperable:block/interoperable_end_cee"
+  },
+  "elements": [
+    {
+      "name": "main_beam",
+      "from": [4, 4, 0],
+      "to": [12, 12, 16],
+      "faces": {
+        "north": { "uv": [4, 4, 12, 12], "texture": "#0" },
+        "south": { "uv": [4, 4, 12, 12], "texture": "#0" },
+        "east":  { "uv": [0, 4, 16, 12], "texture": "#0" },
+        "west":  { "uv": [0, 4, 16, 12], "texture": "#0" },
+        "up":    { "uv": [4, 0, 12, 16], "texture": "#0" },
+        "down":  { "uv": [4, 0, 12, 16], "texture": "#0" }
+      }
+    },
+    {
+      "name": "ridge_inner",
+      "from": [3, 3, 3],
+      "to": [13, 13, 5],
+      "faces": {
+        "north": { "uv": [3, 3, 13, 13], "texture": "#0" },
+        "south": { "uv": [3, 3, 13, 13], "texture": "#0" },
+        "east":  { "uv": [3, 3, 5, 13], "texture": "#0" },
+        "west":  { "uv": [3, 3, 5, 13], "texture": "#0" },
+        "up":    { "uv": [3, 3, 13, 5], "texture": "#0" },
+        "down":  { "uv": [3, 3, 13, 5], "texture": "#0" }
+      }
+    },
+    {
+      "name": "terminal_flange",
+      "from": [3, 3, 15],
+      "to": [13, 13, 16],
+      "faces": {
+        "north": { "uv": [3, 3, 13, 13], "texture": "#0" },
+        "south": { "uv": [3, 3, 13, 13], "texture": "#0" },
+        "east":  { "uv": [15, 3, 16, 13], "texture": "#0" },
+        "west":  { "uv": [15, 3, 16, 13], "texture": "#0" },
+        "up":    { "uv": [3, 15, 13, 16], "texture": "#0" },
+        "down":  { "uv": [3, 15, 13, 16], "texture": "#0" }
+      }
+    },
+    {
+      "name": "terminal_core",
+      "from": [6, 6, 16],
+      "to": [10, 10, 17],
+      "faces": {
+        "north": { "uv": [6, 6, 10, 10], "texture": "#0" },
+        "south": { "uv": [6, 6, 10, 10], "texture": "#0" },
+        "east":  { "uv": [0, 6, 1, 10], "texture": "#0" },
+        "west":  { "uv": [0, 6, 1, 10], "texture": "#0" },
+        "up":    { "uv": [6, 0, 10, 1], "texture": "#0" },
+        "down":  { "uv": [6, 0, 10, 1], "texture": "#0" }
+      }
+    }
+  ]
+}

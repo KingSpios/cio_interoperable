@@ -1,0 +1,214 @@
+{
+  "variants": {
+    "facing=north,color=blue": {
+      "model": "createinteroperable:block/telephone_blue"
+    },
+    "facing=north,color=white": {
+      "model": "createinteroperable:block/telephone_white"
+    },
+    "facing=north,color=gray": {
+      "model": "createinteroperable:block/telephone_grey"
+    },
+    "facing=north,color=red": {
+      "model": "createinteroperable:block/telephone_red"
+    },
+    "facing=north,color=cyan": {
+      "model": "createinteroperable:block/telephone_cyan"
+    },
+    "facing=north,color=green": {
+      "model": "createinteroperable:block/telephone_green"
+    },
+    "facing=north,color=yellow": {
+      "model": "createinteroperable:block/telephone_yellow"
+    },
+    "facing=north,color=black": {
+      "model": "createinteroperable:block/telephone_black"
+    },
+    "facing=north,color=pink": {
+      "model": "createinteroperable:block/telephone_pink"
+    },
+    "facing=north,color=purple": {
+      "model": "createinteroperable:block/telephone_purple"
+    },
+    "facing=north,color=orange": {
+      "model": "createinteroperable:block/telephone_orange"
+    },
+    "facing=north,color=brown": {
+      "model": "createinteroperable:block/telephone_brown"
+    },
+    "facing=north,color=lime": {
+      "model": "createinteroperable:block/telephone_lime"
+    },
+    "facing=north,color=magenta": {
+      "model": "createinteroperable:block/telephone_magenta"
+    },
+    "facing=east,color=blue": {
+      "model": "createinteroperable:block/telephone_blue",
+      "y": 90
+    },
+    "facing=east,color=white": {
+      "model": "createinteroperable:block/telephone_white",
+      "y": 90
+    },
+    "facing=east,color=gray": {
+      "model": "createinteroperable:block/telephone_grey",
+      "y": 90
+    },
+    "facing=east,color=red": {
+      "model": "createinteroperable:block/telephone_red",
+      "y": 90
+    },
+    "facing=east,color=cyan": {
+      "model": "createinteroperable:block/telephone_cyan",
+      "y": 90
+    },
+    "facing=east,color=green": {
+      "model": "createinteroperable:block/telephone_green",
+      "y": 90
+    },
+    "facing=east,color=yellow": {
+      "model": "createinteroperable:block/telephone_yellow",
+      "y": 90
+    },
+    "facing=east,color=black": {
+      "model": "createinteroperable:block/telephone_black",
+      "y": 90
+    },
+    "facing=east,color=pink": {
+      "model": "createinteroperable:block/telephone_pink",
+      "y": 90
+    },
+    "facing=east,color=purple": {
+      "model": "createinteroperable:block/telephone_purple",
+      "y": 90
+    },
+    "facing=east,color=orange": {
+      "model": "createinteroperable:block/telephone_orange",
+      "y": 90
+    },
+    "facing=east,color=brown": {
+      "model": "createinteroperable:block/telephone_brown",
+      "y": 90
+    },
+    "facing=east,color=lime": {
+      "model": "createinteroperable:block/telephone_lime",
+      "y": 90
+    },
+    "facing=east,color=magenta": {
+      "model": "createinteroperable:block/telephone_magenta",
+      "y": 90
+    },
+    "facing=south,color=blue": {
+      "model": "createinteroperable:block/telephone_blue",
+      "y": 180
+    },
+    "facing=south,color=white": {
+      "model": "createinteroperable:block/telephone_white",
+      "y": 180
+    },
+    "facing=south,color=gray": {
+      "model": "createinteroperable:block/telephone_grey",
+      "y": 180
+    },
+    "facing=south,color=red": {
+      "model": "createinteroperable:block/telephone_red",
+      "y": 180
+    },
+    "facing=south,color=cyan": {
+      "model": "createinteroperable:block/telephone_cyan",
+      "y": 180
+    },
+    "facing=south,color=green": {
+      "model": "createinteroperable:block/telephone_green",
+      "y": 180
+    },
+    "facing=south,color=yellow": {
+      "model": "createinteroperable:block/telephone_yellow",
+      "y": 180
+    },
+    "facing=south,color=black": {
+      "model": "createinteroperable:block/telephone_black",
+      "y": 180
+    },
+    "facing=south,color=pink": {
+      "model": "createinteroperable:block/telephone_pink",
+      "y": 180
+    },
+    "facing=south,color=purple": {
+      "model": "createinteroperable:block/telephone_purple",
+      "y": 180
+    },
+    "facing=south,color=orange": {
+      "model": "createinteroperable:block/telephone_orange",
+      "y": 180
+    },
+    "facing=south,color=brown": {
+      "model": "createinteroperable:block/telephone_brown",
+      "y": 180
+    },
+    "facing=south,color=lime": {
+      "model": "createinteroperable:block/telephone_lime",
+      "y": 180
+    },
+    "facing=south,color=magenta": {
+      "model": "createinteroperable:block/telephone_magenta",
+      "y": 180
+    },
+    "facing=west,color=blue": {
+      "model": "createinteroperable:block/telephone_blue",
+      "y": 270
+    },
+    "facing=west,color=white": {
+      "model": "createinteroperable:block/telephone_white",
+      "y": 270
+    },
+    "facing=west,color=gray": {
+      "model": "createinteroperable:block/telephone_grey",
+      "y": 270
+    },
+    "facing=west,color=red": {
+      "model": "createinteroperable:block/telephone_red",
+      "y": 270
+    },
+    "facing=west,color=cyan": {
+      "model": "createinteroperable:block/telephone_cyan",
+      "y": 270
+    },
+    "facing=west,color=green": {
+      "model": "createinteroperable:block/telephone_green",
+      "y": 270
+    },
+    "facing=west,color=yellow": {
+      "model": "createinteroperable:block/telephone_yellow",
+      "y": 270
+    },
+    "facing=west,color=black": {
+      "model": "createinteroperable:block/telephone_black",
+      "y": 270
+    },
+    "facing=west,color=pink": {
+      "model": "createinteroperable:block/telephone_pink",
+      "y": 270
+    },
+    "facing=west,color=purple": {
+      "model": "createinteroperable:block/telephone_purple",
+      "y": 270
+    },
+    "facing=west,color=orange": {
+      "model": "createinteroperable:block/telephone_orange",
+      "y": 270
+    },
+    "facing=west,color=brown": {
+      "model": "createinteroperable:block/telephone_brown",
+      "y": 270
+    },
+    "facing=west,color=lime": {
+      "model": "createinteroperable:block/telephone_lime",
+      "y": 270
+    },
+    "facing=west,color=magenta": {
+      "model": "createinteroperable:block/telephone_magenta",
+      "y": 270
+    }
+  }
+}

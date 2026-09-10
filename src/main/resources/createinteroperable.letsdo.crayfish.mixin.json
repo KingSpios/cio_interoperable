@@ -1,0 +1,16 @@
+{
+  "required": false,
+  "package": "com.cio.createinteroperable.mixin.letsdo",
+  "compatibilityLevel": "JAVA_21",
+  "plugin": "com.cio.createinteroperable.mixin.crayfish.CrayfishMixinPlugin",
+  "mixins": [
+    "GramophoneBlockEntityMixin",
+    "RadioBlockEntityMixin",
+    "MiniFridgeBlockEntityMixin",
+    "FancyCrafterBlockEntityMixin"
+  ],
+  "client": [
+    "GramophoneRendererMixin"
+  ],
+  "minVersion": "0.8"
+}

@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "facing=down": { "model": "createinteroperable:block/cio_connector" },
+    "facing=up": { "model": "createinteroperable:block/cio_connector", "x": 180 },
+    "facing=north": { "model": "createinteroperable:block/cio_connector", "x": 270 },
+    "facing=south": { "model": "createinteroperable:block/cio_connector", "x": 90 },
+    "facing=east": { "model": "createinteroperable:block/cio_connector", "x": 90, "y": 270 },
+    "facing=west": { "model": "createinteroperable:block/cio_connector", "x": 90, "y": 90 }
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "neoforge:conditions": [
+    { "type": "neoforge:mod_loaded", "modid": "powergrid" }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "power_kit",
+  "key": {
+    "H": { "item": "powergrid:heavy_wire_connector" },
+    "V": { "item": "powergrid:variac" }
+  },
+  "pattern": [
+    "HHH",
+    "VVV",
+    "HHH"
+  ],
+  "result": {
+    "count": 1,
+    "id": "createinteroperable:deb_rectifier_tier4"
+  }
+}

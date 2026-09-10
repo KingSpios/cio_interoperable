@@ -1,0 +1,22 @@
+{
+  "neoforge:conditions": [
+    { "type": "neoforge:mod_loaded", "modid": "electroenergetics" }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "power_kit",
+  "key": {
+    "C": { "item": "electroenergetics:connector" },
+    "T": { "item": "create:andesite_alloy" },
+    "P": { "item": "electroenergetics:potentiometer" }
+  },
+  "pattern": [
+    "CCC",
+    "TPT",
+    "CCC"
+  ],
+  "result": {
+    "count": 1,
+    "id": "createinteroperable:cee_deb_rectifier"
+  }
+}

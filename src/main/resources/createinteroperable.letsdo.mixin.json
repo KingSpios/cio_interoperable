@@ -1,0 +1,26 @@
+{
+  "required": false,
+  "package": "com.cio.createinteroperable.mixin.letsdo",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "FarmAndCharmSinkBlockMixin",
+    "AlpineWhispersBathtubBlockMixin",
+    "AlpineWhispersBathtubEntityMixin",
+    "AlpineFairyLightsBlockMixin",
+    "AnotherFurnitureLampBlockMixin",
+    "AnotherFurnitureLampToggleMixin",
+    "BibliocraftLampBlockMixin",
+    "LetsDoLampBlockMixin",
+    "LetsDoLampToggleMixin",
+    "GramophoneNodeMixin",
+    "GramophoneBlockMixin",
+    "RadioNodeMixin",
+    "RadioBlockMixin",
+    "MiniFridgeNodeMixin",
+    "MiniFridgeBlockMixin",
+    "FancyCrafterNodeMixin",
+    "BibliocraftLanternLightMixin"
+  ],
+  "client": [],
+  "minVersion": "0.8"
+}

@@ -1,0 +1,87 @@
+{
+  "credit": "pointer_east element of interoperable_coupler.json, split out for InteroperableCouplerRenderer",
+  "textures": {
+    "0": "createinteroperable:block/bridge_white",
+    "particle": "createinteroperable:block/bridge_white"
+  },
+  "elements": [
+    {
+      "name": "pointer_east",
+      "from": [
+        12.9,
+        0.5,
+        7.5
+      ],
+      "to": [
+        13,
+        16.5,
+        8.5
+      ],
+      "rotation": {
+        "angle": 0,
+        "axis": "x",
+        "origin": [
+          12.5,
+          3,
+          8
+        ]
+      },
+      "faces": {
+        "north": {
+          "uv": [
+            3,
+            0,
+            3.6,
+            7
+          ],
+          "texture": "#0"
+        },
+        "east": {
+          "uv": [
+            15.5,
+            0,
+            16,
+            7.5
+          ],
+          "texture": "#0"
+        },
+        "south": {
+          "uv": [
+            0.4,
+            0,
+            0.5,
+            7
+          ],
+          "texture": "#0"
+        },
+        "west": {
+          "uv": [
+            0,
+            0,
+            0.5,
+            7
+          ],
+          "texture": "#0"
+        },
+        "up": {
+          "uv": [
+            2.4,
+            8,
+            2.5,
+            8.5
+          ],
+          "texture": "#0"
+        },
+        "down": {
+          "uv": [
+            1.4,
+            0.5,
+            1.5,
+            1
+          ],
+          "texture": "#0"
+        }
+      }
+    }
+  ]
+}

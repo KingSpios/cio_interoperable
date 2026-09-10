@@ -1,0 +1,39 @@
+{
+  "variants": {
+    "facing=north,heat_level=cold,open=false": { "model": "createinteroperable:block/brass_heater/cold" },
+    "facing=north,heat_level=cold,open=true": { "model": "createinteroperable:block/brass_heater/cold" },
+    "facing=east,heat_level=cold,open=false": { "model": "createinteroperable:block/brass_heater/cold", "y": 90 },
+    "facing=east,heat_level=cold,open=true": { "model": "createinteroperable:block/brass_heater/cold", "y": 90 },
+    "facing=south,heat_level=cold,open=false": { "model": "createinteroperable:block/brass_heater/cold", "y": 180 },
+    "facing=south,heat_level=cold,open=true": { "model": "createinteroperable:block/brass_heater/cold", "y": 180 },
+    "facing=west,heat_level=cold,open=false": { "model": "createinteroperable:block/brass_heater/cold", "y": 270 },
+    "facing=west,heat_level=cold,open=true": { "model": "createinteroperable:block/brass_heater/cold", "y": 270 },
+
+    "facing=north,heat_level=warm,open=false": { "model": "createinteroperable:block/brass_heater/warm" },
+    "facing=north,heat_level=warm,open=true": { "model": "createinteroperable:block/brass_heater/warm" },
+    "facing=east,heat_level=warm,open=false": { "model": "createinteroperable:block/brass_heater/warm", "y": 90 },
+    "facing=east,heat_level=warm,open=true": { "model": "createinteroperable:block/brass_heater/warm", "y": 90 },
+    "facing=south,heat_level=warm,open=false": { "model": "createinteroperable:block/brass_heater/warm", "y": 180 },
+    "facing=south,heat_level=warm,open=true": { "model": "createinteroperable:block/brass_heater/warm", "y": 180 },
+    "facing=west,heat_level=warm,open=false": { "model": "createinteroperable:block/brass_heater/warm", "y": 270 },
+    "facing=west,heat_level=warm,open=true": { "model": "createinteroperable:block/brass_heater/warm", "y": 270 },
+
+    "facing=north,heat_level=hot,open=false": { "model": "createinteroperable:block/brass_heater/hot" },
+    "facing=north,heat_level=hot,open=true": { "model": "createinteroperable:block/brass_heater/hot" },
+    "facing=east,heat_level=hot,open=false": { "model": "createinteroperable:block/brass_heater/hot", "y": 90 },
+    "facing=east,heat_level=hot,open=true": { "model": "createinteroperable:block/brass_heater/hot", "y": 90 },
+    "facing=south,heat_level=hot,open=false": { "model": "createinteroperable:block/brass_heater/hot", "y": 180 },
+    "facing=south,heat_level=hot,open=true": { "model": "createinteroperable:block/brass_heater/hot", "y": 180 },
+    "facing=west,heat_level=hot,open=false": { "model": "createinteroperable:block/brass_heater/hot", "y": 270 },
+    "facing=west,heat_level=hot,open=true": { "model": "createinteroperable:block/brass_heater/hot", "y": 270 },
+
+    "facing=north,heat_level=blazing,open=false": { "model": "createinteroperable:block/brass_heater/blazing" },
+    "facing=north,heat_level=blazing,open=true": { "model": "createinteroperable:block/brass_heater/blazing" },
+    "facing=east,heat_level=blazing,open=false": { "model": "createinteroperable:block/brass_heater/blazing", "y": 90 },
+    "facing=east,heat_level=blazing,open=true": { "model": "createinteroperable:block/brass_heater/blazing", "y": 90 },
+    "facing=south,heat_level=blazing,open=false": { "model": "createinteroperable:block/brass_heater/blazing", "y": 180 },
+    "facing=south,heat_level=blazing,open=true": { "model": "createinteroperable:block/brass_heater/blazing", "y": 180 },
+    "facing=west,heat_level=blazing,open=false": { "model": "createinteroperable:block/brass_heater/blazing", "y": 270 },
+    "facing=west,heat_level=blazing,open=true": { "model": "createinteroperable:block/brass_heater/blazing", "y": 270 }
+  }
+}

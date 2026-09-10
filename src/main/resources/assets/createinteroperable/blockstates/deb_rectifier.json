@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "facing=north": { "model": "createinteroperable:block/deb_rectifier_tier_2" },
+    "facing=south": { "model": "createinteroperable:block/deb_rectifier_tier_2", "y": 180 },
+    "facing=east":  { "model": "createinteroperable:block/deb_rectifier_tier_2", "y": 90 },
+    "facing=west":  { "model": "createinteroperable:block/deb_rectifier_tier_2", "y": -90 },
+    "facing=down":  { "model": "createinteroperable:block/deb_rectifier_tier_2", "x": 90 },
+    "facing=up":    { "model": "createinteroperable:block/deb_rectifier_tier_2", "x": -90 }
+  }
+}

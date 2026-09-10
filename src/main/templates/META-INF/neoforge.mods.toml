@@ -1,0 +1,107 @@
+modLoader="javafml"
+loaderVersion="${loader_version_range}"
+license="${mod_license}"
+
+[[mods]]
+    modId="${mod_id}"
+    version="${mod_version}"
+    displayName="${mod_name}"
+    authors="${mod_authors}"
+    credits='''${mod_credits}'''
+    description='''${mod_description}'''
+
+[[mixins]]
+    config="createinteroperable.mixin.json"
+
+# Optional Let's Do (Farm & Charm / Alpine Whispers) sink + bathtub plumbing
+# integration. Name-targeted, non-required mixins in a required=false config —
+# a complete no-op when none of those mods are present, so Let's Do is never a
+# hard dependency (see com.cio.createinteroperable.letsdo).
+[[mixins]]
+    config="createinteroperable.letsdo.mixin.json"
+
+# The Crayfish-dependent slice of the Let's Do / Beachparty appliance
+# integration (gramophone / radio / mini-fridge become electricity consumers).
+# Same CrayfishMixinPlugin gate as below; a no-op without Refurbished Furniture.
+[[mixins]]
+    config="createinteroperable.letsdo.crayfish.mixin.json"
+
+# MrCrayfish's Refurbished Furniture electricity + water-fixture integration.
+# Every mixin here hard-references com.mrcrayfish.* and is disabled wholesale by
+# CrayfishMixinPlugin when Refurbished Furniture is absent, so Crayfish is a soft
+# (type="optional") dependency rather than a hard one.
+[[mixins]]
+    config="createinteroperable.crayfish.mixin.json"
+
+# Optional Create Train Navigator integration: a freestanding Advanced Display
+# only renders its texts while powered from a Domestic Electrical Board.
+# Name-targeted, non-required — a complete no-op without Create Train Navigator
+# (see com.cio.createinteroperable.mixin.crn).
+[[mixins]]
+    config="createinteroperable.crn.mixin.json"
+
+# The Crayfish-dependent slice of the Create Train Navigator display integration
+# (the display node also driven through Crayfish's own electricity graph + node
+# renderer). Same CrayfishMixinPlugin gate; a no-op without Refurbished Furniture.
+[[mixins]]
+    config="createinteroperable.crn.crayfish.mixin.json"
+
+[[dependencies.${mod_id}]]
+    modId="neoforge"
+    type="required"
+    versionRange="${neo_version_range}"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="minecraft"
+    type="required"
+    versionRange="${minecraft_version_range}"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="create"
+    type="required"
+    versionRange="${create_version_range}"
+    ordering="AFTER"
+    side="BOTH"
+
+# Soft dependency. Either Power Grid or Electro Energetics (or both) must be
+# present — "neither" is unsupported and logged loudly at construction
+# (CreateInteroperable) rather than supported. When present, this mod builds
+# real terminals/blocks/BlockEntities against Power Grid's API (see
+# com.cio.createinteroperable.compat.PowerGridCompat, checked at every
+# PG-coupled registration site). When absent, all of that is skipped and the
+# mod still loads for whatever Electro Energetics-only features it has.
+[[dependencies.${mod_id}]]
+    modId="powergrid"
+    type="optional"
+    versionRange="${power_grid_version_range}"
+    ordering="AFTER"
+    side="BOTH"
+
+# Soft dependency, mirroring Power Grid above (see
+# com.cio.createinteroperable.compat.ElectroEnergeticsCompat). When absent,
+# this mod's own SimulatedDeviceType registrations (CIODevices) are skipped
+# entirely rather than crashing at construction.
+[[dependencies.${mod_id}]]
+    modId="electroenergetics"
+    type="optional"
+    versionRange="${electro_energetics_version_range}"
+    ordering="AFTER"
+    side="BOTH"
+
+# Soft dependency. When present, the Domestic Electrical Board and every
+# third-party appliance/lamp integration run on Crayfish's own electricity node
+# graph, exactly as before (see com.cio.createinteroperable.mixin.crayfish and
+# the crayfish-gated half of com.cio.createinteroperable.deb). When absent, all
+# of that code is skipped (CrayfishMixinPlugin + com.cio.createinteroperable.grid
+# .CrayfishCompat) and the mod still loads for its Power Grid <-> Electro
+# Energetics bridging; a native appliance grid backend is Phase 2.
+[[dependencies.${mod_id}]]
+    modId="refurbished_furniture"
+    type="optional"
+    versionRange="${refurbished_furniture_version_range}"
+    ordering="AFTER"
+    side="BOTH"

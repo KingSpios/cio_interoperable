@@ -1,0 +1,22 @@
+{
+  "neoforge:conditions": [
+    { "type": "neoforge:mod_loaded", "modid": "powergrid" }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "power_kit",
+  "key": {
+    "W": { "item": "powergrid:wire_connector" },
+    "T": { "item": "create:andesite_alloy" },
+    "R": { "item": "powergrid:rheostat" }
+  },
+  "pattern": [
+    "WWW",
+    "TRT",
+    "WWW"
+  ],
+  "result": {
+    "count": 1,
+    "id": "createinteroperable:deb_rectifier"
+  }
+}

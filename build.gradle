@@ -1,0 +1,158 @@
+plugins {
+    id 'java-library'
+    id 'net.neoforged.moddev' version '2.0.89'
+    id 'idea'
+}
+
+version = mod_version
+group = mod_group_id
+
+base {
+    archivesName = mod_id
+}
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+
+neoForge {
+    version = project.neo_version
+
+    parchment {
+        mappingsVersion = project.parchment_mappings_version
+        minecraftVersion = project.parchment_minecraft_version
+    }
+
+    runs {
+        client {
+            client()
+            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+        }
+        server {
+            server()
+            programArgument '--nogui'
+            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+        }
+        data {
+            data()
+            programArguments.addAll '--mod', project.mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
+        }
+        configureEach {
+            systemProperty 'forge.logging.markers', 'REGISTRIES'
+            logLevel = org.slf4j.event.Level.DEBUG
+        }
+    }
+
+    mods {
+        "${mod_id}" {
+            sourceSet(sourceSets.main)
+        }
+    }
+}
+
+sourceSets.main.resources { srcDir 'src/generated/resources' }
+
+repositories {
+    // Create, Ponder, Flywheel
+    maven { url = "https://maven.createmod.net" }
+    // Architectury API — Power Grid's own neoforge.mods.toml on the
+    // architectury-1.21.1/dev branch declares this as a REQUIRED runtime
+    // mod dependency (confirmed by reading that file directly), so without
+    // it Power Grid itself refuses to load, silently breaking the bridge.
+    maven { url = "https://maven.architectury.dev/" }
+    // CurseForge-hosted mods that don't publish their own maven — used below
+    // for Power Grid and Create: Electro Energetics. Requires the CurseForge
+    // Maven Gradle plugin's terms; see https://cursemaven.com
+    maven { url = "https://cursemaven.com" }
+    // Modrinth's maven mirror, alternative source for the same jars
+    maven { url = "https://api.modrinth.com/maven" }
+}
+
+dependencies {
+    implementation("com.simibubi.create:create-${minecraft_version}:${create_version}:slim") { transitive = false }
+
+    // Create's SmartBlockEntity (which PG's own ElectricBlockEntity extends,
+    // and which our InteroperableBlockEntity extends transitively) reaches
+    // into Ponder's VirtualBlockEntity. transitive=false above means we have
+    // to pull this in ourselves — confirmed necessary by an actual compile
+    // failure ("class file for net.createmod.ponder.api.VirtualBlockEntity
+    // not found"), not just copied preemptively from CEE's build.gradle.
+    implementation("net.createmod.ponder:ponder-neoforge:${ponder_version}+mc${minecraft_version}")
+    // Not yet confirmed necessary by a compile error the way Ponder was —
+    // added preemptively since CEE's own build.gradle needs both together.
+    // If compilation succeeds without it, feel free to drop this line.
+    compileOnly("dev.engine-room.flywheel:flywheel-neoforge-api-${minecraft_version}:${flywheel_version}")
+
+    // Required at runtime by Power Grid (see repositories block above).
+    // Not something our own code compiles against directly — this is here
+    // purely so `runClient`/`runServer` don't fail with a missing-dependency
+    // screen when Power Grid is also present.
+    runtimeOnly "dev.architectury:architectury-neoforge:${architectury_api_version}"
+
+    // --- Power Grid ---------------------------------------------------
+    // Power Grid, project 1321420, file 8648636 = version 0.6.0.1 (NeoForge
+    // 1.21.1, uploaded 2026-08-14) — the newest published build, and close
+    // to the 0.6.1 architectury-1.21.1/dev HEAD this addon's code was
+    // verified against. implementation (not compileOnly) so Gradle actually
+    // puts it on the runClient/runServer classpath for local testing.
+    implementation "curse.maven:power-grid-1321420:8648636"
+
+    // --- Create: Electro Energetics ------------------------------------
+    // Project 1443327, file 8345582 = version 1.1.1 (NeoForge 1.21.1,
+    // uploaded 2026-06-30) — the newest published build. NOTE: the source
+    // this addon's code was verified against was the 1.21.1 git branch HEAD,
+    // whose gradle.properties reports mod_version 1.21.1-1.2.0 — i.e. ahead
+    // of this published 1.1.1 jar. SimpleElectricalDevice / BridgeCollector /
+    // SimulationResults are foundational classes unlikely to have shifted,
+    // but if compilation fails on a missing method, that version gap is the
+    // first thing to check.
+    implementation "curse.maven:create-electro-energetics-1443327:8345582"
+
+    // --- MrCrayfish's Furniture Mod: Refurbished ----------------------
+    // com.mrcrayfish.furniture.refurbished. Project 897116, file 7473565 =
+    // refurbished_furniture-neoforge-1.21.1-1.0.22.jar (NeoForge 1.21.1,
+    // uploaded 2026-01-17), the newest 1.21.1 NeoForge build. Hard dependency
+    // of the Domestic Electrical Board feature (com.cio.createinteroperable.deb):
+    // DebRectifierBlockEntity implements Crayfish's ISourceNode and the DEB
+    // reads the ElectricityGenerator's own appliance node graph. The multi-
+    // loader mod shades its `common` electricity package (IElectricityNode /
+    // ISourceNode / Connection / ElectricityTicker) into this NeoForge jar.
+    implementation "curse.maven:refurbished-furniture-897116:7473565"
+}
+
+var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {
+    var replaceProperties = [
+            minecraft_version               : minecraft_version,
+            minecraft_version_range         : minecraft_version_range,
+            neo_version                     : neo_version,
+            neo_version_range               : neo_version_range,
+            loader_version_range            : loader_version_range,
+            mod_id                          : mod_id,
+            mod_name                        : mod_name,
+            mod_license                     : mod_license,
+            mod_version                     : mod_version,
+            mod_authors                     : mod_authors,
+            mod_credits                     : mod_credits,
+            mod_description                 : mod_description,
+            create_version_range            : create_version_range,
+            power_grid_version_range        : power_grid_version_range,
+            electro_energetics_version_range: electro_energetics_version_range,
+            refurbished_furniture_version_range: refurbished_furniture_version_range
+    ]
+    inputs.properties replaceProperties
+    expand replaceProperties
+    from "src/main/templates"
+    into "build/generated/sources/modMetadata"
+}
+
+sourceSets.main.resources.srcDir generateModMetadata
+neoForge.ideSyncTask generateModMetadata
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+idea {
+    module {
+        downloadSources = true
+        downloadJavadoc = true
+    }
+}

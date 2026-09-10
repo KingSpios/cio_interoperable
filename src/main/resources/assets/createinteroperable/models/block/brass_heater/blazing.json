@@ -1,0 +1,7 @@
+{
+	"parent": "createinteroperable:block/brass_heater/cold",
+	"textures": {
+		"1": "createinteroperable:block/brass_heater",
+		"particle": "createinteroperable:block/brass_heater"
+	}
+}

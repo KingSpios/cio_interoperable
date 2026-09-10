@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=south": { "model": "createinteroperable:block/coupler" },
+    "facing=west":  { "model": "createinteroperable:block/coupler", "y": 90 },
+    "facing=north": { "model": "createinteroperable:block/coupler", "y": 180 },
+    "facing=east":  { "model": "createinteroperable:block/coupler", "y": 270 }
+  }
+}

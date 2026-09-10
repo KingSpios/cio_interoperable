@@ -1,0 +1,12 @@
+{
+  "required": false,
+  "package": "com.cio.createinteroperable.mixin.crn",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "CrnDisplayNodeMixin"
+  ],
+  "client": [
+    "CrnDisplayRenderMixin"
+  ],
+  "minVersion": "0.8"
+}

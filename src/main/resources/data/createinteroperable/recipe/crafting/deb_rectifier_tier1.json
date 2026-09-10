@@ -1,0 +1,22 @@
+{
+  "neoforge:conditions": [
+    { "type": "neoforge:mod_loaded", "modid": "powergrid" }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "power_kit",
+  "key": {
+    "W": { "item": "powergrid:wire_connector" },
+    "V": { "tag": "create:valve_handles" },
+    "R": { "item": "powergrid:rheostat" }
+  },
+  "pattern": [
+    "W W",
+    "VRV",
+    "W W"
+  ],
+  "result": {
+    "count": 1,
+    "id": "createinteroperable:deb_rectifier_tier1"
+  }
+}

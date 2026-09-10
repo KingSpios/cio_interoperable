@@ -1,0 +1,51 @@
+# Gradle
+.gradle/
+build/
+out/
+
+# Keep the wrapper jar
+!gradle/wrapper/gradle-wrapper.jar
+
+# Claude Code — transient/local state (the cio-context skill is kept)
+.claude/scheduled_tasks.lock
+.claude/settings.local.json
+
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+.settings/
+.classpath
+.project
+bin/
+.vscode/
+eclipse/
+
+# NeoForge / MDK run directories
+run/
+runs/
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Third-party mod sources kept locally for reference only
+z_reference_mods/
+
+# Local working assets — Blockbench project files etc., editable originals kept out of the repo
+z_working_assets/
+
+# Dev scratch resource pack
+resourcepack_example/
+
+# Sibling resource pack, tracked in its own repo
+texel_utopia/
+
+# Loose art / working sources at repo root — editable originals, not part of the built mod
+*.psd
+/*.bbmodel
+/minecraft_title_CIO.png
+/telephone_*.png
+/z_working_assets

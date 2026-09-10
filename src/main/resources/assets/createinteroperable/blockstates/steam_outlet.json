@@ -1,0 +1,12 @@
+{
+  "variants": {
+    "facing=north,open=false": { "model": "createinteroperable:block/steam_outlet" },
+    "facing=east,open=false": { "model": "createinteroperable:block/steam_outlet", "y": 90 },
+    "facing=south,open=false": { "model": "createinteroperable:block/steam_outlet", "y": 180 },
+    "facing=west,open=false": { "model": "createinteroperable:block/steam_outlet", "y": 270 },
+    "facing=north,open=true": { "model": "createinteroperable:block/steam_outlet" },
+    "facing=east,open=true": { "model": "createinteroperable:block/steam_outlet", "y": 90 },
+    "facing=south,open=true": { "model": "createinteroperable:block/steam_outlet", "y": 180 },
+    "facing=west,open=true": { "model": "createinteroperable:block/steam_outlet", "y": 270 }
+  }
+}

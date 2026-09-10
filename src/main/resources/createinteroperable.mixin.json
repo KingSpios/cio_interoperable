@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "package": "com.cio.createinteroperable.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "refmap": "createinteroperable.mixin-refmap.json",
+  "mixins": [
+    "ApplianceGridHolder",
+    "FluidTankBlockEntityAccessor",
+    "BoilerDataMixin",
+    "LampEmissiveMixin"
+  ],
+  "client": [],
+  "minVersion": "0.8"
+}

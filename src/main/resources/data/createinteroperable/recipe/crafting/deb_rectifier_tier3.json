@@ -1,0 +1,23 @@
+{
+  "neoforge:conditions": [
+    { "type": "neoforge:mod_loaded", "modid": "powergrid" }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "power_kit",
+  "key": {
+    "H": { "item": "powergrid:heavy_wire_connector" },
+    "W": { "item": "powergrid:wire_connector" },
+    "T": { "item": "create:andesite_alloy" },
+    "V": { "item": "powergrid:variac" }
+  },
+  "pattern": [
+    "HWH",
+    "TVT",
+    "HWH"
+  ],
+  "result": {
+    "count": 1,
+    "id": "createinteroperable:deb_rectifier_tier3"
+  }
+}

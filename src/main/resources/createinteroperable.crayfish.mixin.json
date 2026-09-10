@@ -1,0 +1,15 @@
+{
+  "required": false,
+  "package": "com.cio.createinteroperable.mixin.crayfish",
+  "compatibilityLevel": "JAVA_21",
+  "plugin": "com.cio.createinteroperable.mixin.crayfish.CrayfishMixinPlugin",
+  "mixins": [
+    "CeeDebSourceNodeMixin",
+    "DebSourceNodeMixin",
+    "IFluidContainerBlockMixin",
+    "LetsDoLampNodeMixin",
+    "RefurbishedFixtureTapMixin"
+  ],
+  "client": [],
+  "minVersion": "0.8"
+}

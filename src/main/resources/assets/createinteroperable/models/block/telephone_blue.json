@@ -1,0 +1,7 @@
+{
+	"parent": "createinteroperable:block/telephone",
+	"textures": {
+		"0": "createinteroperable:block/telephone_blue",
+		"particle": "createinteroperable:block/telephone_blue"
+	}
+}

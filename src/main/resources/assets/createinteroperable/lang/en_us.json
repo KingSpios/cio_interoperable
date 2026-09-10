@@ -1,0 +1,93 @@
+{
+  "itemGroup.createinteroperable": "Create: Interoperable",
+  "createinteroperable.direction": "Flow Direction",
+  "createinteroperable.coupler.direction": "Flow Direction",
+  "createinteroperable.coupler.mode.cpg_cee": "CPG ← CEE",
+  "createinteroperable.coupler.mode.off": "⎐ OFF",
+  "createinteroperable.coupler.mode.cee_cpg": "CEE → CPG",
+
+  "block.createinteroperable.pg_keystone": "Power Grid Keystone",
+  "block.createinteroperable.cee_keystone": "Electro Energetics Keystone",
+  "block.createinteroperable.filler": "Interoperable Filler",
+  "block.createinteroperable.pg_assembled": "Interoperable Transformer (Power Grid Side)",
+  "block.createinteroperable.cee_assembled": "Interoperable Transformer (Electro Energetics Side)",
+  "block.createinteroperable.core_assembled": "Interoperable Transformer (Core)",
+
+  "block.createinteroperable.core": "Interoperable Transformer Core",
+  "block.createinteroperable.small": "Interoperable Transformer",
+
+  "block.createinteroperable.coupler": "Interoperable Coupler",
+  "block.createinteroperable.double_coupler": "Grid Coupler",
+
+  "block.createinteroperable.double_coupler.tooltip": "Bridges a Power Grid circuit and an Electro Energetics circuit.",
+  "block.createinteroperable.double_coupler.tooltip.hold_shift": "Hold Shift for Details",
+  "block.createinteroperable.double_coupler.tooltip.detail_1": "3-way switch: CPG → CEE, Off, or CEE → CPG.",
+  "block.createinteroperable.double_coupler.tooltip.detail_2": "Only carries current one way at a time.",
+  "block.createinteroperable.double_coupler.tooltip.detail_3": "A load on the receiving side pulls back on the source grid.",
+  "block.createinteroperable.double_coupler.tooltip.detail_4": "Switching direction cuts transfer for a few seconds.",
+
+  "createinteroperable.goggle.coupler.flow": "Flow: %s",
+  "createinteroperable.goggle.coupler.status.transferring": "Transferring",
+  "createinteroperable.goggle.coupler.status.reversing": "Reversing…",
+  "createinteroperable.goggle.coupler.status.idle": "Ready (no load)",
+  "createinteroperable.goggle.coupler.status.off": "Off",
+  "createinteroperable.goggle.coupler.readout": "%1$s V  ·  %2$s A  (%3$s W)",
+  "createinteroperable.goggle.coupler.reflected": "Reflected load: %s Ω",
+
+  "block.createinteroperable.steam_outlet": "Steam Outlet",
+  "block.createinteroperable.brass_heater": "Brass Heater",
+
+  "block.createinteroperable.telephone": "Interoperable Telephone",
+  "block.createinteroperable.cpg_telephone": "CPG Telephone",
+  "block.createinteroperable.cee_telephone": "CEE Telephone",
+
+  "block.createinteroperable.cio_connector": "Connector",
+  "block.createinteroperable.cio_connector_glass": "Large Connector",
+
+  "block.createinteroperable.deb_rectifier_tier1": "CPG Improvised Power Kit",
+  "block.createinteroperable.deb_rectifier": "CPG Domestic Power Kit",
+  "block.createinteroperable.deb_rectifier_tier3": "CPG Commercial Power Kit",
+  "block.createinteroperable.deb_rectifier_tier4": "CPG Industrial Power Kit",
+  "block.createinteroperable.cee_deb_rectifier_tier1": "CEE Improvised Power Kit",
+  "block.createinteroperable.cee_deb_rectifier": "CEE Domestic Power Kit",
+  "block.createinteroperable.cee_deb_rectifier_tier3": "CEE Commercial Power Kit",
+  "block.createinteroperable.cee_deb_rectifier_tier4": "CEE Industrial Power Kit",
+  "block.createinteroperable.power_kit.serves": "Serves Mr. Crayfish's Appliances and others.",
+
+  "block.createinteroperable.redstone_switch": "Redstone Switch",
+  "block.createinteroperable.cee_redstone_switch": "CEE Redstone Switch",
+
+  "createinteroperable.goggle.redstone_switch.state": "Contacts: %s",
+  "createinteroperable.goggle.redstone_switch.open": "OPEN",
+  "createinteroperable.goggle.redstone_switch.closed": "CLOSED",
+  "createinteroperable.goggle.redstone_switch.override": "Manual hold (until redstone changes)",
+  "createinteroperable.goggle.redstone_switch.throughput": "Throughput: %1$s / %2$s",
+  "createinteroperable.goggle.redstone_switch.voltage": "Voltage: %s V",
+  "createinteroperable.goggle.redstone_switch.fault": "Overload fuse: %s to failure",
+  "createinteroperable.goggle.redstone_switch.temperature": "Contact temp: %1$s / %2$s",
+
+  "createinteroperable.goggle.power_kit.title": "Power Kit",
+  "createinteroperable.goggle.power_kit.intake": "Intake: %s V",
+  "createinteroperable.goggle.power_kit.wiring": "Wiring: %s",
+  "createinteroperable.goggle.power_kit.rail": "%1$s: %2$s",
+  "createinteroperable.goggle.power_kit.rail_value": "%1$s%%  (%2$s / %3$s W)%4$s",
+  "createinteroperable.goggle.power_kit.rail_detail": "  %1$s linked · %2$s W on Power Feed",
+  "createinteroperable.goggle.power_kit.bus": "%1$s bus: %2$s V",
+  "createinteroperable.goggle.power_kit.total": "Total draw: %s W",
+  "createinteroperable.goggle.power_kit.range": "Link range: %s blocks",
+  "createinteroperable.goggle.power_kit.fault": "Fault fuse: %s%% to failure",
+  "createinteroperable.goggle.power_kit.intake_mode": "Intake mode: %s",
+  "createinteroperable.goggle.power_kit.hv_feed": "HV Feed (%1$s): %2$s W",
+  "createinteroperable.goggle.power_kit.temperature": "Core temp: %1$s / %2$s °C",
+  "createinteroperable.goggle.power_kit.sneak_hint": "Hold Sneak for detail",
+  "createinteroperable.goggle.power_kit.rail_lv": "12 V",
+  "createinteroperable.goggle.power_kit.rail_mv": "120 V",
+  "createinteroperable.goggle.power_kit.state_overload": " OVERLOAD",
+  "createinteroperable.goggle.power_kit.state_brownout": " brownout",
+  "createinteroperable.goggle.power_kit.state_idle": " idle",
+
+  "fluid.createinteroperable.steam": "Steam",
+
+  "message.createinteroperable.fixture.no_supply": "No water supply connected to this fixture.",
+  "message.createinteroperable.fixture.dry": "The connected supply has no water."
+}

@@ -1,0 +1,15 @@
+{
+  "required": false,
+  "package": "com.cio.createinteroperable.mixin.crn",
+  "compatibilityLevel": "JAVA_21",
+  "plugin": "com.cio.createinteroperable.mixin.crayfish.CrayfishMixinPlugin",
+  "mixins": [
+    "CrnDisplayCrayfishMixin",
+    "CrnWrenchNodeClickMixin",
+    "CreateWrenchEventBypassMixin"
+  ],
+  "client": [
+    "CrnDisplayNodeRendererMixin"
+  ],
+  "minVersion": "0.8"
+}
