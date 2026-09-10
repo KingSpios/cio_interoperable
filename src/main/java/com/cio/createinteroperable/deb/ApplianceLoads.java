@@ -4,6 +4,7 @@ import com.mrcrayfish.furniture.refurbished.blockentity.IHomeControlDevice;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.neoforged.fml.ModList;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -95,6 +96,26 @@ public final class ApplianceLoads {
         // com.cio.createinteroperable.mixin.crn.CrnDisplayNodeMixin); contraption
         // displays are left alone.
         put("createrailwaysnavigator", "advanced_display_block_entity", Pool.LV, 8);
+
+        // WaterFrames displays — STOP-GAP integration, only meaningful when the
+        // third-party `waterframes_refurbished_compat` jar is installed. That jar
+        // makes WaterFrames' DisplayTile a Crayfish IElectricityNode (so it can
+        // be wrench-linked to the DEB) but ships no load figures, so the board
+        // never recognised or energised it. These rows are exactly that missing
+        // table: rail + rated watts, keyed by WaterFrames' five BE type ids
+        // (each display block registers its own type). Billed whenever linked
+        // (a display has no "off" switch and isn't a MeteredAppliance from a
+        // foreign jar). Gated on the compat jar so a future first-party
+        // WaterFrames integration can't double-count; harmless dead rows
+        // otherwise since nothing else makes those BEs nodes. Wattages are
+        // alpha guesses anchored to the Crayfish television (8 W, 12 V).
+        if (ModList.get() != null && ModList.get().isLoaded("waterframes_refurbished_compat")) {
+            put("waterframes", "frame",     Pool.LV, 6);
+            put("waterframes", "tv",        Pool.LV, 8);
+            put("waterframes", "tv_box",    Pool.LV, 8);
+            put("waterframes", "projector", Pool.LV, 10);
+            put("waterframes", "big_tv",    Pool.LV, 12);
+        }
     }
 
     private static void put(String beTypePath, Pool pool, double watts) {
