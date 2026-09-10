@@ -28,9 +28,11 @@ import java.util.Set;
  * Refurbished Furniture is installed ({@code CrayfishMixinPlugin}).
  *
  * <p>{@link #imn$moduleTick} is overridden (rather than left to {@code
- * IModuleNode}'s default) so the controller's whole-panel power aggregation in
+ * IModuleNode}'s default) so the board-wide power flood-fill in
  * {@link CrnDisplayNodeMixin#reconcileAppliancePower()} runs under the Crayfish
- * backend too &mdash; the same shape as {@code LetsDoLampNodeMixin}.</p>
+ * backend too &mdash; the same shape as {@code LetsDoLampNodeMixin}.
+ * {@link #imn$isNodeInPowerableNetwork()} is likewise overridden so Crayfish's
+ * look-at "Missing power" label follows that same board-wide verdict.</p>
  */
 @Mixin(targets = "de.mrjulsen.crn.block.blockentity.AdvancedDisplayBlockEntity")
 @Implements(@Interface(iface = IModuleNode.class, prefix = "imn$"))
@@ -66,6 +68,22 @@ public abstract class CrnDisplayCrayfishMixin {
 
     /** Share the {@link com.cio.createinteroperable.grid.ApplianceNode} half's box &mdash; pushed proud of the screen so it clears the opaque panel. */
     public AABB imn$getNodeInteractBox() { return cioCf$node().applianceNodeBox(); }
+
+    /**
+     * Crayfish's {@code NodeIndicatorOverlay} shows the look-at "Missing power"
+     * label whenever the targeted node's {@code isNodeInPowerableNetwork()} is
+     * false, and the {@code IElectricityNode} default reads
+     * {@code getPowerSources()} &mdash; which the source only fills for nodes it
+     * reaches <em>by wire</em>. On a CRN board that is just the block(s) the
+     * player actually wired, so every other member of a genuinely-powered board
+     * still showed "Missing power" on look-at. Report the whole board as
+     * networked whenever it is powered &mdash; the board-wide verdict from
+     * {@link CrnDisplayNodeMixin#reconcileAppliancePower()} &mdash; while
+     * keeping the stock wire-reachability test for anything it already covers.
+     */
+    public boolean imn$isNodeInPowerableNetwork() {
+        return !this.cioCf$sources.isEmpty() || cioCf$node().appliancePowered();
+    }
 
     /** Crayfish's {@code ElectricityTicker} calls this every tick for every module node. */
     public void imn$moduleTick(Level level) {
