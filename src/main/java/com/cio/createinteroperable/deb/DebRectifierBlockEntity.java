@@ -101,6 +101,8 @@ public class DebRectifierBlockEntity extends ElectricBlockEntity implements Appl
     private boolean nodePowered;
     /** Native appliance-grid links (Crayfish's adapter carries its own set when it is active). */
     private final java.util.Set<com.cio.createinteroperable.grid.GridConnection> applianceConnections = new java.util.HashSet<>();
+    /** True while the backend's last scan found another board sharing this network. See {@link ApplianceSource#setNetworkConflict}. */
+    private boolean networkConflict;
 
     // --- PG circuit (assigned in buildCircuit) --------------------------
     /** The single grid feed. */
@@ -616,6 +618,16 @@ public class DebRectifierBlockEntity extends ElectricBlockEntity implements Appl
         return railLive[pool.ordinal()];
     }
 
+    @Override
+    public void setNetworkConflict(boolean conflict) {
+        this.networkConflict = conflict;
+    }
+
+    @Override
+    public boolean sourceHasNetworkConflict() {
+        return networkConflict;
+    }
+
     /** Whichever backend distributes power reports its per-pool link tally here each server tick. */
     @Override
     public void reportLinkedAppliances(double[] wattsByPool, int[] countByPool) {
@@ -709,6 +721,12 @@ public class DebRectifierBlockEntity extends ElectricBlockEntity implements Appl
                         Component.literal("CPG").withStyle(ChatFormatting.AQUA)))
                 .style(ChatFormatting.GRAY)
                 .forGoggles(tooltip, 1);
+
+        if (networkConflict) {
+            CreateLang.builder()
+                    .add(Component.translatable(GK + "network_conflict").withStyle(ChatFormatting.RED, ChatFormatting.BOLD))
+                    .forGoggles(tooltip, 1);
+        }
 
         if (isPlayerSneaking) {
             CreateLang.builder()
@@ -829,6 +847,7 @@ public class DebRectifierBlockEntity extends ElectricBlockEntity implements Appl
         }
         faultTicks = tag.getInt("FaultTicks");
         temperatureC = tag.getFloat("TemperatureC");
+        networkConflict = tag.getBoolean("NetworkConflict");
         if (!com.cio.createinteroperable.grid.CrayfishCompat.present()) {
             readApplianceNbt(tag);
         }
@@ -848,6 +867,7 @@ public class DebRectifierBlockEntity extends ElectricBlockEntity implements Appl
         }
         tag.putInt("FaultTicks", faultTicks);
         tag.putFloat("TemperatureC", temperatureC);
+        tag.putBoolean("NetworkConflict", networkConflict);
         if (!com.cio.createinteroperable.grid.CrayfishCompat.present()) {
             writeApplianceNbt(tag);
         }

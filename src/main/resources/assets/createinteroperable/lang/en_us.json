@@ -69,6 +69,7 @@
   "createinteroperable.goggle.power_kit.title": "Power Kit",
   "createinteroperable.goggle.power_kit.intake": "Intake: %s V",
   "createinteroperable.goggle.power_kit.wiring": "Wiring: %s",
+  "createinteroperable.goggle.power_kit.network_conflict": "Network conflict: another board shares this appliance network. Not supplying power.",
   "createinteroperable.goggle.power_kit.rail": "%1$s: %2$s",
   "createinteroperable.goggle.power_kit.rail_value": "%1$s%%  (%2$s / %3$s W)%4$s",
   "createinteroperable.goggle.power_kit.rail_detail": "  %1$s linked · %2$s W on Power Feed",

@@ -49,6 +49,23 @@ public interface ApplianceSource extends ApplianceNode {
     }
 
     /**
+     * Backend &rarr; board, once per server tick: true when another
+     * {@code ApplianceSource} board ({@link #isApplianceSource()}) is reachable
+     * on this exact physical network. While true the backend bills nothing and
+     * energises nothing through it (see {@link #distributeAppliancePower()} /
+     * {@code DebSourceNodeMixin#isn$earlyNodeTick}) instead of guessing how to
+     * split the load &mdash; two boards sharing one network would otherwise each
+     * independently believe they alone supply every downstream appliance and
+     * silently double-bill the same load. Boards are meant to serve disjoint
+     * parts of a build; this turns an accidental shared network into a visible,
+     * inert state (surfaced on the goggle tooltip) instead of a silent bug.
+     */
+    void setNetworkConflict(boolean conflict);
+
+    /** Last value reported by {@link #setNetworkConflict}. Client-safe once synced by the board. */
+    boolean sourceHasNetworkConflict();
+
+    /**
      * One server-tick distribution pass for the native grid: walk the connected
      * network, split recognised appliances by pool, bill the drawing ones, report
      * the tally back, and raise {@code receivingPower} on every appliance whose
@@ -61,6 +78,24 @@ public interface ApplianceSource extends ApplianceNode {
         }
         pruneApplianceConnections();
         int poolCount = Pool.values().length;
+
+        // Is another board reachable ANYWHERE on this physical network,
+        // regardless of range? Checked unbounded (not the range-limited
+        // billing pass below) since the conflict is a property of the shared
+        // wiring itself, not of either board's own service radius.
+        boolean conflict = false;
+        for (ApplianceNode node : searchApplianceNetwork(256, false, null)) {
+            if (node != this && node.isApplianceSource()) {
+                conflict = true;
+                break;
+            }
+        }
+        setNetworkConflict(conflict);
+        if (conflict) {
+            reportLinkedAppliances(new double[poolCount], new int[poolCount]);
+            return;
+        }
+
         List<List<ApplianceNode>> byPool = new java.util.ArrayList<>(poolCount);
         for (int i = 0; i < poolCount; i++) {
             byPool.add(new java.util.ArrayList<>());
