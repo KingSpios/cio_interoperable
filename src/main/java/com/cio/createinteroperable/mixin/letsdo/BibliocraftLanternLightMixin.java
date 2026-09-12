@@ -65,6 +65,14 @@ public abstract class BibliocraftLanternLightMixin {
 
     @Inject(method = "getLightEmission()I", at = @At("RETURN"), cancellable = true, require = 0)
     private void cio$capFancyLanternLight(CallbackInfoReturnable<Integer> cir) {
+        // Block/BlockState construction (and thus this getter) can run during
+        // registry setup, before NeoForge has loaded configs — e.g. Amendments'
+        // WallLanternBlock constructor queries light emission at construction
+        // time. Reading CIOConfig this early throws
+        // "Cannot get config value before config is loaded.", so bail until it is.
+        if (!CIOConfig.SPEC.isLoaded()) {
+            return;
+        }
         if (cir.getReturnValue() > SOUL_LANTERN_LIGHT
                 && CIOConfig.BIBLIOCRAFT_LANTERN_LIGHT_CAP.get()
                 && cio$isFancyLantern(((BlockState) (Object) this).getBlock())) {
