@@ -71,6 +71,8 @@ public class CeeDebRectifierBlockEntity extends SmartBlockEntity implements Appl
     // --- appliance-grid bookkeeping ------------------------------------
     private boolean nodePowered;
     private final java.util.Set<com.cio.createinteroperable.grid.GridConnection> applianceConnections = new java.util.HashSet<>();
+    /** True while the backend's last scan found another board sharing this network. See {@link ApplianceSource#setNetworkConflict}. */
+    private boolean networkConflict;
 
     // --- CEE grid port ---------------------------------------------------
     /** This kit's Electro Energetics device; {@code null} until first looked up. */
@@ -457,6 +459,16 @@ public class CeeDebRectifierBlockEntity extends SmartBlockEntity implements Appl
     }
 
     @Override
+    public void setNetworkConflict(boolean conflict) {
+        this.networkConflict = conflict;
+    }
+
+    @Override
+    public boolean sourceHasNetworkConflict() {
+        return networkConflict;
+    }
+
+    @Override
     public void reportLinkedAppliances(double[] wattsByPool, int[] countByPool) {
         System.arraycopy(wattsByPool, 0, linkedWatts, 0, linkedWatts.length);
         System.arraycopy(countByPool, 0, linkedCount, 0, linkedCount.length);
@@ -515,6 +527,12 @@ public class CeeDebRectifierBlockEntity extends SmartBlockEntity implements Appl
                         Component.literal("CEE").withStyle(ChatFormatting.AQUA)))
                 .style(ChatFormatting.GRAY)
                 .forGoggles(tooltip, 1);
+
+        if (networkConflict) {
+            CreateLang.builder()
+                    .add(Component.translatable(GK + "network_conflict").withStyle(ChatFormatting.RED, ChatFormatting.BOLD))
+                    .forGoggles(tooltip, 1);
+        }
 
         if (isPlayerSneaking) {
             CreateLang.builder()
@@ -630,6 +648,7 @@ public class CeeDebRectifierBlockEntity extends SmartBlockEntity implements Appl
         }
         faultTicks = tag.getInt("FaultTicks");
         temperatureC = tag.getFloat("TemperatureC");
+        networkConflict = tag.getBoolean("NetworkConflict");
         if (!com.cio.createinteroperable.grid.CrayfishCompat.present()) {
             readApplianceNbt(tag);
         }
@@ -649,6 +668,7 @@ public class CeeDebRectifierBlockEntity extends SmartBlockEntity implements Appl
         }
         tag.putInt("FaultTicks", faultTicks);
         tag.putFloat("TemperatureC", temperatureC);
+        tag.putBoolean("NetworkConflict", networkConflict);
         if (!com.cio.createinteroperable.grid.CrayfishCompat.present()) {
             writeApplianceNbt(tag);
         }

@@ -17,13 +17,14 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.ArrayDeque;
 import java.util.HashSet;
+import java.util.Queue;
 import java.util.Set;
 
 /**
@@ -38,11 +39,13 @@ import java.util.Set;
  * <p>Every display block entity carries this (Create Train Navigator uses one
  * block-entity type for every display shape and every board size). Power is
  * aggregated across a board: wiring <em>any</em> one block of a multi-block
- * display powers the whole panel &mdash; {@link #reconcileAppliancePower()} on
- * the controller walks its own {@code width}&times;{@code height} footprint and
- * lights up if any member's node is powered. This is deliberately independent of
- * which block is currently the controller, so extending or rebuilding a wired
- * board never dark-screens it.</p>
+ * display powers the whole panel &mdash; each block's
+ * {@link #reconcileAppliancePower()} floods its own connected display cluster
+ * ({@link #cioNode$clusterHasDirectFeed()}) and lights itself if any member has
+ * a live DEB feed. There is no controller / corner logic: every block reaches
+ * the same verdict from the same cluster and self-heals every tick, so which
+ * nub was wired, where the controller sits, and rebuilding a wired board all
+ * stop mattering.</p>
  *
  * <p>Always applied when Create Train Navigator is present. With Refurbished
  * Furniture <em>also</em> present, {@link CrnDisplayCrayfishMixin} bolts
@@ -53,9 +56,6 @@ import java.util.Set;
  */
 @Mixin(targets = "de.mrjulsen.crn.block.blockentity.AdvancedDisplayBlockEntity")
 public abstract class CrnDisplayNodeMixin implements ApplianceNode {
-
-    /** Create Train Navigator's own "this block owns the multiblock" flag. */
-    @Shadow private boolean isController;
 
     @Unique private final Set<GridConnection> cioNode$conns = new HashSet<>();
     @Unique private boolean cioNode$powered;
@@ -153,23 +153,26 @@ public abstract class CrnDisplayNodeMixin implements ApplianceNode {
         this.cioNode$receiving = receiving;
     }
 
-    /** Sticky "a live DEB rail is reaching this exact block" &mdash; what the controller polls across the panel. */
+    /** Sticky "a live DEB rail is reaching this exact block" &mdash; OR'd across the whole board so any one wired nub lights all of it. */
     @Override
     public boolean applianceDirectlyFed() {
         return this.cioNode$fedTicks <= 3;
     }
 
     /**
-     * A Create Train Navigator display is a rectangle of blocks that share one
-     * {@code isController} block, and only blocks the player actually wired get
-     * {@code receiving} from the DEB. So: every block tracks its own direct feed
-     * ({@link #cioNode$fedTicks}); the <b>controller</b> then decides the whole
-     * panel's power from any block being fed and writes that verdict onto every
-     * member, so the "no power" overlay clears on the unwired blocks too. The
-     * controller is the sole writer of a member's {@code powered} flag (no
-     * feedback loop &mdash; it only ever reads members' <em>direct</em> feed,
-     * never their mirrored state); an orphaned directly-fed block still lights
-     * itself if no controller is loaded to do it.
+     * A Create Train Navigator display is a connected cluster of blocks (one
+     * block type, one facing, face-adjacent), and only the blocks the player
+     * actually wired get {@code receiving} from the DEB. Every block tracks its
+     * own direct feed ({@link #cioNode$fedTicks}); then <b>every</b> block
+     * &mdash; controller or not &mdash; independently sets its own
+     * {@code powered} from "does any block in my cluster have a direct feed
+     * right now" ({@link #cioNode$clusterHasDirectFeed()}). No controller /
+     * corner assumptions, no cross-block writes: each node self-heals from the
+     * cluster every tick, so wiring one nub powers the whole board and the "no
+     * power" overlay clears on the unwired blocks too, whichever nub was chosen
+     * and wherever the controller happens to sit. Runs under both backends
+     * (Crayfish's {@code ElectricityTicker} and the native {@code ApplianceGrid}
+     * both call this on every registered node).
      */
     @Override
     public void reconcileAppliancePower() {
@@ -179,62 +182,60 @@ public abstract class CrnDisplayNodeMixin implements ApplianceNode {
             this.cioNode$fedTicks++;
         }
 
-        if (!this.isController) {
-            if (applianceDirectlyFed() && !this.cioNode$powered) {
-                setAppliancePowered(true);
-            }
-            return;
+        boolean powered = cioNode$clusterHasDirectFeed();
+        if (this.cioNode$powered != powered) {
+            setAppliancePowered(powered);
         }
-
-        boolean[] panelPowered = { false };
-        cioNode$forEachPanelNode(node -> panelPowered[0] |= node.applianceDirectlyFed());
-        boolean powered = panelPowered[0];
-        cioNode$forEachPanelNode(node -> {
-            if (node.appliancePowered() != powered) {
-                node.setAppliancePowered(powered);
-            }
-        });
     }
 
     /**
-     * Visit every appliance node in the controller's panel &mdash; walk its
-     * {@code counter-clockwise x down} footprint (the shape
-     * {@code IMultiblockBlockEntity#applyToAll} uses), same block + same facing,
-     * bounded by Create Train Navigator's 16&times;16 maximum, stopping at the
-     * first gap in each direction. Includes the controller itself.
+     * Breadth-first flood over this block's connected display cluster &mdash;
+     * face-adjacent blocks of the same block and same {@code FACING}, bounded by
+     * Create Train Navigator's 16&times;16 board maximum (256 cells) &mdash;
+     * returning true as soon as any member reports {@link #applianceDirectlyFed()}.
+     * Adjacency is the four in-plane directions (screen up/down and the two
+     * in-plane horizontals); the display normal is skipped so a board can't
+     * "power through" a wall to another board stuck to its back.
      */
     @Unique
-    private void cioNode$forEachPanelNode(java.util.function.Consumer<ApplianceNode> action) {
+    private boolean cioNode$clusterHasDirectFeed() {
         BlockEntity self = cioNode$be();
         Level level = self.getLevel();
         BlockState state = self.getBlockState();
         if (level == null || !state.hasProperty(HorizontalDirectionalBlock.FACING)) {
-            action.accept((ApplianceNode) (Object) this);
-            return;
+            return applianceDirectlyFed();
         }
         Block block = state.getBlock();
         Direction facing = state.getValue(HorizontalDirectionalBlock.FACING);
-        Direction left = facing.getCounterClockWise();
-        BlockPos origin = self.getBlockPos();
-        for (int x = 0; x < 16; x++) {
-            BlockPos column = origin.relative(left, x);
-            BlockState cs = level.getBlockState(column);
-            if (x > 0 && (!cs.is(block) || cs.getValue(HorizontalDirectionalBlock.FACING) != facing)) {
-                break;
+        Direction horizontal = facing.getClockWise();
+        Direction[] dirs = {
+                Direction.UP, Direction.DOWN, horizontal, horizontal.getOpposite()
+        };
+        Set<BlockPos> seen = new HashSet<>();
+        Queue<BlockPos> queue = new ArrayDeque<>();
+        BlockPos start = self.getBlockPos();
+        seen.add(start);
+        queue.add(start);
+        while (!queue.isEmpty() && seen.size() <= 256) {
+            BlockPos pos = queue.poll();
+            if (level.getBlockEntity(pos) instanceof ApplianceNode node && node.applianceDirectlyFed()) {
+                return true;
             }
-            for (int y = 0; y < 16; y++) {
-                BlockPos pos = column.below(y);
-                if (!(x == 0 && y == 0)) {
-                    BlockState ps = level.getBlockState(pos);
-                    if (!ps.is(block) || ps.getValue(HorizontalDirectionalBlock.FACING) != facing) {
-                        break;
-                    }
+            for (Direction d : dirs) {
+                BlockPos next = pos.relative(d);
+                if (seen.contains(next)) {
+                    continue;
                 }
-                if (level.getBlockEntity(pos) instanceof ApplianceNode node) {
-                    action.accept(node);
+                BlockState ns = level.getBlockState(next);
+                if (!ns.is(block) || !ns.hasProperty(HorizontalDirectionalBlock.FACING)
+                        || ns.getValue(HorizontalDirectionalBlock.FACING) != facing) {
+                    continue;
                 }
+                seen.add(next);
+                queue.add(next);
             }
         }
+        return false;
     }
 
     // --- native registration ------------------------------------------

@@ -134,6 +134,24 @@ public abstract class DebSourceNodeMixin {
         }
 
         int poolCount = Pool.values().length;
+
+        // Crayfish's own searchNodeNetwork() deliberately excludes (and never
+        // traverses past) any other ISourceNode -- confirmed by decompiling
+        // ISourceNode's real lambdas, which filter both the include- and the
+        // traverse-predicate on !isSourceNode(). That means the loop below,
+        // which only ever sees searchNodeNetwork()'s *filtered* results, can
+        // never observe another board -- it's designed out of that list on
+        // purpose, so one source's distribution pass never reaches into
+        // another source's own territory. Detecting a shared network
+        // therefore needs a raw walk of the actual connection graph first,
+        // ignoring that filtering.
+        boolean conflict = cio$networkHasOtherSource();
+        be.setNetworkConflict(conflict);
+        if (conflict) {
+            be.reportLinkedAppliances(new double[poolCount], new int[poolCount]);
+            return;
+        }
+
         List<List<IElectricityNode>> nodesByPool = new ArrayList<>(poolCount);
         for (int i = 0; i < poolCount; i++) {
             nodesByPool.add(new ArrayList<>());
@@ -144,10 +162,14 @@ public abstract class DebSourceNodeMixin {
         int range = be.sourceRangeBlocks();
         BlockPos origin = be.getBlockPos();
         for (IElectricityNode node : this.cio$node().searchNodeNetwork(false).nodes()) {
+            BlockEntity owner = node.getNodeOwner();
+            if (owner == be) {
+                continue;
+            }
             if (!cio$withinRange(origin, node.getNodePosition(), range)) {
                 continue;
             }
-            ApplianceLoads.Spec spec = ApplianceLoads.lookup(node.getNodeOwner());
+            ApplianceLoads.Spec spec = ApplianceLoads.lookup(owner);
             if (spec == null) {
                 continue;
             }
@@ -155,7 +177,7 @@ public abstract class DebSourceNodeMixin {
             nodesByPool.get(i).add(node);
             // Keep switched-off appliances energised (so they work the moment
             // they're turned on) but don't bill their load until they are.
-            if (ApplianceLoads.isDrawingPower(node.getNodeOwner())) {
+            if (ApplianceLoads.isDrawingPower(owner)) {
                 watts[i] += spec.watts();
             }
         }
@@ -171,6 +193,37 @@ public abstract class DebSourceNodeMixin {
                 }
             }
         }
+    }
+
+    /**
+     * Raw BFS over the actual {@code Connection} graph (bypassing
+     * {@code searchNodeNetwork()}'s source-excluding filter entirely) to
+     * answer one question: is another {@code ApplianceSource} board reachable
+     * anywhere on this physical network at all? Bounded the same way the
+     * native backend's own network walk is ({@code ApplianceNode#searchApplianceNetwork}).
+     */
+    @Unique
+    private boolean cio$networkHasOtherSource() {
+        IElectricityNode self = this.cio$node();
+        Set<BlockPos> seen = new HashSet<>();
+        seen.add(self.getNodePosition());
+        java.util.Deque<IElectricityNode> queue = new java.util.ArrayDeque<>();
+        queue.add(self);
+        int maxNodes = 256;
+        while (!queue.isEmpty() && seen.size() < maxNodes) {
+            IElectricityNode current = queue.poll();
+            for (Connection conn : current.getNodeConnections()) {
+                IElectricityNode next = conn.getOtherNode(current);
+                if (next == null || !seen.add(next.getNodePosition())) {
+                    continue;
+                }
+                if (next.getNodeOwner() instanceof com.cio.createinteroperable.grid.ApplianceNode an && an.isApplianceSource()) {
+                    return true;
+                }
+                queue.add(next);
+            }
+        }
+        return false;
     }
 
     @Unique
