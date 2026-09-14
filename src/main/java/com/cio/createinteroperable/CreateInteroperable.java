@@ -1,5 +1,7 @@
 package com.cio.createinteroperable;
 
+import com.cio.createinteroperable.compat.ColdSweatCompat;
+import com.cio.createinteroperable.compat.ColdSweatIntegration;
 import com.cio.createinteroperable.compat.ElectroEnergeticsCompat;
 import com.cio.createinteroperable.compat.PowerGridCompat;
 import com.mojang.logging.LogUtils;
@@ -25,6 +27,8 @@ public class CreateInteroperable {
 
         CIOConfig.register(modContainer);
         CIOFluids.register(modEventBus);
+        CIOParticles.register(modEventBus);
+        CIOOpenPipeEffects.register(modEventBus);
         CIOBlocks.register(modEventBus);
         CIOBlockEntities.register(modEventBus);
         CIOItems.register(modEventBus);
@@ -35,6 +39,15 @@ public class CreateInteroperable {
             CIODevices.register(modEventBus);
         }
         CIOCreativeTab.register(modEventBus);
+
+        // See ColdSweatIntegration's own doc for why this is a runtime
+        // present()-gated call rather than @EventBusSubscriber: that
+        // annotation would let NeoForge's classpath scanner load the class
+        // (and touch Cold-Sweat-only types in its method signatures)
+        // unconditionally, which throws on a Cold-Sweat-absent install.
+        if (ColdSweatCompat.present()) {
+            ColdSweatIntegration.register();
+        }
     }
 
     public static ResourceLocation rl(String path) {

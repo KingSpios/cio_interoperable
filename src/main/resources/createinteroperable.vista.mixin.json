@@ -1,0 +1,10 @@
+{
+  "required": false,
+  "package": "com.cio.createinteroperable.mixin.vista",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "VistaTvNodeMixin",
+    "VistaTvBlockMixin"
+  ],
+  "minVersion": "0.8"
+}

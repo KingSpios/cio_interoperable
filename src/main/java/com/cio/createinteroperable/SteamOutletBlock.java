@@ -21,8 +21,9 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+
+import java.util.Map;
 
 /**
  * Sits ONLY directly on top of a Create Fluid Tank (never on its side) —
@@ -42,7 +43,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
  * BrassHeaterBlock does, since the tank side of the placement decision is
  * gone.
  * <p>
- * The shaft (see #hasShaftTowards, on the FACING-opposite face) drives a
+ * The shaft (see #hasShaftTowards, on the FACING face itself) drives a
  * real fluid valve (see {@link #OPEN}, and SteamOutletBlockEntity#pointer):
  * spin it one direction and it opens, the other direction and it closes,
  * exactly like Create's own FluidValveBlock. This only gates whether the
@@ -65,7 +66,18 @@ public class SteamOutletBlock extends KineticBlock implements IBE<SteamOutletBlo
      */
     public static final BooleanProperty OPEN = BooleanProperty.create("open");
 
-    private static final VoxelShape SHAPE = Shapes.block();
+    /**
+     * Derived from the real {@code steam_outlet.json} geometry rather than a
+     * full-cube placeholder: mounting_plate is a near-full slab, the housing
+     * + pipe_connector column is narrower (x3-13,z3-13), and shaft_plug pokes
+     * out a bit further toward FACING (down to z=2 in the model's own
+     * FACING=NORTH default orientation) than the housing does. Authored at
+     * FACING=NORTH and rotated per-facing via ShapeRotation.
+     */
+    private static final Map<Direction, VoxelShape> SHAPES = ShapeRotation.forHorizontalFacing(
+            new ShapeRotation.Box(1, 0, 1, 15, 2, 15),       // mounting_plate
+            new ShapeRotation.Box(3, 2, 3, 13, 16, 13),      // housing + pipe_connector_up column
+            new ShapeRotation.Box(5, 5.9, 2, 11, 11.9, 6));  // shaft_plug (pokes 1 voxel past the housing toward FACING)
 
     public SteamOutletBlock(Properties properties) {
         super(properties);
@@ -89,7 +101,7 @@ public class SteamOutletBlock extends KineticBlock implements IBE<SteamOutletBlo
 
     @Override
     public boolean hasShaftTowards(LevelReader world, BlockPos pos, BlockState state, Direction face) {
-        return face == state.getValue(FACING).getOpposite();
+        return face == state.getValue(FACING);
     }
 
     @Override
@@ -112,7 +124,7 @@ public class SteamOutletBlock extends KineticBlock implements IBE<SteamOutletBlo
             BlockState neighbor = context.getLevel().getBlockState(context.getClickedPos().relative(side));
             if (neighbor.getBlock() instanceof IRotate rotate
                     && rotate.hasShaftTowards(context.getLevel(), context.getClickedPos().relative(side), neighbor, side.getOpposite())) {
-                return defaultBlockState().setValue(FACING, side.getOpposite());
+                return defaultBlockState().setValue(FACING, side);
             }
         }
         return defaultBlockState().setValue(FACING, context.getHorizontalDirection());
@@ -152,7 +164,13 @@ public class SteamOutletBlock extends KineticBlock implements IBE<SteamOutletBlo
     @Override
     public VoxelShape getShape(BlockState state, net.minecraft.world.level.BlockGetter level, BlockPos pos,
                                 CollisionContext context) {
-        return SHAPE;
+        return SHAPES.get(state.getValue(FACING));
+    }
+
+    @Override
+    public VoxelShape getCollisionShape(BlockState state, net.minecraft.world.level.BlockGetter level, BlockPos pos,
+                                         CollisionContext context) {
+        return SHAPES.get(state.getValue(FACING));
     }
 
     @Override

@@ -24,10 +24,12 @@ import net.neoforged.neoforge.registries.DeferredRegister;
  * displayItems list rather than a registry scan.
  *
  * Icon is the Domestic Power Kit (DEB_RECTIFIER on PG, CEE_DEB_RECTIFIER as
- * the CEE-only fallback) — CORE used to be the icon, but the whole
- * Transformer/Coupler/connector "bridge extras" family is disabled (see
- * CIOBlocks.BRIDGE_EXTRAS): only the Grid (Double) Coupler, the three
- * Telephone variants, and the DEB/Power Kit family are real, current content.
+ * the CEE-only fallback, STEAM_OUTLET if neither grid mod is present) — CORE
+ * used to be the icon, but the whole Transformer/Coupler/connector "bridge
+ * extras" family is disabled (see CIOBlocks.BRIDGE_EXTRAS): real, current
+ * content is the Steam Outlet + Brass Heater (grid-independent, always
+ * shown), the Grid (Double) Coupler, the three Telephone variants, and the
+ * DEB/Power Kit family.
  */
 public class CIOCreativeTab {
     private static final DeferredRegister<CreativeModeTab> REGISTER =
@@ -41,6 +43,10 @@ public class CIOCreativeTab {
                     .displayItems((params, output) -> {
                         boolean pg = PowerGridCompat.present();
                         boolean cee = ElectroEnergeticsCompat.present();
+                        output.accept(CIOItems.STEAM_OUTLET.get());
+                        output.accept(CIOItems.BRASS_HEATER.get());
+                        output.accept(CIOItems.RADIATOR_VALVE_NORTH.get());
+                        output.accept(CIOItems.RADIATOR_VALVE_SOUTH.get());
                         if (pg && cee) {
                             output.accept(CIOItems.DOUBLE_COUPLER.get());
                             output.accept(CIOItems.TELEPHONE.get());

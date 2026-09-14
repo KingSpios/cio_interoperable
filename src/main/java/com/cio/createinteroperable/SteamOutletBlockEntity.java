@@ -1,5 +1,10 @@
 package com.cio.createinteroperable;
 
+import com.cio.createinteroperable.compat.ColdSweatCompat;
+import com.cio.createinteroperable.compat.ColdSweatWarmthEffect;
+import com.simibubi.create.AllSoundEvents;
+import com.simibubi.create.api.stress.BlockStressValues;
+import com.simibubi.create.content.fluids.tank.BoilerData;
 import com.simibubi.create.content.fluids.tank.FluidTankBlockEntity;
 import com.simibubi.create.content.kinetics.base.KineticBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
@@ -11,11 +16,19 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
@@ -48,7 +61,7 @@ import java.util.List;
  * purely local: whether this block's own internal buffer actually receives
  * newly produced steam and can hand it to the pipe network below.
  * <p>
- * The shaft on the back face (see SteamOutletBlock#hasShaftTowards) drives a
+ * The shaft on the FACING face (see SteamOutletBlock#hasShaftTowards) drives a
  * real analog valve, not a binary on/off: spinning it one direction chases
  * {@link #pointer} toward 1 (fully open), the other direction chases it
  * toward 0 (fully closed). Stop spinning partway and it just stops there —
@@ -59,8 +72,6 @@ import java.util.List;
  * blockstate/model — it plays no part in the actual math.
  */
 public class SteamOutletBlockEntity extends KineticBlockEntity {
-    /** mB of steam produced per tick at 100% engine efficiency while the valve is open. Tunable. */
-    private static final int STEAM_PER_TICK_AT_FULL_EFFICIENCY = 25;
     private static final int TANK_CAPACITY_MB = 4000;
 
     private final FluidTank steamTank = new FluidTank(TANK_CAPACITY_MB) {
@@ -97,6 +108,17 @@ public class SteamOutletBlockEntity extends KineticBlockEntity {
         super.onSpeedChanged(previousSpeed);
         pointer.chase(getSpeed() > 0 ? 1 : 0, getChaseSpeed(), Chaser.LINEAR);
         pointer.forceNextSync();
+        // A real Steam Engine puff, played once per genuine speed change (this
+        // is only ever called when Create's own kinetic network actually
+        // recalculates a different speed for this shaft — not every tick) —
+        // server-broadcast via AllSoundEvents#play (NOT #playAt, which calls
+        // Level#playLocalSound and is a client-only no-op on a real server)
+        // so it's heard once by everyone nearby, not double-played by both
+        // sides independently predicting the same event.
+        if (level != null && !level.isClientSide) {
+            AllSoundEvents.STEAM.play(level, null, worldPosition, 0.6f,
+                    0.9f + level.random.nextFloat() * 0.2f);
+        }
     }
 
     /** Same tuning Create's own FluidValveBlockEntity uses: faster spin flips the valve faster. */
@@ -109,12 +131,7 @@ public class SteamOutletBlockEntity extends KineticBlockEntity {
         super.tick();
         pointer.tickChaser();
 
-        if (level == null) {
-            return;
-        }
-
-        if (level.isClientSide) {
-            tickVentParticles();
+        if (level == null || level.isClientSide) {
             return;
         }
 
@@ -131,55 +148,163 @@ public class SteamOutletBlockEntity extends KineticBlockEntity {
         }
 
         float valvePosition = pointer.getValue();
-        if (valvePosition <= 0) {
-            return;
+        if (valvePosition > 0) {
+            FluidTankBlockEntity controller = getBoilerController();
+            if (controller != null) {
+                double availablePerTick = availableSteamPerTick(controller);
+                int produced = (int) Math.round(availablePerTick * valvePosition);
+                if (produced > 0) {
+                    steamTank.fill(new FluidStack(CIOFluids.STEAM_STILL.get(), produced), IFluidHandler.FluidAction.EXECUTE);
+                }
+            }
         }
 
-        FluidTankBlockEntity controller = getBoilerController();
-        if (controller == null || controller.boiler == null || !controller.boiler.isActive()) {
-            return;
+        if (level instanceof ServerLevel serverLevel) {
+            tickLeakParticles(serverLevel, shouldBeOpen);
         }
-
-        float efficiency = Mth.clamp(controller.boiler.getEngineEfficiency(controller.getTotalTankSize()), 0, 1);
-        if (efficiency <= 0) {
-            return;
-        }
-
-        int produced = Math.round(efficiency * valvePosition * STEAM_PER_TICK_AT_FULL_EFFICIENCY);
-        if (produced <= 0) {
-            return;
-        }
-
-        steamTank.fill(new FluidStack(CIOFluids.STEAM_STILL.get(), produced), IFluidHandler.FluidAction.EXECUTE);
     }
 
     /**
-     * Client-only visual: puffs of white smoke while the valve is open and
-     * there's actually steam being vented — both the OPEN blockstate and the
-     * tank's contents are already synced to the client via normal block
-     * update/BE-sync packets, so no extra networking is needed. Loosely
-     * modeled on how Create's own OpenEndedPipe reacts to fluid escaping into
-     * open air, but done as a simple standalone puff rather than hooking
-     * Create's OpenPipeEffectHandler registry (that registry is for
-     * server-side world effects like extinguishing fire, not a particle
-     * system, and Create's real fluid-particle helpers are a much heavier
-     * dependency than a plain vanilla smoke puff needs).
+     * The real total SU a Steam Engine attached to this exact boiler would
+     * generate right now, mapped 1:1 to mB of steam per tick at 100% valve —
+     * literally the same formula Create's own boiler goggle tooltip shows as
+     * "Capacity Provided" (see {@code BoilerData#addToGoggleTooltip}, read
+     * directly rather than re-derived by guesswork):
+     * <pre>
+     * totalSU = efficiency * 16 * max(boilerLevel, attachedEngines) * steamEngineCapacity
+     * </pre>
+     * where {@code boilerLevel} is the boiler's actual (heat/water/size-capped)
+     * heat tier and {@code steamEngineCapacity} is
+     * {@link BlockStressValues#getCapacity} for the real Steam Engine block —
+     * queried live, not hardcoded, so this tracks any datapack change to that
+     * value automatically. Divided by {@code attachedEngines} (which counts
+     * THIS block too, via BoilerDataMixin) so multiple Outlets/Engines sharing
+     * one boiler split its total output instead of each independently
+     * claiming the whole thing.
      */
-    private void tickVentParticles() {
-        BlockState state = getBlockState();
-        if (!(state.getBlock() instanceof SteamOutletBlock)) {
+    /**
+     * Looked up by resource location straight from the vanilla block registry
+     * rather than Create's own {@code AllBlocks.STEAM_ENGINE} (a Registrate
+     * {@code BlockEntry}) — {@code create-slim} (this project's compile-time
+     * Create dependency, see build.gradle) strips Registrate's own classes
+     * out entirely, confirmed by a real compile failure ("class file for
+     * com.tterrag.registrate.util.entry.BlockEntry not found") the moment
+     * this called {@code AllBlocks.STEAM_ENGINE.get()} directly. A plain
+     * registry lookup needs nothing beyond vanilla's own {@code Block} type,
+     * sidestepping the whole issue instead of adding Registrate as a new
+     * dependency just for one field access.
+     */
+    private static final ResourceLocation STEAM_ENGINE_ID = ResourceLocation.fromNamespaceAndPath("create", "steam_engine");
+
+    private static double availableSteamPerTick(FluidTankBlockEntity controller) {
+        BoilerData boiler = controller.boiler;
+        if (boiler == null || !boiler.isActive() || boiler.attachedEngines <= 0) {
+            return 0;
+        }
+        int boilerSize = controller.getTotalTankSize();
+        float efficiency = Mth.clamp(boiler.getEngineEfficiency(boilerSize), 0, 1);
+        if (efficiency <= 0) {
+            return 0;
+        }
+        int boilerLevel = Math.min(boiler.activeHeat,
+                Math.min(boiler.getMaxHeatLevelForWaterSupply(), boiler.getMaxHeatLevelForBoilerSize(boilerSize)));
+        Block steamEngine = BuiltInRegistries.BLOCK.get(STEAM_ENGINE_ID);
+        double totalSU = efficiency * 16 * Math.max(boilerLevel, boiler.attachedEngines)
+                * BlockStressValues.getCapacity(steamEngine);
+        return totalSU / boiler.attachedEngines;
+    }
+
+    /**
+     * @return whether more Outlets/Engines are attached to this boiler than
+     * its current heat tier can fully power at once — the real Create
+     * condition behind {@code getEngineEfficiency} falling below 100% (each
+     * one only gets an {@code actualHeat / attachedEngines} share instead of
+     * the full amount) — i.e. demand for engine "slots" exceeding what the
+     * boiler's heat can supply, the steam-side equivalent of an overstressed
+     * kinetic network.
+     */
+    private static boolean isOverstressed(FluidTankBlockEntity controller) {
+        BoilerData boiler = controller.boiler;
+        if (boiler == null || !boiler.isActive() || boiler.activeHeat <= 0) {
+            return false;
+        }
+        int boilerSize = controller.getTotalTankSize();
+        int actualHeat = Math.min(boiler.activeHeat,
+                Math.min(boiler.getMaxHeatLevelForWaterSupply(), boiler.getMaxHeatLevelForBoilerSize(boilerSize)));
+        return boiler.attachedEngines > actualHeat;
+    }
+
+    /** Same cadence/density as the Multi Radiator's BLAZING puffs (see RadiatorValveNorthBlockEntity), 25% faster rise — this is just the visual throttle; the actual steam LOSS below runs every tick. */
+    private static final int LEAK_INTERVAL_TICKS = 8;
+    private static final double LEAK_RISE_SPEED = 0.025;
+    /**
+     * A leaking, unconnected outlet genuinely bleeds its buffer at this rate
+     * — not just a cosmetic puff. Kept at the same 2:1 ratio over the
+     * Radiator's own new base throughput (24 mB/t, see
+     * RadiatorValveNorthBlockEntity — both were rescaled together to match
+     * real Create pipe throughput, {@code max(1, pumpRPM / 2)} mB/t, instead
+     * of the original numbers which assumed 512+ RPM pumps).
+     */
+    private static final int LEAK_DRAIN_MB_PER_TICK = 48;
+
+    /** How strongly (and how long) a leak point warms anyone standing right on it — reapplied every {@link #LEAK_INTERVAL_TICKS}, so the duration only needs a little slack over that. */
+    private static final int LEAK_WARMTH_AMPLIFIER = 1;
+    private static final int LEAK_WARMTH_DURATION_TICKS = 20;
+    /** How far from the leak point "standing on it" reaches. */
+    private static final double LEAK_WARMTH_RADIUS = 2.0;
+
+    /**
+     * Runs every tick (not just on the particle cadence) while the valve is
+     * open, there's actually buffered steam, AND nothing on the output face
+     * (UP — see {@link #getSteamHandler}) will take it: high-pressure steam
+     * venting straight to atmosphere with nowhere to go actually drains this
+     * block's own buffer at {@link #LEAK_DRAIN_MB_PER_TICK} — previously this
+     * was purely cosmetic (the tank just silently discarded whatever
+     * overflowed past its capacity with no real consequence). The particle
+     * puff (same {@code CIOParticles#RADIATOR_SMOKE} white campfire-style
+     * particle as the Radiator's HOT/BLAZING tiers, at BLAZING's exact
+     * density but 25% faster rise) and the warmth effect stay on the slower
+     * {@link #LEAK_INTERVAL_TICKS} cadence purely for visual/entity-scan cost.
+     */
+    private void tickLeakParticles(ServerLevel serverLevel, boolean valveOpen) {
+        if (!valveOpen || steamTank.getFluidAmount() <= 0 || isConnectedAbove()) {
             return;
         }
-        if (!state.getValue(SteamOutletBlock.OPEN) || steamTank.getFluidAmount() <= 0) {
+        steamTank.drain(LEAK_DRAIN_MB_PER_TICK, IFluidHandler.FluidAction.EXECUTE);
+        if ((serverLevel.getGameTime() + worldPosition.hashCode()) % LEAK_INTERVAL_TICKS != 0) {
             return;
         }
-        if (level.random.nextInt(6) != 0) {
-            return;
+        // Steam leaking into a water-filled space bubbles instead of smoking —
+        // checked at the block directly above (the output face — see
+        // getSteamHandler/isConnectedAbove), which is where it's actually
+        // escaping to.
+        BlockPos leakPos = worldPosition.above();
+        boolean underwater = serverLevel.getFluidState(leakPos).is(FluidTags.WATER);
+        int count = 2 + serverLevel.random.nextInt(3);
+        for (int i = 0; i < count; i++) {
+            double x = worldPosition.getX() + 0.5 + (serverLevel.random.nextDouble() - 0.5) * 0.4;
+            double y = worldPosition.getY() + 0.9;
+            double z = worldPosition.getZ() + 0.5 + (serverLevel.random.nextDouble() - 0.5) * 0.4;
+            serverLevel.sendParticles(underwater ? ParticleTypes.BUBBLE : CIOParticles.RADIATOR_SMOKE.get(),
+                    x, y, z, 0, 0.0, LEAK_RISE_SPEED, 0.0, 1.0);
         }
-        double x = worldPosition.getX() + 0.5 + (level.random.nextDouble() - 0.5) * 0.4;
-        double y = worldPosition.getY() + 0.9;
-        double z = worldPosition.getZ() + 0.5 + (level.random.nextDouble() - 0.5) * 0.4;
-        level.addParticle(ParticleTypes.WHITE_SMOKE, x, y, z, 0, 0.02, 0);
+        if (ColdSweatCompat.present()) {
+            applyLeakWarmth(serverLevel, leakPos);
+        }
+    }
+
+    /** Warms whoever's standing right on the leak — same real Cold Sweat WARMTH effect the Radiator's Hearth-style mechanic uses (see ColdSweatWarmthEffect), just localized to this one spot instead of a whole room. */
+    private static void applyLeakWarmth(ServerLevel serverLevel, BlockPos leakPos) {
+        AABB area = new AABB(leakPos).inflate(LEAK_WARMTH_RADIUS);
+        for (LivingEntity entity : serverLevel.getEntitiesOfClass(LivingEntity.class, area)) {
+            ColdSweatWarmthEffect.apply(entity, LEAK_WARMTH_AMPLIFIER, LEAK_WARMTH_DURATION_TICKS);
+        }
+    }
+
+    /** @return whether something on the UP face (a pipe, a pump) would actually accept this block's steam. */
+    private boolean isConnectedAbove() {
+        IFluidHandler handler = level.getCapability(Capabilities.FluidHandler.BLOCK, worldPosition.above(), Direction.DOWN);
+        return handler != null;
     }
 
     @Nullable
@@ -240,7 +365,15 @@ public class SteamOutletBlockEntity extends KineticBlockEntity {
                             .style(ChatFormatting.GOLD))
                     .forGoggles(tooltip, 1);
 
-            int output = Math.round(efficiency * pointer.getValue() * STEAM_PER_TICK_AT_FULL_EFFICIENCY);
+            double availablePerTick = availableSteamPerTick(controller);
+            CreateLang.text("Available: ")
+                    .style(ChatFormatting.GRAY)
+                    .add(CreateLang.number(Math.round(availablePerTick))
+                            .text(" SU / mB/t")
+                            .style(ChatFormatting.AQUA))
+                    .forGoggles(tooltip, 1);
+
+            int output = (int) Math.round(availablePerTick * pointer.getValue());
             boolean bufferFull = steamTank.getFluidAmount() >= steamTank.getCapacity();
             CreateLang.text("Output: ")
                     .style(ChatFormatting.GRAY)
@@ -248,6 +381,13 @@ public class SteamOutletBlockEntity extends KineticBlockEntity {
                             .text(" mB/t" + (bufferFull ? "  (buffer full)" : ""))
                             .style(bufferFull ? ChatFormatting.RED : ChatFormatting.AQUA))
                     .forGoggles(tooltip, 1);
+
+            if (isOverstressed(controller)) {
+                CreateLang.text("Overstressed: ")
+                        .style(ChatFormatting.RED)
+                        .add(CreateLang.text("too many engines for this boiler's heat").style(ChatFormatting.RED))
+                        .forGoggles(tooltip, 1);
+            }
         }
 
         CreateLang.text("Valve: ")

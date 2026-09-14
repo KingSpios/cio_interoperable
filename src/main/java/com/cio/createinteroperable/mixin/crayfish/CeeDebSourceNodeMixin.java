@@ -177,7 +177,7 @@ public abstract class CeeDebSourceNodeMixin {
             // Keep switched-off appliances energised (so they work the moment
             // they're turned on) but don't bill their load until they are.
             if (ApplianceLoads.isDrawingPower(owner)) {
-                watts[i] += spec.watts();
+                watts[i] += ApplianceLoads.effectiveWatts(owner, spec);
             }
         }
         for (int i = 0; i < poolCount; i++) {

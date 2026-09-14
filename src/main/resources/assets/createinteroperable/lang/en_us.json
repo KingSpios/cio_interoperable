@@ -36,6 +36,10 @@
 
   "block.createinteroperable.steam_outlet": "Steam Outlet",
   "block.createinteroperable.brass_heater": "Brass Heater",
+  "block.createinteroperable.multi_radiator_north": "Steam Hearth Inlet",
+  "block.createinteroperable.multi_radiator_south": "Water Outlet",
+  "block.createinteroperable.multi_radiator_middle": "Steam Hearth Radiator",
+  "block.createinteroperable.multi_radiator.tooltip": "Works like a Cold Sweat Hearth when powered by steam.",
 
   "block.createinteroperable.telephone": "Interoperable Telephone",
   "block.createinteroperable.cpg_telephone": "CPG Telephone",

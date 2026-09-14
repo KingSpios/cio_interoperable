@@ -1,0 +1,10 @@
+{
+  "required": false,
+  "package": "com.cio.createinteroperable.mixin.coldsweat",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "WorldHelperMixin"
+  ],
+  "client": [],
+  "minVersion": "0.8"
+}

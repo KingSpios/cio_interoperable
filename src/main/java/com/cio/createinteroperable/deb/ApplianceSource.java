@@ -127,7 +127,7 @@ public interface ApplianceSource extends ApplianceNode {
             int i = spec.pool().ordinal();
             byPool.get(i).add(node);
             if (ApplianceLoads.isDrawingPower(node.applianceOwner())) {
-                watts[i] += spec.watts();
+                watts[i] += ApplianceLoads.effectiveWatts(node.applianceOwner(), spec);
             }
         }
         for (int i = 0; i < poolCount; i++) {

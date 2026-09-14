@@ -116,6 +116,16 @@ dependencies {
     // loader mod shades its `common` electricity package (IElectricityNode /
     // ISourceNode / Connection / ElectricityTicker) into this NeoForge jar.
     implementation "curse.maven:refurbished-furniture-897116:7473565"
+
+    // --- Cold Sweat -----------------------------------------------------
+    // com.momosoftworks.coldsweat, mod id "cold_sweat". Soft (optional)
+    // dependency — see ColdSweatCompat/ColdSweatIntegration and the note in
+    // gradle.properties on why this is real Java registration (via the
+    // public BlockTempRegisterEvent), not a datapack JSON. Fetched from
+    // Modrinth's maven (already in the repositories block above); version id
+    // a4MuLEBd = 2.4.2 for NeoForge/MC 1.21.1, matching the exact jar this
+    // addon's code was verified against.
+    implementation "maven.modrinth:cold-sweat:a4MuLEBd"
 }
 
 var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {
@@ -135,7 +145,8 @@ var generateModMetadata = tasks.register("generateModMetadata", ProcessResources
             create_version_range            : create_version_range,
             power_grid_version_range        : power_grid_version_range,
             electro_energetics_version_range: electro_energetics_version_range,
-            refurbished_furniture_version_range: refurbished_furniture_version_range
+            refurbished_furniture_version_range: refurbished_furniture_version_range,
+            cold_sweat_version_range        : cold_sweat_version_range
     ]
     inputs.properties replaceProperties
     expand replaceProperties

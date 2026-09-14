@@ -97,6 +97,11 @@ public final class ApplianceLoads {
         // displays are left alone.
         put("createrailwaysnavigator", "advanced_display_block_entity", Pool.LV, 8);
 
+        // Vista (cameramod)'s TV, keyed by a base per-tile rating (one TVBlock
+        // implements ScalableAppliance so a grown NxN connected wall bills
+        // n^2 * this, see com.cio.createinteroperable.mixin.vista).
+        put("vista", "tv", Pool.LV, 8);
+
         // WaterFrames displays — STOP-GAP integration, only meaningful when the
         // third-party `waterframes_refurbished_compat` jar is installed. That jar
         // makes WaterFrames' DisplayTile a Crayfish IElectricityNode (so it can
@@ -133,6 +138,17 @@ public final class ApplianceLoads {
         }
         ResourceLocation id = BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(be.getType());
         return id == null ? null : SPECS.get(id);
+    }
+
+    /**
+     * {@code spec}'s base watts, scaled by {@link ScalableAppliance#cio$loadScale()}
+     * when {@code be} implements it (e.g. a Vista TV wall billing n&sup2; times
+     * its per-tile rating). Every appliance that doesn't implement it bills the
+     * flat {@code spec.watts()}, unchanged.
+     */
+    public static double effectiveWatts(BlockEntity be, Spec spec) {
+        double scale = be instanceof ScalableAppliance scalable ? scalable.cio$loadScale() : 1.0;
+        return spec.watts() * scale;
     }
 
     /**

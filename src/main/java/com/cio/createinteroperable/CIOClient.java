@@ -13,6 +13,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 
 /**
  * Client-only rendering registration for the Brass Heater's and Steam
@@ -90,6 +91,11 @@ public class CIOClient {
         if (CrayfishCompat.present()) {
             CrayfishClient.registerApplianceNodeRenderers(event);
         }
+    }
+
+    @SubscribeEvent
+    static void registerParticles(RegisterParticleProvidersEvent event) {
+        event.registerSpriteSet(CIOParticles.RADIATOR_SMOKE.get(), RadiatorSmokeParticle.Provider::new);
     }
 
     @SubscribeEvent

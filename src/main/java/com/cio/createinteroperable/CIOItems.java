@@ -52,6 +52,16 @@ public class CIOItems {
     public static final DeferredItem<BlockItem> BRASS_HEATER = ITEMS.registerSimpleBlockItem(
             "brass_heater", CIOBlocks.BRASS_HEATER);
 
+    // Multi Radiator — only the two end caps are player-placed; the middle
+    // segment is only ever produced by wrenching a valid run (see
+    // RadiatorAssembly), same "no item" precedent as the real multiblock's
+    // own assembled-only positions.
+    public static final DeferredItem<BlockItem> RADIATOR_VALVE_NORTH = ITEMS.registerSimpleBlockItem(
+            "multi_radiator_north", CIOBlocks.RADIATOR_VALVE_NORTH);
+
+    public static final DeferredItem<BlockItem> RADIATOR_VALVE_SOUTH = ITEMS.registerSimpleBlockItem(
+            "multi_radiator_south", CIOBlocks.RADIATOR_VALVE_SOUTH);
+
     // --- Telephone — Interoperable (both), CPG-only, CEE-only ---
 
     public static final DeferredItem<BlockItem> TELEPHONE = BOTH ? ITEMS.registerSimpleBlockItem(

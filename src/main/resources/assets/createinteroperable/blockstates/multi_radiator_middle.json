@@ -1,0 +1,39 @@
+{
+  "variants": {
+    "axis=z,heat_level=cold": {
+      "model": "createinteroperable:block/brass_heater/multi_radiator_middle"
+    },
+    "axis=x,heat_level=cold": {
+      "model": "createinteroperable:block/brass_heater/multi_radiator_middle",
+      "y": 90
+    },
+    "axis=z,heat_level=warm": {
+      "model": "createinteroperable:block/brass_heater/multi_radiator_middle_warm"
+    },
+    "axis=x,heat_level=warm": {
+      "model": "createinteroperable:block/brass_heater/multi_radiator_middle_warm",
+      "y": 90
+    },
+    "axis=z,heat_level=hot": {
+      "model": "createinteroperable:block/brass_heater/multi_radiator_middle_hot"
+    },
+    "axis=x,heat_level=hot": {
+      "model": "createinteroperable:block/brass_heater/multi_radiator_middle_hot",
+      "y": 90
+    },
+    "axis=z,heat_level=blazing": {
+      "model": "createinteroperable:block/brass_heater/multi_radiator_middle_blazing"
+    },
+    "axis=x,heat_level=blazing": {
+      "model": "createinteroperable:block/brass_heater/multi_radiator_middle_blazing",
+      "y": 90
+    },
+    "axis=z,heat_level=freezing": {
+      "model": "createinteroperable:block/brass_heater/multi_radiator_middle_freezing"
+    },
+    "axis=x,heat_level=freezing": {
+      "model": "createinteroperable:block/brass_heater/multi_radiator_middle_freezing",
+      "y": 90
+    }
+  }
+}

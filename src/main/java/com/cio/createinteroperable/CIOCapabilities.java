@@ -6,7 +6,8 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 
 /**
- * Exposes the Steam Outlet's and Brass Heater's internal steam buffers as
+ * Exposes the Steam Outlet's, Brass Heater's, and Multi Radiator's internal
+ * steam/water buffers as
  * plain NeoForge IFluidHandler capabilities. This is the ONLY thing needed
  * for Create's pipe network to recognize them — pipes look up this exact
  * capability generically on whatever block they're touching (confirmed via
@@ -22,5 +23,9 @@ public class CIOCapabilities {
                 (be, side) -> be.getSteamHandler(side));
         event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, CIOBlockEntities.BRASS_HEATER.get(),
                 (be, side) -> be.getSteamHandler(side));
+        event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, CIOBlockEntities.RADIATOR_VALVE_NORTH.get(),
+                (be, side) -> be.getSteamHandler(side));
+        event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, CIOBlockEntities.RADIATOR_VALVE_SOUTH.get(),
+                (be, side) -> be.getWaterHandler(side));
     }
 }

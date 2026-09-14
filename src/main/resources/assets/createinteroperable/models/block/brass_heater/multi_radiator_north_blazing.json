@@ -1,0 +1,6 @@
+{
+	"parent": "createinteroperable:block/brass_heater/multi_radiator_north",
+	"textures": {
+		"0": "createinteroperable:block/pipes_blazing"
+	}
+}

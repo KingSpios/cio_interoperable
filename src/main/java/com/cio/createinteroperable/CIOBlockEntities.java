@@ -79,6 +79,24 @@ public class CIOBlockEntities {
                     (pos, state) -> new BrassHeaterBlockEntity(CIOBlockEntities.BRASS_HEATER.get(), pos, state),
                     CIOBlocks.BRASS_HEATER.get()).build(null));
 
+    // Multi Radiator — see CIOBlocks.
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<RadiatorValveNorthBlockEntity>> RADIATOR_VALVE_NORTH =
+            BLOCK_ENTITIES.register("multi_radiator_north", () -> BlockEntityType.Builder.of(
+                    (pos, state) -> new RadiatorValveNorthBlockEntity(CIOBlockEntities.RADIATOR_VALVE_NORTH.get(), pos, state),
+                    CIOBlocks.RADIATOR_VALVE_NORTH.get()).build(null));
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<RadiatorValveSouthBlockEntity>> RADIATOR_VALVE_SOUTH =
+            BLOCK_ENTITIES.register("multi_radiator_south", () -> BlockEntityType.Builder.of(
+                    (pos, state) -> new RadiatorValveSouthBlockEntity(CIOBlockEntities.RADIATOR_VALVE_SOUTH.get(), pos, state),
+                    CIOBlocks.RADIATOR_VALVE_SOUTH.get()).build(null));
+
+    // Minimal, goggle-info-only BlockEntity — see RadiatorMiddleBlockEntity's
+    // own doc for why a middle segment needs one at all.
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<RadiatorMiddleBlockEntity>> RADIATOR_MIDDLE =
+            BLOCK_ENTITIES.register("multi_radiator_middle", () -> BlockEntityType.Builder.of(
+                    (pos, state) -> new RadiatorMiddleBlockEntity(CIOBlockEntities.RADIATOR_MIDDLE.get(), pos, state),
+                    CIOBlocks.RADIATOR_MIDDLE.get()).build(null));
+
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<TelephoneBlockEntity>> TELEPHONE =
             BOTH ? BLOCK_ENTITIES.register("telephone", () -> BlockEntityType.Builder.of(
                     (pos, state) -> new TelephoneBlockEntity(CIOBlockEntities.TELEPHONE.get(), pos, state),
