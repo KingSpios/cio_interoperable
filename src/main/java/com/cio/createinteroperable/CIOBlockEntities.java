@@ -122,6 +122,15 @@ public class CIOBlockEntities {
                     (pos, state) -> new ConnectorBlockEntity(CIOBlockEntities.CONNECTOR.get(), pos, state),
                     CIOBlocks.CIO_CONNECTOR.get(), CIOBlocks.CIO_CONNECTOR_GLASS.get()).build(null)) : null;
 
+    // Double Connector — real, active content (unlike the disabled reskins
+    // above): two independent, unconnected terminal points in one block. Own
+    // BlockEntity (CIODoubleConnectorBlockEntity, setTerminalCount(2)) since
+    // ConnectorBlockEntity itself hardcodes 1.
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CIODoubleConnectorBlockEntity>> DOUBLE_CONNECTOR =
+            PG ? BLOCK_ENTITIES.register("cpg_double_connector", () -> BlockEntityType.Builder.of(
+                    (pos, state) -> new CIODoubleConnectorBlockEntity(CIOBlockEntities.DOUBLE_CONNECTOR.get(), pos, state),
+                    CIOBlocks.CIO_DOUBLE_CONNECTOR.get()).build(null)) : null;
+
     // Domestic Electrical Board (PG-only tiers) — its own BlockEntity carries
     // the PG 4-terminal circuit and the Crayfish ISourceNode bookkeeping. The
     // CEE-wired tiers below are a fully separate BlockEntity family

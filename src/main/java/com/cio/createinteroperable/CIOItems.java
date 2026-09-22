@@ -81,6 +81,9 @@ public class CIOItems {
     public static final DeferredItem<BlockItem> CIO_CONNECTOR_GLASS = BRIDGE_EXTRAS && PG ? ITEMS.registerSimpleBlockItem(
             "cio_connector_glass", CIOBlocks.CIO_CONNECTOR_GLASS) : null;
 
+    public static final DeferredItem<BlockItem> CIO_DOUBLE_CONNECTOR = PG ? ITEMS.registerSimpleBlockItem(
+            "cpg_double_connector", CIOBlocks.CIO_DOUBLE_CONNECTOR) : null;
+
     // --- Domestic Electrical Board (PG-only) ---
 
     public static final DeferredItem<BlockItem> DEB_RECTIFIER = PG ? ITEMS.registerSimpleBlockItem(

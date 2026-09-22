@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "facing=down": { "model": "createinteroperable:block/cpg_double_connector" },
+    "facing=up": { "model": "createinteroperable:block/cpg_double_connector", "x": 180 },
+    "facing=north": { "model": "createinteroperable:block/cpg_double_connector", "x": 270 },
+    "facing=south": { "model": "createinteroperable:block/cpg_double_connector", "x": 90 },
+    "facing=east": { "model": "createinteroperable:block/cpg_double_connector", "x": 90, "y": 270 },
+    "facing=west": { "model": "createinteroperable:block/cpg_double_connector", "x": 90, "y": 90 }
+  }
+}

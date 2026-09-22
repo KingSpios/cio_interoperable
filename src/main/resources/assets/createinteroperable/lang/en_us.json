@@ -47,6 +47,7 @@
 
   "block.createinteroperable.cio_connector": "Connector",
   "block.createinteroperable.cio_connector_glass": "Large Connector",
+  "block.createinteroperable.cpg_double_connector": "CPG Double Connector",
 
   "block.createinteroperable.deb_rectifier_tier1": "CPG Improvised Power Kit",
   "block.createinteroperable.deb_rectifier": "CPG Domestic Power Kit",

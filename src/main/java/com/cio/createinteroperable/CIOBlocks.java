@@ -223,6 +223,15 @@ public class CIOBlocks {
                     .strength(2.0f, 6.0f)
                     .requiresCorrectToolForDrops())) : null;
 
+    // Double Connector — two independent, unconnected terminal points in one
+    // block (see CIODoubleConnectorBlock docs). Real, active content, unlike
+    // the reskins above.
+    public static final DeferredBlock<CIODoubleConnectorBlock> CIO_DOUBLE_CONNECTOR = PG ? BLOCKS.register("cpg_double_connector",
+            () -> new CIODoubleConnectorBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.METAL)
+                    .strength(2.0f, 6.0f)
+                    .requiresCorrectToolForDrops())) : null;
+
     // --- Domestic Electrical Board (Power Grid-fed replacement for
     // Crayfish Refurbished Furniture's Electricity Generator) — PG-only. ---
 
