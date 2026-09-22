@@ -3,6 +3,8 @@ package com.cio.createinteroperable;
 import com.cio.createinteroperable.compat.ColdSweatCompat;
 import com.cio.createinteroperable.compat.ColdSweatIntegration;
 import com.cio.createinteroperable.compat.ElectroEnergeticsCompat;
+import com.cio.createinteroperable.compat.PipesNPhysicsCompat;
+import com.cio.createinteroperable.compat.PipesNPhysicsIntegration;
 import com.cio.createinteroperable.compat.PowerGridCompat;
 import com.mojang.logging.LogUtils;
 import net.minecraft.resources.ResourceLocation;
@@ -28,7 +30,6 @@ public class CreateInteroperable {
         CIOConfig.register(modContainer);
         CIOFluids.register(modEventBus);
         CIOParticles.register(modEventBus);
-        CIOOpenPipeEffects.register(modEventBus);
         CIOBlocks.register(modEventBus);
         CIOBlockEntities.register(modEventBus);
         CIOItems.register(modEventBus);
@@ -47,6 +48,12 @@ public class CreateInteroperable {
         // unconditionally, which throws on a Cold-Sweat-absent install.
         if (ColdSweatCompat.present()) {
             ColdSweatIntegration.register();
+        }
+        // Same present()-gated pattern: PipesNPhysicsIntegration's own method
+        // signatures touch Pipes-n-Physics-only types (FluidHandlerApi/Role),
+        // so this class must never load at all when that mod is absent.
+        if (PipesNPhysicsCompat.present()) {
+            PipesNPhysicsIntegration.register(modEventBus);
         }
     }
 

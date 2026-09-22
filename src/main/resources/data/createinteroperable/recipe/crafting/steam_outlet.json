@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "P": { "item": "create:fluid_pipe" },
+    "V": { "tag": "create:valve_handles" },
+    "C": { "item": "minecraft:copper_block" }
+  },
+  "pattern": [
+    " P ",
+    " V ",
+    "CCC"
+  ],
+  "result": {
+    "count": 1,
+    "id": "createinteroperable:steam_outlet"
+  }
+}

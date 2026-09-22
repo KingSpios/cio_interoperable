@@ -39,8 +39,40 @@ public class CIOFluids {
             () -> new FluidType(FluidType.Properties.create()
                     .descriptionId("fluid.createinteroperable.steam")
                     .lightLevel(0)
-                    .density(1)
-                    .viscosity(200)
+                    // Negative, not the earlier "1": FluidType#isLighterThanAir()
+                    // (vanilla NeoForge, not a CIO override) is defined as
+                    // getDensity() < 0 — the real, load-bearing signal any
+                    // density-aware mod uses to tell a gas from a liquid (see
+                    // Create: Pipes n Physics' own PipeProbe#isGas/SettlingRun
+                    // #lighterThanAir, both calling this exact method). A
+                    // positive density, however small, reads as an ordinary
+                    // (if extremely light) LIQUID — steam then got modelled
+                    // with liquid surface/suction physics instead of rising
+                    // like a gas. The magnitude past the sign doesn't matter
+                    // to PnP (its buoyant lift is deliberately
+                    // density-independent — see its TankMassFormulas), so -1
+                    // is the plain "this is a gas" marker, same convention
+                    // other gas fluids use.
+                    .density(-1)
+                    // Directly controls real Pipes n Physics throughput, not
+                    // just a cosmetic number: confirmed by reading its real
+                    // engine source (de.devin.pipesnphysics.engine.FluidPass,
+                    // the per-fluid pass constructor) — every pipe run's
+                    // conductance is computed as
+                    // {@code PIPE_CONDUCTANCE_CONFIG * (1000.0 / effectiveViscosity)},
+                    // where 1000 is vanilla water's own viscosity (so water
+                    // flows at exactly the configured baseline, and anything
+                    // thinner flows faster than that in direct proportion —
+                    // NeoForge's own FluidType#getViscosity is the only input,
+                    // no PnP-specific API needed). 50 gives steam 20x water's
+                    // conductance (vs. the previous 200's already-generous 5x)
+                    // — real steam is far less viscous than any liquid, and a
+                    // reported real playtest bug ("pipes hold 250mb, deplete
+                    // at 1mb/tick, not enough to feed the Radiators") needed
+                    // active throughput headroom, not just a "thin" cosmetic
+                    // tag (PnP's own goggle already called 200 "thin", the
+                    // same tier as 50 — this only changes the real number).
+                    .viscosity(50)
                     .temperature(373)
                     .canConvertToSource(false)
                     .rarity(Rarity.COMMON)));

@@ -2,87 +2,110 @@ package com.cio.createinteroperable;
 
 import com.cio.createinteroperable.compat.ColdSweatCompat;
 import com.cio.createinteroperable.compat.ColdSweatWarmthEffect;
-import com.simibubi.create.api.effect.OpenPipeEffectHandler;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.neoforged.neoforge.fluids.FluidStack;
 
 /**
- * Makes our steam fluid leak the same white campfire-style smoke the Steam
- * Outlet itself uses (see SteamOutletBlockEntity#tickLeakParticles) when it
- * vents out of a Create pipe network's own open/dangling end — a pipe that's
- * actively carrying steam but whose far end has no receiving block/handler
- * (see Create's real {@code OpenEndedPipe}: an unconnected end just drops
- * whatever isn't a real placeable fluid block, which is exactly what our
- * steam fluid is — see CIOFluids' own doc on why it has no block form).
+ * The white campfire-style smoke a genuinely open/dangling pipe end vents,
+ * scaled by the real valve fraction of whichever Steam Outlet is actually
+ * feeding it — found and triggered by {@link SteamOpenEndScanner}'s own
+ * pipe-network walk, NOT by Create's {@code OpenPipeEffectHandler} hook.
  * <p>
- * Uses Create's own public, non-mixin extension point for precisely this —
- * {@link OpenPipeEffectHandler} (confirmed by reading Create's real
- * {@code OpenEndedPipe.OpenEndFluidHandler#fill}, which looks up
- * {@code OpenPipeEffectHandler.REGISTRY.get(resource.getFluid())} and calls
- * {@code apply(level, aoe, fluid)} whenever that fluid is pushed into an open
- * end) — the same mechanism Create itself uses for water extinguishing fire,
- * milk clearing potion effects, etc. (see its own {@code AllOpenPipeEffectHandlers}).
- * No mixin needed, and Create is already a hard dependency of this mod.
+ * A previous revision of this class DID register through that hook (Create's
+ * public, non-mixin extension point for exactly this — water extinguishing
+ * fire, milk clearing potions, etc.). It had to be abandoned, and this is
+ * important enough to spell out so nobody re-adds it later: reading Create's
+ * real {@code OpenEndedPipe.OpenEndFluidHandler#fill} directly shows that for
+ * ANY fluid with {@code OpenPipeEffectHandler.REGISTRY.get(fluid) != null}
+ * AND no placeable block form (steam has neither a block NOR should have
+ * one — see {@link CIOFluids}'s own doc), the resource handed to
+ * {@code super.fill(...)} is unconditionally replaced with
+ * {@code copyWithAmount(1)} BEFORE the real mass-transfer accounting runs:
+ * <pre>
+ * if (effectHandler != null &amp;&amp; !hasBlockState)
+ *     resource = FluidHelper.copyStackWithAmount(resource, 1);
+ * int fill = super.fill(resource, action);
+ * </pre>
+ * This is not merely "no real volume signal for the effect callback" (the
+ * conclusion an earlier pass drew) — the truncated {@code resource} IS what
+ * gets filled and IS what the return value (how much the caller/network
+ * believes was actually accepted, and therefore how much it drains from the
+ * real source) reports. In other words: simply being registered in this
+ * registry, for a blockless fluid, hard-caps EVERY real transfer through
+ * EVERY open pipe end to exactly 1 mB per {@code fill()} call — regardless of
+ * pipe pressure, Pipes n Physics' own conductance/viscosity solve, or
+ * anything else upstream. This is Create's own deliberate design for the
+ * registry's intended use (a discrete one-shot trigger, not a volume-scaled
+ * mechanic) — confirmed as the literal, sole, sourced cause of a real
+ * reported bug ("pipes hold 250mb, deplete at exactly 1mb/tick, forever, no
+ * matter what else changes") once traced end to end.
  * <p>
- * Registered during {@link FMLCommonSetupEvent}, matching the exact timing
- * Create's own {@code AllOpenPipeEffectHandlers.registerDefaults()} uses
- * (inside {@code event.enqueueWork}, after registries have settled) — see
- * Create's {@code Create.init}.
+ * Un-registering restores real, uncapped (well, capped at the pipe's own
+ * 1000mb buffer per call, not 1) transfer — {@code fill()} without a
+ * registered handler still calls {@code provideFluidToSpace} +
+ * {@code setFluid(EMPTY)} for a blockless fluid immediately after accepting
+ * it, so steam is still faithfully "accepted, then vented to atmosphere,
+ * gone" with zero extra code, exactly the flavor originally intended — real
+ * volume just moves now. The cost is losing the automatic per-call trigger
+ * for this particle effect, replaced by {@link SteamOpenEndScanner}'s own
+ * direct pipe-network walk from each Steam Outlet instead — which is a
+ * strictly better signal anyway: the real originating valve fraction,
+ * not a frequency-derived guess.
  */
-public class CIOOpenPipeEffects {
-    /** Same cadence/density/rise-speed as the Steam Outlet's own leak — see SteamOutletBlockEntity#tickLeakParticles. */
-    private static final int INTERVAL_TICKS = 8;
-    private static final double RISE_SPEED = 0.025;
-
-    public static void register(IEventBus modEventBus) {
-        modEventBus.addListener(CIOOpenPipeEffects::commonSetup);
+final class CIOOpenPipeEffects {
+    private CIOOpenPipeEffects() {
     }
 
-    private static void commonSetup(FMLCommonSetupEvent event) {
-        event.enqueueWork(() -> OpenPipeEffectHandler.REGISTRY.register(CIOFluids.STEAM_STILL.get(), CIOOpenPipeEffects::onSteamVented));
-    }
-
-    /**
-     * @param area the small area Create itself computed just past the open pipe
-     *             end (see {@code OpenEndedPipe}'s constructor) — used directly
-     *             rather than re-deriving the pipe's own facing/position.
-     */
     /** Matches SteamOutletBlockEntity's own leak-warmth numbers — see its class doc for why. */
     private static final int WARMTH_AMPLIFIER = 1;
     private static final int WARMTH_DURATION_TICKS = 20;
     private static final double WARMTH_RADIUS = 2.0;
 
-    private static void onSteamVented(Level level, AABB area, FluidStack fluid) {
-        if (!(level instanceof ServerLevel serverLevel)) {
-            return;
-        }
-        BlockPos anchor = BlockPos.containing(area.getCenter());
-        if ((serverLevel.getGameTime() + anchor.hashCode()) % INTERVAL_TICKS != 0) {
-            return;
-        }
-        // Same bubble-instead-of-smoke swap as SteamOutletBlockEntity's own
-        // leak — a dangling pipe end submerged in water bubbles, it doesn't smoke.
-        boolean underwater = serverLevel.getFluidState(anchor).is(FluidTags.WATER);
-        int count = 2 + serverLevel.random.nextInt(3);
+    /** Rise speed in blocks/tick — see SteamOutletBlockEntity's own pair for why this alone gives the "taller at higher pressure" effect. */
+    private static final double LOW_RISE_SPEED = 0.015;
+    private static final double HIGH_RISE_SPEED = 0.06;
+    /** Particles spawned per puff. */
+    private static final int LOW_PARTICLE_COUNT = 1;
+    private static final int HIGH_PARTICLE_COUNT = 6;
+    /** Floor so a near-closed valve still reads as a faint, unmistakably-low-pressure puff rather than nothing — same philosophy as SteamOutletBlockEntity's own MIN_LEAK_FRACTION. */
+    private static final double MIN_FRACTION = 0.15;
+
+    private static double lerp(double low, double high, double fraction) {
+        return low + (high - low) * fraction;
+    }
+
+    /**
+     * Spawns one puff at the open mouth {@code pipePos.relative(openFace)} and applies Cold Sweat
+     * warmth there, scaled by {@code valveFraction} (0..1, the REAL originating Outlet's valve
+     * position — see {@link SteamOpenEndScanner}). Called once per discovered open end each scan
+     * pass, so the scan's own cadence supplies the "how often" — no separate per-position interval
+     * needed here.
+     */
+    static void ventAt(ServerLevel serverLevel, BlockPos pipePos, Direction openFace, double valveFraction) {
+        double fraction = Mth.clamp(Math.max(MIN_FRACTION, valveFraction), 0.0, 1.0);
+        BlockPos mouth = pipePos.relative(openFace);
+
+        boolean underwater = serverLevel.getFluidState(mouth).is(FluidTags.WATER);
+        double riseSpeed = lerp(LOW_RISE_SPEED, HIGH_RISE_SPEED, fraction);
+        int count = (int) Math.round(lerp(LOW_PARTICLE_COUNT, HIGH_PARTICLE_COUNT, fraction));
+
         for (int i = 0; i < count; i++) {
-            double x = area.getCenter().x + (serverLevel.random.nextDouble() - 0.5) * 0.4;
-            double y = area.getCenter().y;
-            double z = area.getCenter().z + (serverLevel.random.nextDouble() - 0.5) * 0.4;
+            double x = mouth.getX() + 0.5 + (serverLevel.random.nextDouble() - 0.5) * 0.4;
+            double y = mouth.getY() + 0.5 + (serverLevel.random.nextDouble() - 0.5) * 0.4;
+            double z = mouth.getZ() + 0.5 + (serverLevel.random.nextDouble() - 0.5) * 0.4;
             serverLevel.sendParticles(underwater ? ParticleTypes.BUBBLE : CIOParticles.RADIATOR_SMOKE.get(),
-                    x, y, z, 0, 0.0, RISE_SPEED, 0.0, 1.0);
+                    x, y, z, 0, 0.0, riseSpeed, 0.0, 1.0);
         }
         if (ColdSweatCompat.present()) {
-            AABB warmArea = new AABB(anchor).inflate(WARMTH_RADIUS);
+            AABB warmArea = new AABB(mouth).inflate(WARMTH_RADIUS);
             for (LivingEntity entity : serverLevel.getEntitiesOfClass(LivingEntity.class, warmArea)) {
-                ColdSweatWarmthEffect.apply(entity, WARMTH_AMPLIFIER, WARMTH_DURATION_TICKS);
+                ColdSweatWarmthEffect.apply(entity, WARMTH_AMPLIFIER, WARMTH_DURATION_TICKS, true);
             }
         }
     }

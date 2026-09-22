@@ -64,6 +64,10 @@ repositories {
     maven { url = "https://cursemaven.com" }
     // Modrinth's maven mirror, alternative source for the same jars
     maven { url = "https://api.modrinth.com/maven" }
+    // Create: Pipes n Physics (de.devin.pipesnphysics) doesn't publish to
+    // CurseForge/Modrinth — its own README points at JitPack, which builds
+    // straight from its GitHub tags. See gradle.properties for the exact tag.
+    maven { url = "https://jitpack.io" }
 }
 
 dependencies {
@@ -134,6 +138,14 @@ dependencies {
     // code is now verified against. See gradle.properties for the raised
     // minimum-supported-version floor that goes with this bump.
     implementation "curse.maven:cold-sweat-506194:8888797"
+
+    // --- Create: Pipes n Physics -----------------------------------------
+    // de.devin.pipesnphysics, mod id "pipesnphysics". Soft (optional) dependency:
+    // compileOnly so it's never required at runtime — see PnpCompat/PnpIntegration.
+    // Built by JitPack straight from the GitHub tag (see the repositories block
+    // above), matching the exact jar this addon's code was verified against
+    // (pipesnphysics-3.2.1.jar, z_reference_mods/create-pipes-n-physics-main).
+    compileOnly "com.github.StaticFX:create-pipes-n-physics:${pipes_n_physics_version}"
 }
 
 var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {
@@ -154,7 +166,8 @@ var generateModMetadata = tasks.register("generateModMetadata", ProcessResources
             power_grid_version_range        : power_grid_version_range,
             electro_energetics_version_range: electro_energetics_version_range,
             refurbished_furniture_version_range: refurbished_furniture_version_range,
-            cold_sweat_version_range        : cold_sweat_version_range
+            cold_sweat_version_range        : cold_sweat_version_range,
+            pipes_n_physics_version_range   : pipes_n_physics_version_range
     ]
     inputs.properties replaceProperties
     expand replaceProperties

@@ -155,3 +155,18 @@ license="${mod_license}"
     versionRange="${cold_sweat_version_range}"
     ordering="AFTER"
     side="BOTH"
+
+# Soft dependency. When present, this mod's own fluid-handler blocks (Steam
+# Outlet, Brass Heater, Multi Radiator) declare their PnP role explicitly
+# (see com.cio.createinteroperable.compat.PipesNPhysicsIntegration, gated on
+# com.cio.createinteroperable.compat.PipesNPhysicsCompat) so PnP's own
+# behavioural relay detector never misclassifies a block that fills its own
+# buffer from production (not from a pipe transfer) as a bottomless relay.
+# When absent, that registration is skipped entirely and the mod still loads
+# normally — PnP is otherwise fluid-agnostic and needs nothing else from us.
+[[dependencies.${mod_id}]]
+    modId="pipesnphysics"
+    type="optional"
+    versionRange="${pipes_n_physics_version_range}"
+    ordering="AFTER"
+    side="BOTH"

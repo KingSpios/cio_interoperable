@@ -81,7 +81,7 @@ public class SteamOutletBlock extends KineticBlock implements IBE<SteamOutletBlo
 
     public SteamOutletBlock(Properties properties) {
         super(properties);
-        registerDefaultState(defaultBlockState().setValue(FACING, Direction.NORTH).setValue(OPEN, false));
+        registerDefaultState(defaultBlockState().setValue(FACING, Direction.NORTH).setValue(OPEN, true));
     }
 
     public Direction getFacing(BlockState state) {
