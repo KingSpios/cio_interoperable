@@ -1,0 +1,12 @@
+{
+  "required": false,
+  "package": "com.cio.createinteroperable.mixin.pnw",
+  "compatibilityLevel": "JAVA_21",
+  "plugin": "PnwMixinPlugin",
+  "mixins": [
+    "PnwWireGraphMixin",
+    "PnwConnectorBlockMixin"
+  ],
+  "client": [],
+  "minVersion": "0.8"
+}

@@ -9,6 +9,8 @@ import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import com.cio.createinteroperable.compat.PipesNPhysicsCompat;
 import com.cio.createinteroperable.compat.PipesNPhysicsIntegration;
 import com.cio.createinteroperable.compat.PowerGridCompat;
+import com.cio.createinteroperable.compat.PantographsAndWiresCompat;
+import com.cio.createinteroperable.compat.PnwCeeWireBridge;
 import com.mojang.logging.LogUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.IEventBus;
@@ -68,6 +70,11 @@ public class CreateInteroperable {
         // types; the plugin class itself is found and instantiated by Simple Voice Chat.
         if (com.cio.createinteroperable.compat.SimpleVoiceChatCompat.present()) {
             net.neoforged.neoforge.common.NeoForge.EVENT_BUS.register(com.cio.createinteroperable.voice.VoiceCallTracker.class);
+        }
+        if (cee && PantographsAndWiresCompat.present()) {
+            // The bridge itself avoids PnW link-time types; its mixins are
+            // separately guarded, so this remains a complete no-op otherwise.
+            net.neoforged.neoforge.common.NeoForge.EVENT_BUS.register(PnwCeeWireBridge.class);
         }
     }
 

@@ -33,6 +33,11 @@ license="${mod_license}"
 [[mixins]]
     config="createinteroperable.cee.mixin.json"
 
+# Experimental Pantographs & Wires / Electro Energetics conductor bridge.
+# Guarded by PnwMixinPlugin, so it is inert unless both optional mods load.
+[[mixins]]
+    config="createinteroperable.pnw.mixin.json"
+
 # Electro Energetics' Electric Pump under Create: Pipes n Physics: stops PnP's
 # AUTO pump/turbine dial from resolving it to a turbine (see
 # com.cio.createinteroperable.mixin.pnp). Guarded by PnpCeePumpMixinPlugin, so
@@ -155,6 +160,13 @@ license="${mod_license}"
     modId="electroenergetics"
     type="optional"
     versionRange="${electro_energetics_version_range}"
+    ordering="AFTER"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="pantographsandwires"
+    type="optional"
+    versionRange="[0,)"
     ordering="AFTER"
     side="BOTH"
 
