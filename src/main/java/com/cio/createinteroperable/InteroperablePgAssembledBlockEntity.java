@@ -85,6 +85,11 @@ public class InteroperablePgAssembledBlockEntity extends ElectricBlockEntity {
             ceeDevice = DevicesSavedData.load(serverLevel).getDevice(findCeePosition(), InteroperableDevice.class);
         }
         if (ceeDevice != null) {
+            // No direction slider here — PG is unconditionally source — but this
+            // call still has to happen: it's also what flips InteroperableDevice's
+            // "linked" gate (see its doc), which keeps a freshly (re)loaded device
+            // fully passive instead of trusting its own pre-link default role.
+            ceeDevice.setPgIsSource(true);
             double potentialDifference = coupling.getPositive().getVoltage() - coupling.getNegative().getVoltage();
             ceeDevice.setPowerGridVoltage(potentialDifference);
         }

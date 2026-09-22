@@ -45,9 +45,18 @@ import java.util.Set;
  * {@link #earlyNodeTick} here; it reads the board's live-pool / range / blown
  * state through {@code ApplianceSource} and reports its link tally back the same
  * way. Soft {@link Implements}, and the whole config is skipped by
- * {@link CrayfishMixinPlugin} when Crayfish is absent.</p>
+ * {@link CrayfishMixinPlugin} when Crayfish is absent.
+ *
+ * <p>Targeted by string, not {@code DebRectifierBlockEntity.class} — this
+ * config's activation is gated only on Crayfish (via {@link CrayfishMixinPlugin}),
+ * independent of Power Grid, but {@link DebRectifierBlockEntity} itself
+ * extends PG's own {@code ElectricBlockEntity}. A class-literal target here
+ * would need that supertype resolvable purely to process this mixin, on a
+ * Crayfish-present/Power-Grid-absent install — the same class of bug
+ * confirmed (and fixed) on {@code ThermalBehaviourMixin}, see that class's
+ * own doc.</p>
  */
-@Mixin(DebRectifierBlockEntity.class)
+@Mixin(targets = "com.cio.createinteroperable.deb.DebRectifierBlockEntity")
 @Implements(@Interface(iface = ISourceNode.class, prefix = "isn$"))
 public abstract class DebSourceNodeMixin {
 

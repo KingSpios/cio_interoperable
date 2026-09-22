@@ -45,6 +45,10 @@ public class CeeDebRectifierBlockEntity extends SmartBlockEntity implements Appl
 
     public static final float HAZE_FRACTION = 0.85f;
     public static final int FAULT_GRACE_TICKS = 200;
+    /** Consecutive under-brownout ticks a pool must see before {@link #railLive} actually drops. See {@link DebRectifierBlockEntity#BROWNOUT_GRACE_TICKS}. */
+    public static final int BROWNOUT_GRACE_TICKS = 60;
+    /** Consecutive over-soft-cap ticks a pool must see before {@link #railFaulted} actually trips. See {@link DebRectifierBlockEntity#OVERLOAD_GRACE_TICKS}. */
+    public static final int OVERLOAD_GRACE_TICKS = 60;
 
     static final float FEED_PASSTHROUGH_R = 0.001f;
     private static final double PRIMARY_VOLTS = 120.0;
@@ -85,6 +89,10 @@ public class CeeDebRectifierBlockEntity extends SmartBlockEntity implements Appl
     protected final float[] busVolts = new float[Pool.values().length];
     protected final boolean[] railFaulted = new boolean[Pool.values().length];
     protected final boolean[] railLive = new boolean[Pool.values().length];
+    /** Consecutive ticks each pool has read under its brownout threshold. See {@link #BROWNOUT_GRACE_TICKS}. */
+    protected final int[] brownoutTicks = new int[Pool.values().length];
+    /** Consecutive ticks each pool has read over its soft cap. See {@link #OVERLOAD_GRACE_TICKS}. */
+    protected final int[] overloadTicks = new int[Pool.values().length];
     protected int faultTicks;
     protected boolean exploded;
     protected float temperatureC;
@@ -319,12 +327,28 @@ public class CeeDebRectifierBlockEntity extends SmartBlockEntity implements Appl
             if (pool == Pool.MV && !tier().servesMediumVoltage()) {
                 railFaulted[i] = false;
                 railLive[i] = false;
+                brownoutTicks[i] = 0;
+                overloadTicks[i] = 0;
                 continue;
             }
             double total = totalWatts(pool);
             grossOverload |= total > hardCap(pool);
-            railFaulted[i] = total > softCap(pool);
-            railLive[i] = !railFaulted[i] && busVolts[i] >= tier().brownoutVolts(pool);
+            if (total > softCap(pool)) {
+                if (overloadTicks[i] < OVERLOAD_GRACE_TICKS) {
+                    overloadTicks[i]++;
+                }
+            } else {
+                overloadTicks[i] = 0;
+            }
+            railFaulted[i] = overloadTicks[i] >= OVERLOAD_GRACE_TICKS;
+            if (busVolts[i] < tier().brownoutVolts(pool)) {
+                if (brownoutTicks[i] < BROWNOUT_GRACE_TICKS) {
+                    brownoutTicks[i]++;
+                }
+            } else {
+                brownoutTicks[i] = 0;
+            }
+            railLive[i] = !railFaulted[i] && brownoutTicks[i] < BROWNOUT_GRACE_TICKS;
             anyLive |= railLive[i];
             anyFaulted |= railFaulted[i];
         }

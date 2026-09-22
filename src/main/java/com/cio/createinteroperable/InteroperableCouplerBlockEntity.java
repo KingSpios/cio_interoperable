@@ -169,8 +169,12 @@ public class InteroperableCouplerBlockEntity extends ElectricBlockEntity {
                 builder.terminalNode(0), builder.terminalNode(1), InteroperableDevice.SENSE_RESISTANCE);
         coupling.setVoltageProvider(() ->
                 transferEnabled() && !pgIsSource() && ceeDevice != null ? ceeDevice.getLastVoltage() : 0.0);
+        // ceeDevice == null (not yet reconnected this session — see
+        // InteroperableSmallBlockEntity's matching comment and
+        // InteroperableDevice's "linked" doc) forces the safe SENSE branch even
+        // when transferEnabled()+!pgIsSource() says we should be delivering.
         coupling.setResistanceProvider(() ->
-                !transferEnabled() ? InteroperableDevice.SENSE_RESISTANCE
+                !transferEnabled() || ceeDevice == null ? InteroperableDevice.SENSE_RESISTANCE
                         : pgIsSource() ? InteroperableDevice.SENSE_RESISTANCE
                         : InteroperableDevice.DELIVERY_RESISTANCE);
     }

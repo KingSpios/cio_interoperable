@@ -112,7 +112,16 @@ public class InteroperableSmallBlockEntity extends ElectricBlockEntity {
         // shared resistance here was the real cause of a "generator reads
         // as ~0V on the other side" bug.
         coupling.setVoltageProvider(() -> !pgIsSource() && ceeDevice != null ? ceeDevice.getLastVoltage() : 0.0);
-        coupling.setResistanceProvider(() -> pgIsSource() ? InteroperableDevice.SENSE_RESISTANCE : InteroperableDevice.DELIVERY_RESISTANCE);
+        // ceeDevice == null (not yet reconnected via DevicesSavedData this
+        // session, e.g. right after a world/chunk load) forces the safe SENSE
+        // branch even when pgIsSource() says we should be delivering — see
+        // InteroperableDevice's own "linked" doc for the matching CEE-side half
+        // of this fix. Without this, a fresh BlockEntity would present the
+        // 0.05 Ohm DELIVERY_RESISTANCE at 0V (voltage provider above already
+        // guards ceeDevice == null) — a real short if the PG grid it's wired
+        // into already has voltage from elsewhere.
+        coupling.setResistanceProvider(() ->
+                pgIsSource() || ceeDevice == null ? InteroperableDevice.SENSE_RESISTANCE : InteroperableDevice.DELIVERY_RESISTANCE);
     }
 
     @Override

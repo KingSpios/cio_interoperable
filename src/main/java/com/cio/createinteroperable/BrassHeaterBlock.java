@@ -101,7 +101,7 @@ public class BrassHeaterBlock extends KineticBlock implements IBE<BrassHeaterBlo
         super(properties);
         registerDefaultState(defaultBlockState().setValue(FACING, Direction.NORTH)
                 .setValue(HEAT_LEVEL, HeatLevel.COLD)
-                .setValue(OPEN, false)
+                .setValue(OPEN, true)
                 .setValue(HEAT_WARM, false)
                 .setValue(HEAT_HOT, false)
                 .setValue(HEAT_BLAZING, false));

@@ -87,6 +87,26 @@ public class InteroperableDevice extends SimpleElectricalDevice {
     private volatile boolean pgIsSource = true;
 
     /**
+     * False until {@link #setPgIsSource} has been called at least once THIS
+     * session (i.e. the owning PG-side BlockEntity has actually rediscovered
+     * this device via {@code DevicesSavedData} and confirmed the real role).
+     * A {@link SimulatedDevice} is reconstructed fresh on every world/chunk
+     * load with {@code pgIsSource=true, transferEnabled=true} regardless of
+     * what the block was actually configured to do — and CEE's own
+     * {@code SimulationTicker} can call {@link #preTick} for this device
+     * before the owning PG BlockEntity's {@code tick()} has run even once
+     * this session (block-entity tick order between two unrelated mods isn't
+     * guaranteed). Without this gate, that window has this device acting as
+     * an already-active PG-source sink (0.05&Omega; {@link #DELIVERY_RESISTANCE},
+     * 0V EMF) on the CEE grid regardless of the block's real saved
+     * direction/mode — a real short if a live CEE source happens to already
+     * be wired there (e.g. mode is actually "CEE is source"). {@link #preTick}
+     * treats {@code !linked} the same as {@code !transferEnabled} (fully
+     * passive: SENSE_RESISTANCE, 0 EMF) until this flips true.
+     */
+    private volatile boolean linked = false;
+
+    /**
      * Resistance this device presents while it is the SOURCE (i.e. {@code !pgIsSource}).
      * Defaults to {@link #SENSE_RESISTANCE} — a pure voltmeter tap that doesn't
      * load the CEE grid — which is what {@link InteroperableSmallBlockEntity},
@@ -120,9 +140,16 @@ public class InteroperableDevice extends SimpleElectricalDevice {
         this.powerGridVoltage = voltage;
     }
 
-    /** Called from {@link InteroperableSmallBlockEntity} every tick to mirror the slider's current direction. */
+    /**
+     * Called from {@link InteroperableSmallBlockEntity} every tick to mirror the
+     * slider's current direction — also the {@link #linked} signal (see its doc):
+     * every owning block calls this once it has rediscovered this device via
+     * {@code DevicesSavedData}, so the first call each session is exactly the
+     * "the real role is now known" event.
+     */
     public void setPgIsSource(boolean pgIsSource) {
         this.pgIsSource = pgIsSource;
+        this.linked = true;
     }
 
     /** Called from {@link InteroperableCouplerBlockEntity} every tick — see {@link #transferEnabled}. */
@@ -162,8 +189,12 @@ public class InteroperableDevice extends SimpleElectricalDevice {
         //    cause of "12V battery + 1ohm -> other side reads 0.55V".
         //  - transferEnabled == false (needle mid-swing / mode OFF): fully passive
         //    either way -> 0 EMF + SENSE_RESISTANCE, nothing crosses.
-        double emf = (transferEnabled && pgIsSource) ? powerGridVoltage : 0.0;
-        float resistance = !transferEnabled ? SENSE_RESISTANCE
+        //  - !linked (this device hasn't yet heard from the owning PG-side
+        //    BlockEntity THIS session — see #linked): also fully passive,
+        //    regardless of pgIsSource/transferEnabled's leftover values from
+        //    before a save/reload.
+        double emf = (linked && transferEnabled && pgIsSource) ? powerGridVoltage : 0.0;
+        float resistance = (!linked || !transferEnabled) ? SENSE_RESISTANCE
                 : pgIsSource ? DELIVERY_RESISTANCE
                 : sourceResistance;
         bridges.builder(pos)

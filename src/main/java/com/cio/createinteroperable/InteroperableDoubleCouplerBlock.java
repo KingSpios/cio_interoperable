@@ -6,7 +6,6 @@ import com.george_vi.electroenergetics.simulation.infrastructure.InfrastructureS
 import com.simibubi.create.content.equipment.wrench.IWrenchable;
 import com.simibubi.create.foundation.block.IBE;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -170,14 +169,19 @@ public class InteroperableDoubleCouplerBlock extends ElectricBlock
      * into {@code Block#appendHoverText} (confirmed via bytecode, same as
      * {@link DebRectifierBlock}/{@code TelephoneBlock}), so overriding it here
      * reaches the item tooltip with no custom Item subclass. Only ever invoked
-     * client-side (tooltip rendering), so {@link Screen#hasShiftDown()} is safe.
+     * client-side (tooltip rendering) — routed through
+     * {@link CIOClientUtil#hasShiftDown()} rather than calling
+     * {@code Screen.hasShiftDown()} directly here: see that helper's own class
+     * doc for why a common class (this one) reaching for a client-only static
+     * is a real dedicated-server crash risk in general, even where this
+     * specific call happens not to trigger it today.
      */
     @Override
     public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
         super.appendHoverText(stack, context, tooltip, flag);
         tooltip.add(Component.translatable("block.createinteroperable.double_coupler.tooltip")
                 .withStyle(ChatFormatting.GRAY));
-        if (Screen.hasShiftDown()) {
+        if (CIOClientUtil.hasShiftDown()) {
             tooltip.add(Component.translatable("block.createinteroperable.double_coupler.tooltip.detail_1")
                     .withStyle(ChatFormatting.DARK_GRAY));
             tooltip.add(Component.translatable("block.createinteroperable.double_coupler.tooltip.detail_2")

@@ -6,7 +6,6 @@ import com.george_vi.electroenergetics.simulation.infrastructure.InfrastructureS
 import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.foundation.block.IBE;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
@@ -599,12 +598,19 @@ public class TelephoneBlock extends ElectricBlock
      * straight into Block#appendHoverText, so overriding it here is enough
      * to reach the item tooltip — no custom Item subclass needed. Only ever
      * invoked client-side (tooltip rendering), same as WireItem's own
-     * identical Minecraft.getInstance().player use for this exact purpose.
+     * identical Minecraft.getInstance().player use for this exact purpose —
+     * routed through TelephoneClient#getLocalPlayer() rather than calling
+     * Minecraft.getInstance() directly here: a real dedicated-server crash
+     * confirmed that TelephoneBlock (a common class, loaded during block
+     * registration on both sides) referencing Minecraft/LocalPlayer directly
+     * in its own bytecode gets its class load refused outright by NeoForge's
+     * RuntimeDistCleaner, even though this method itself never runs
+     * server-side (see TelephoneClient's class doc).
      */
     @Override
     public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
         super.appendHoverText(stack, context, tooltip, flag);
-        ElectricPropertiesUtils.modify(this, stack, Minecraft.getInstance().player, flag, tooltip);
+        ElectricPropertiesUtils.modify(this, stack, TelephoneClient.getLocalPlayer(), flag, tooltip);
     }
 
     @Override

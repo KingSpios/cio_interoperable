@@ -75,8 +75,8 @@ public class BrassHeaterBlockEntity extends KineticBlockEntity {
      * {@link BrassHeaterBlock#OPEN} is flipped to match (see #tick).
      */
     private final LerpedFloat pointer = LerpedFloat.linear()
-            .startWithValue(0)
-            .chase(0, 0, Chaser.LINEAR);
+            .startWithValue(1)
+            .chase(1, 0, Chaser.LINEAR);
 
     /** Fraction (0..1) of MAX_STEAM_CONSUMPTION_PER_TICK actually burned last tick. */
     private float heatFraction = 0;

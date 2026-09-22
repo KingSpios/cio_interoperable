@@ -2,7 +2,6 @@ package com.cio.createinteroperable;
 
 import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.foundation.block.IBE;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
@@ -353,10 +352,21 @@ public class CpgTelephoneBlock extends ElectricBlock implements IBE<CpgTelephone
         Resistance.series(CpgTelephoneBlockEntity.COIL_RESISTANCE, player, tooltip);
     }
 
+    /**
+     * Only ever invoked client-side (tooltip rendering) — routed through
+     * TelephoneClient#getLocalPlayer() rather than calling
+     * Minecraft.getInstance() directly here: a real dedicated-server crash
+     * confirmed that CpgTelephoneBlock (a common class, loaded during block
+     * registration on both sides) referencing Minecraft/LocalPlayer directly
+     * in its own bytecode gets its class load refused outright by NeoForge's
+     * RuntimeDistCleaner, even though this method itself never runs
+     * server-side (see TelephoneClient's class doc / TelephoneBlock's
+     * identical fix for the same bug).
+     */
     @Override
     public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
         super.appendHoverText(stack, context, tooltip, flag);
-        ElectricPropertiesUtils.modify(this, stack, Minecraft.getInstance().player, flag, tooltip);
+        ElectricPropertiesUtils.modify(this, stack, TelephoneClient.getLocalPlayer(), flag, tooltip);
     }
 
     @Override

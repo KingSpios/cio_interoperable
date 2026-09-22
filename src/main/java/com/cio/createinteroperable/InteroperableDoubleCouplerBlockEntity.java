@@ -230,8 +230,16 @@ public class InteroperableDoubleCouplerBlockEntity extends ElectricBlockEntity i
                 builder.terminalNode(0), builder.terminalNode(1), InteroperableDevice.SENSE_RESISTANCE);
         coupling.setVoltageProvider(() ->
                 transferEnabled() && !pgIsSource() && ceeDevice != null ? ceeDevice.getLastVoltage() : 0.0);
+        // ceeDevice == null (not yet reconnected this session — see
+        // InteroperableSmallBlockEntity's matching comment and
+        // InteroperableDevice's "linked" doc) forces the safe SENSE branch
+        // regardless of role, which also protects against reflectedSourceResistance
+        // still holding a stale, possibly near-DELIVERY value restored from
+        // before the last save (see #read — that restore was removed for the
+        // same reason: a value that low, applied before this session has
+        // measured any real current of its own, is a short waiting to happen).
         coupling.setResistanceProvider(() ->
-                !transferEnabled() ? InteroperableDevice.SENSE_RESISTANCE
+                !transferEnabled() || ceeDevice == null ? InteroperableDevice.SENSE_RESISTANCE
                         : pgIsSource() ? reflectedSourceResistance          // PG is source: reflect the CEE-side load
                         : InteroperableDevice.DELIVERY_RESISTANCE);          // PG is sink: drive the PG-side load
     }
@@ -341,8 +349,14 @@ public class InteroperableDoubleCouplerBlockEntity extends ElectricBlockEntity i
         super.read(tag, registries, clientPacket);
         lastTransferCurrent = tag.getFloat("LastTransferCurrent");
         lastTransferVoltage = tag.getFloat("LastTransferVoltage");
-        if (tag.contains("ReflectedR"))
-            reflectedSourceResistance = tag.getFloat("ReflectedR");
+        // reflectedSourceResistance is deliberately NOT restored from NBT — it
+        // stays at its field initializer (SENSE_RESISTANCE) every load. It's a
+        // fast-converging derived quantity (EMA half-life ~1 tick at
+        // REFLECT_SMOOTHING=0.5); a value persisted while under real load could
+        // be near DELIVERY_RESISTANCE, and applying that immediately — before
+        // this session has measured any current of its own — was a real short
+        // waiting to happen the moment the coupling resolves before ceeDevice
+        // does. Re-derives safely within a couple of ticks either way.
         if (tag.contains("PointerAngle")) {
             pointerAngle = tag.getFloat("PointerAngle");
             pointerAnglePrev = pointerAngle;
