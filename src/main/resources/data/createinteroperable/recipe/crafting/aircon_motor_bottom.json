@@ -1,0 +1,23 @@
+{
+  "neoforge:conditions": [
+    { "type": "neoforge:mod_loaded", "modid": "powergrid" }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "F": { "item": "powergrid:electric_fan" },
+    "M": { "item": "powergrid:electric_motor" },
+    "U": { "item": "powergrid:electric_pump" },
+    "P": { "item": "create:fluid_pipe" },
+    "B": { "item": "create:basin" }
+  },
+  "pattern": [
+    "FFF",
+    "MUM",
+    "PBP"
+  ],
+  "result": {
+    "count": 1,
+    "id": "createinteroperable:aircon_motor_bottom"
+  }
+}

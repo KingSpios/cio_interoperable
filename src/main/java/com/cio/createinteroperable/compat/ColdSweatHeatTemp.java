@@ -1,7 +1,7 @@
 package com.cio.createinteroperable.compat;
 
 import com.cio.createinteroperable.BrassHeaterBlock;
-import com.momosoftworks.coldsweat.api.temperature.block_temp.BlockTemp;
+import com.momosoftworks.coldsweat.api.temperature.block_temp.SimpleBlockTemp;
 import com.momosoftworks.coldsweat.api.util.Temperature;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.LivingEntity;
@@ -28,8 +28,25 @@ import java.util.function.Function;
  * {@link BrassHeaterBlock#HEAT_LEVEL} and the 3 Multi Radiator blocks'
  * {@code HEAT_LEVEL} fields are 4 separate property instances, not one
  * shared property — see those classes.
+ * <p>
+ * Extends {@code SimpleBlockTemp}, not {@code BlockTemp} directly: Cold Sweat
+ * 2.4.3 deleted {@code BlockTemp}'s (minEffect, maxEffect, minTemp, maxTemp,
+ * range, fade, logarithmic, blocks...) constructor outright (only the
+ * bare-{@code Block...} one survives, everything else moved to per-call
+ * getter overrides) and introduced {@code SimpleBlockTemp} as the static-value
+ * convenience subclass with that exact old constructor signature preserved —
+ * confirmed by reading Cold Sweat's real source (commit 3579254, "Make block
+ * temp properties dynamic instead of statically defined as fields", shipped
+ * in 2.4.3). Building against Cold Sweat 2.4.2 while a user runs 2.4.3+ (or
+ * vice versa) throws {@code NoSuchMethodError}/{@code NoClassDefFoundError}
+ * the instant {@link ColdSweatIntegration#onBlockTempRegister} tries to
+ * construct one of these — a real reported crash, 2026-09-22, CIO 0.1.50
+ * against Cold Sweat 2.4.3.1. This project now targets 2.4.3+ only (see
+ * build.gradle/gradle.properties); older Cold Sweat installs are refused via
+ * the raised {@code cold_sweat_version_range} floor rather than silently
+ * crashing on this constructor.
  */
-class ColdSweatHeatTemp extends BlockTemp {
+class ColdSweatHeatTemp extends SimpleBlockTemp {
     private final BrassHeaterBlock.HeatLevel tier;
     private final Function<BlockState, BrassHeaterBlock.HeatLevel> tierExtractor;
     private final double temperatureMc;

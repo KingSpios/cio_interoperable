@@ -121,11 +121,19 @@ dependencies {
     // com.momosoftworks.coldsweat, mod id "cold_sweat". Soft (optional)
     // dependency — see ColdSweatCompat/ColdSweatIntegration and the note in
     // gradle.properties on why this is real Java registration (via the
-    // public BlockTempRegisterEvent), not a datapack JSON. Fetched from
-    // Modrinth's maven (already in the repositories block above); version id
-    // a4MuLEBd = 2.4.2 for NeoForge/MC 1.21.1, matching the exact jar this
-    // addon's code was verified against.
-    implementation "maven.modrinth:cold-sweat:a4MuLEBd"
+    // public BlockTempRegisterEvent), not a datapack JSON. Cold Sweat 2.4.3
+    // (2026-09-13) deleted BlockTemp's old static-value constructor outright
+    // (moved to per-call getter overrides, with a new SimpleBlockTemp
+    // subclass preserving the old constructor shape) — a real breaking API
+    // change, confirmed by reading the upstream commit, that crashed 0.1.50
+    // against a user's Cold Sweat 2.4.3.1 with NoSuchMethodError inside
+    // ColdSweatHeatTemp's construction. No longer on Modrinth (still only
+    // 2.4.2 there as of 2026-09-22) — fetched from CurseForge instead:
+    // project 506194, file 8888797 = ColdSweat-2.4.3.1.jar (NeoForge,
+    // MC 1.21.1, uploaded 2026-09-15), matching the exact jar this addon's
+    // code is now verified against. See gradle.properties for the raised
+    // minimum-supported-version floor that goes with this bump.
+    implementation "curse.maven:cold-sweat-506194:8888797"
 }
 
 var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {

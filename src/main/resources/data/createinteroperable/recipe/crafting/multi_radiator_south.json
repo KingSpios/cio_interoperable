@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "P": { "item": "create:fluid_pipe" },
+    "U": { "item": "minecraft:bucket" },
+    "B": { "item": "create:brass_block" }
+  },
+  "pattern": [
+    "   ",
+    "PPU",
+    "BBB"
+  ],
+  "result": {
+    "count": 1,
+    "id": "createinteroperable:multi_radiator_south"
+  }
+}

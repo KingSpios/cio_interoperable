@@ -117,6 +117,20 @@ public class CIOItems {
     public static final DeferredItem<BlockItem> CEE_REDSTONE_SWITCH = CEE ? ITEMS.registerSimpleBlockItem(
             "cee_redstone_switch", CIOBlocks.CEE_REDSTONE_SWITCH) : null;
 
+    // --- Aircon (PG- and CEE-gated motor bottoms, unconditional top/venter — see CIOBlocks) ---
+
+    public static final DeferredItem<BlockItem> AIRCON_MOTOR_BOTTOM = PG ? ITEMS.registerSimpleBlockItem(
+            "aircon_motor_bottom", CIOBlocks.AIRCON_MOTOR_BOTTOM) : null;
+
+    public static final DeferredItem<BlockItem> CEE_AIRCON_MOTOR_BOTTOM = CEE ? ITEMS.registerSimpleBlockItem(
+            "cee_aircon_motor_bottom", CIOBlocks.CEE_AIRCON_MOTOR_BOTTOM) : null;
+
+    public static final DeferredItem<BlockItem> AIRCON_MOTOR_TOP = ITEMS.registerSimpleBlockItem(
+            "aircon_motor_top", CIOBlocks.AIRCON_MOTOR_TOP);
+
+    public static final DeferredItem<BlockItem> AIRCON_VENTER = ITEMS.registerSimpleBlockItem(
+            "aircon_venter", CIOBlocks.AIRCON_VENTER);
+
     public static void register(IEventBus modEventBus) {
         ITEMS.register(modEventBus);
     }

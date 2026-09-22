@@ -27,9 +27,11 @@ import net.neoforged.neoforge.registries.DeferredRegister;
  * the CEE-only fallback, STEAM_OUTLET if neither grid mod is present) — CORE
  * used to be the icon, but the whole Transformer/Coupler/connector "bridge
  * extras" family is disabled (see CIOBlocks.BRIDGE_EXTRAS): real, current
- * content is the Steam Outlet + Brass Heater (grid-independent, always
+ * content is the Steam Outlet + Radiator end caps (grid-independent, always
  * shown), the Grid (Double) Coupler, the three Telephone variants, and the
- * DEB/Power Kit family.
+ * DEB/Power Kit family. Brass Heater and the PG Redstone Switch are real,
+ * registered content (still reachable via /give) but deliberately left out
+ * of this list — not ready to surface to players yet.
  */
 public class CIOCreativeTab {
     private static final DeferredRegister<CreativeModeTab> REGISTER =
@@ -44,9 +46,16 @@ public class CIOCreativeTab {
                         boolean pg = PowerGridCompat.present();
                         boolean cee = ElectroEnergeticsCompat.present();
                         output.accept(CIOItems.STEAM_OUTLET.get());
-                        output.accept(CIOItems.BRASS_HEATER.get());
                         output.accept(CIOItems.RADIATOR_VALVE_NORTH.get());
                         output.accept(CIOItems.RADIATOR_VALVE_SOUTH.get());
+                        output.accept(CIOItems.AIRCON_VENTER.get());
+                        output.accept(CIOItems.AIRCON_MOTOR_TOP.get());
+                        if (pg) {
+                            output.accept(CIOItems.AIRCON_MOTOR_BOTTOM.get());
+                        }
+                        if (cee) {
+                            output.accept(CIOItems.CEE_AIRCON_MOTOR_BOTTOM.get());
+                        }
                         if (pg && cee) {
                             output.accept(CIOItems.DOUBLE_COUPLER.get());
                             output.accept(CIOItems.TELEPHONE.get());
@@ -56,8 +65,8 @@ public class CIOCreativeTab {
                             output.accept(CIOItems.DEB_RECTIFIER.get());
                             output.accept(CIOItems.DEB_RECTIFIER_TIER3.get());
                             output.accept(CIOItems.DEB_RECTIFIER_TIER4.get());
-                            output.accept(CIOItems.REDSTONE_SWITCH.get());
                             output.accept(CIOItems.CPG_TELEPHONE.get());
+                            output.accept(CIOItems.CIO_DOUBLE_CONNECTOR.get());
                         }
                         if (cee) {
                             output.accept(CIOItems.CEE_DEB_RECTIFIER_TIER1.get());

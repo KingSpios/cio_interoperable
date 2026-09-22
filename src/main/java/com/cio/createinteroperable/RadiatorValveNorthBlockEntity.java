@@ -1,7 +1,9 @@
 package com.cio.createinteroperable;
 
+import com.cio.createinteroperable.compat.ColdSweatChillEffect;
 import com.cio.createinteroperable.compat.ColdSweatCompat;
 import com.cio.createinteroperable.compat.ColdSweatWarmthEffect;
+import com.cio.createinteroperable.compat.ColdSweatWorldTemp;
 import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.content.kinetics.base.KineticBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
@@ -17,9 +19,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
@@ -27,10 +31,14 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.WeakHashMap;
 
 /**
  * The steam-consuming, heat-producing half of a Multi Radiator — see
@@ -52,13 +60,11 @@ import java.util.Set;
  *     instead of just disappearing like Brass Heater's own consumption does.</li>
  * </ul>
  * <p>
- * TODO(design, scaffold-only): capacity (tank size / max consumption) is
- * still a flat placeholder, not yet scaled by {@code middlePositions.size()}
- * — more segments presumably should mean more throughput, not implemented.
  * HEAT_LEVEL tiering (pipe texture AND the actual Cold Sweat effect on the
- * player — see {@code data/createinteroperable/block/block_temp/multi_radiator_*.json},
- * same zero-dependency datapack mechanism as Brass Heater's own) reuses
- * Brass Heater's exact thresholds via {@link BrassHeaterBlockEntity#quantizeHeatTier}.
+ * player) uses its OWN thresholds (see {@link #quantizeHeatTier}), not Brass
+ * Heater's — each tier's fraction of max steam throughput is simply that
+ * tier's own °C divided by BLAZING's, matching how much warmer each tier
+ * actually makes the flood-filled room (see {@link #WARM_ADD_C}).
  */
 public class RadiatorValveNorthBlockEntity extends KineticBlockEntity {
     /**
@@ -93,8 +99,8 @@ public class RadiatorValveNorthBlockEntity extends KineticBlockEntity {
 
     /** 0 = closed, 1 = open — see BrassHeaterBlockEntity#pointer for the exact chase mechanic. */
     private final LerpedFloat pointer = LerpedFloat.linear()
-            .startWithValue(0)
-            .chase(0, 0, Chaser.LINEAR);
+            .startWithValue(1)
+            .chase(1, 0, Chaser.LINEAR);
 
     private float heatFraction = 0;
 
@@ -119,6 +125,29 @@ public class RadiatorValveNorthBlockEntity extends KineticBlockEntity {
      * gameTime, with no overflow risk since both operands stay small.
      */
     private long roomCacheComputedAtTick = -ROOM_RECOMPUTE_INTERVAL_TICKS;
+    /** A point just past the room's own boundary — see {@link #computeRoom}'s own doc for how it's picked. Null if the room is unbounded in every direction it tried (no rejected boundary cell found at all). */
+    @Nullable
+    private BlockPos outsideReferencePos = null;
+    /** This tick's real interior/exterior readings (°C), refreshed on the same cadence as {@link #roomCache} — see {@link RoomClimateComparison}. NaN until first computed. */
+    private double insideTempC = Double.NaN;
+    private double outsideTempC = Double.NaN;
+
+    /**
+     * Every currently-loaded, assembled Hearth — lets {@link CatSteamHearthGoal}
+     * find nearby Hearths without an expensive block-by-block world scan (see
+     * that class's own doc). Re-added (idempotently) every {@link #tick()}
+     * rather than tracked through an explicit remove hook — a plain {@link
+     * WeakHashMap}-backed set means an unloaded/discarded Hearth just falls
+     * out on its own once nothing else references it, no lifecycle bookkeeping
+     * needed. Single-threaded (server tick), so no synchronization required.
+     */
+    private static final Set<RadiatorValveNorthBlockEntity> ACTIVE_HEARTHS =
+            Collections.newSetFromMap(new WeakHashMap<>());
+
+    /** @return a point-in-time copy, safe to iterate while other Hearths keep ticking. */
+    public static List<RadiatorValveNorthBlockEntity> activeHearthsSnapshot() {
+        return new ArrayList<>(ACTIVE_HEARTHS);
+    }
 
     public RadiatorValveNorthBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -170,7 +199,7 @@ public class RadiatorValveNorthBlockEntity extends KineticBlockEntity {
      * the "clogged" condition: with nowhere for fresh condensate to go, the
      * whole run stalls (see #tick, which forces heatFraction to 0 whenever
      * this is true) and reads as COLD/FREEZING via the usual
-     * {@link BrassHeaterBlockEntity#quantizeHeatTier} threshold, exactly like
+     * {@link #quantizeHeatTier} threshold, exactly like
      * an idle or unpowered radiator — until the water is drained, either by
      * South's own dripstone leak (see RadiatorValveSouthBlockEntity#drip) or
      * by piping it back to a real consumer.
@@ -193,6 +222,7 @@ public class RadiatorValveNorthBlockEntity extends KineticBlockEntity {
         if (!(state.getBlock() instanceof RadiatorValveNorthBlock) || !state.getValue(RadiatorValveNorthBlock.ASSEMBLED)) {
             return;
         }
+        ACTIVE_HEARTHS.add(this);
 
         int maxConsumption = maxSteamConsumptionPerTick();
         float valvePosition = pointer.getValue();
@@ -225,16 +255,13 @@ public class RadiatorValveNorthBlockEntity extends KineticBlockEntity {
         // tick's fill() amount.
         heatFraction += (instantFraction - heatFraction) * HEAT_FRACTION_SMOOTHING;
 
-        // Reuses Brass Heater's exact thresholds/ambient formula (widened to
-        // package-visible on that class for this purpose) rather than
-        // re-deriving them — single source of truth for both blocks. Applied
-        // to the whole assembled run (self + every middle + South), not just
-        // this block, since the tiered pipe texture (see
+        // Own thresholds now, deliberately NOT Brass Heater's shared
+        // 0.25/0.65/0.88 curve — see #quantizeHeatTier's own doc for why.
+        // Applied to the whole assembled run (self + every middle + South),
+        // not just this block, since the tiered pipe texture (see
         // multi_radiator_*_warm/hot/blazing/freezing.json) is meant to read
         // as one continuous radiator glowing together.
-        BrassHeaterBlock.HeatLevel newTier = BrassHeaterBlockEntity.quantizeHeatTier(
-                heatFraction, BrassHeaterBlockEntity.ambientTemperatureC(level, worldPosition),
-                BrassHeaterBlockEntity.isCold(level, worldPosition));
+        BrassHeaterBlock.HeatLevel newTier = quantizeHeatTier(heatFraction, BrassHeaterBlockEntity.isCold(level, worldPosition));
         applyHeatLevel(newTier);
 
         if (level instanceof ServerLevel serverLevel) {
@@ -305,20 +332,58 @@ public class RadiatorValveNorthBlockEntity extends KineticBlockEntity {
         if (gameTime - roomCacheComputedAtTick >= ROOM_RECOMPUTE_INTERVAL_TICKS) {
             roomCache = computeRoom(serverLevel);
             roomCacheComputedAtTick = gameTime;
+            // Same cadence as the room itself — Cold Sweat's own
+            // getRoughTemperatureAt is already internally cached (~10s), so
+            // there's no benefit to re-sampling more often than the room
+            // shape itself gets re-walked.
+            insideTempC = ColdSweatWorldTemp.getWorldTemperatureC(serverLevel, worldPosition);
+            outsideTempC = outsideReferencePos != null
+                    ? ColdSweatWorldTemp.getWorldTemperatureC(serverLevel, outsideReferencePos)
+                    : insideTempC;
         }
+        // A real physical consequence of the heat, independent of the
+        // WARMTH/livability comparisons below (those gate the player-felt
+        // status; this melts actual world ice/snow) — see #tickIceSnowMelt.
+        tickIceSnowMelt(serverLevel, tier);
         tickHearthAirParticles(serverLevel);
         if (gameTime % WARMTH_APPLY_INTERVAL_TICKS != 0) {
             return;
         }
-        int amplifier = switch (tier) {
-            case BLAZING -> 2;
-            case HOT -> 1;
-            default -> 0;
-        };
+        // "A radiator on WARM inside a blizzard cabin that's still only 5°C
+        // should never grant WARMTH" — see RoomClimateComparison's own doc —
+        // still true, but now consulted ONLY for the cosmetic status icon
+        // below (showStatusIcon), not for whether the real temperature
+        // change happens at all. Gating the real change itself here was the
+        // actual bug (see ColdSweatWarmthEffect's own doc, "third fix"): the
+        // SimpleTempModifier that call ends up adding is the ONLY thing that
+        // ever touches a player's own felt/HUD temperature — Cold Sweat's
+        // position-ambient cache (what a Thermometer reads, patched by
+        // AirconClimateAmbientTempMixin) is a completely separate system its
+        // own per-player trait computation never reads. So gating this call
+        // meant the player's own number never moved at a weak tier in a room
+        // that hadn't reached "comfortable" yet, not just that it didn't also
+        // feel cozy.
+        boolean livable = RoomClimateComparison.warmthLivable(insideTempC, outsideTempC);
+        // The REAL delta, not an abstract tier number — same value
+        // getWarmingOffsetMc feeds into the position-based ambient sum, so
+        // the player's own felt warmth and Cold Sweat's world-temperature
+        // HUD gauge now track the exact same number a Thermometer at their
+        // position would show. See ColdSweatWarmthEffect's own doc for why
+        // this replaced an abstract amplifier. The base (pre-gradient) °C for
+        // this tier — {@link #gradientMultiplierAt} scales it per entity
+        // below, so the flat room-wide value only holds {@link
+        // #NEAR_ENDPOINT_RADIUS} blocks or more from every segment.
+        double baseAddC = addCForTier(tier);
         AABB searchArea = new AABB(worldPosition).inflate(ROOM_MAX_RANGE);
         if (southPos != null) {
             searchArea = searchArea.minmax(new AABB(southPos).inflate(ROOM_MAX_RANGE));
         }
+        // Applied to every entity found — players AND mobs, whichever happen
+        // to be in the room right now. Cold Sweat stores each entity's own
+        // modifier on that entity's own capability (confirmed by reading its
+        // real EntityTempManager source), so this is already correct with
+        // any number of concurrent players: each gets their own independent
+        // modifier purely from their own presence, nothing shared/global.
         for (LivingEntity entity : serverLevel.getEntitiesOfClass(LivingEntity.class, searchArea)) {
             // Standing right at the Inlet or Outlet always counts, even if
             // that exact spot didn't pass the room flood-fill's sky-exposure
@@ -329,13 +394,77 @@ public class RadiatorValveNorthBlockEntity extends KineticBlockEntity {
             boolean nearInletOrOutlet = isNear(entity, worldPosition) || (southPos != null && isNear(entity, southPos));
             boolean inRoom = roomCache.contains(entity.blockPosition()) || roomCache.contains(entity.blockPosition().above());
             if (nearInletOrOutlet || inRoom) {
-                ColdSweatWarmthEffect.apply(entity, amplifier, WARMTH_DURATION_TICKS);
+                double deltaMc = ColdSweatWorldTemp.celsiusToMc(baseAddC * gradientMultiplierAt(entity.blockPosition()));
+                ColdSweatWarmthEffect.apply(entity, deltaMc, WARMTH_DURATION_TICKS, livable);
             }
         }
     }
 
-    /** How close counts as "standing right at" the Inlet/Outlet for the unconditional warmth guarantee above. */
+    /** @return this tier's own flat, pre-gradient °C add — WARM/HOT/BLAZING only (0 is never queried, the caller already gates on it). */
+    private static double addCForTier(BrassHeaterBlock.HeatLevel tier) {
+        return switch (tier) {
+            case BLAZING -> BLAZING_ADD_C;
+            case HOT -> HOT_ADD_C;
+            default -> WARM_ADD_C;
+        };
+    }
+
+    /**
+     * How close counts as "standing right at" the Inlet/Outlet for the
+     * unconditional warmth guarantee above — doubles as the gradient falloff
+     * distance for {@link #NEAR_RADIATOR_BOOST_FRACTION} below (both are "3
+     * blocks" per the design request, so this one field drives both).
+     */
     private static final double NEAR_ENDPOINT_RADIUS = 3.0;
+
+    /**
+     * How much stronger the warmth reads right at one of this run's own
+     * physical segments (self, any middle, or South) — decays linearly to 0
+     * by {@link #NEAR_ENDPOINT_RADIUS} blocks away from the nearest segment.
+     * Deliberately NOT the same mechanism as the old "cold corner problem"
+     * bug fixed in {@code AirconClimateAmbientTempMixin} (rooms used to read
+     * hottest near the radiator purely as an artifact of Cold Sweat's own
+     * ambient-temperature segment caching, the opposite of the intended flat
+     * effect) — that was an accidental double-count, fixed by making every
+     * source a single fresh per-position delta. This is a deliberate, small,
+     * intentional boost computed fresh at the exact queried position every
+     * time (see {@link #gradientMultiplierAt}), so it can never reintroduce
+     * that bug: everywhere from {@link #NEAR_ENDPOINT_RADIUS} outward reads
+     * exactly the flat, uniform tier value the room is supposed to have.
+     */
+    private static final double NEAR_RADIATOR_BOOST_FRACTION = 0.25;
+
+    /**
+     * @return the nearest of this run's own physical segments (self, every
+     * middle, South) to {@code pos}, as a real Euclidean block-center
+     * distance — the basis for {@link #gradientMultiplierAt}.
+     */
+    private double nearestSegmentDistance(BlockPos pos) {
+        Vec3 point = Vec3.atCenterOf(pos);
+        double best = point.distanceTo(Vec3.atCenterOf(worldPosition));
+        for (BlockPos middlePos : middlePositions) {
+            best = Math.min(best, point.distanceTo(Vec3.atCenterOf(middlePos)));
+        }
+        if (southPos != null) {
+            best = Math.min(best, point.distanceTo(Vec3.atCenterOf(southPos)));
+        }
+        return best;
+    }
+
+    /**
+     * @return the multiplier {@link #addCForStrength} gets scaled by at
+     * {@code pos} — {@code 1.0 + NEAR_RADIATOR_BOOST_FRACTION} right at a
+     * segment, linearly fading back down to a flat {@code 1.0} by
+     * {@link #NEAR_ENDPOINT_RADIUS} blocks away from the nearest one, and
+     * {@code 1.0} (no boost at all) beyond that — matching "25% higher right
+     * next to the radiator, with a gradient of 3 blocks away" from the
+     * design request, on top of the otherwise-uniform room-wide value.
+     */
+    private double gradientMultiplierAt(BlockPos pos) {
+        double distance = nearestSegmentDistance(pos);
+        double falloff = Mth.clamp(1.0 - distance / NEAR_ENDPOINT_RADIUS, 0.0, 1.0);
+        return 1.0 + NEAR_RADIATOR_BOOST_FRACTION * falloff;
+    }
 
     /**
      * @return the Cold Sweat {@code WarmthTempModifier} "strength" (1/2/3 for
@@ -346,18 +475,15 @@ public class RadiatorValveNorthBlockEntity extends KineticBlockEntity {
      * near-endpoint-or-in-room test {@link #tickHearthEffect} uses for living
      * entities, but as a pure position query with no entity involved.
      * <p>
-     * Called from {@code WorldHelperMixin} (a Cold-Sweat-only mixin, isolated
+     * Called from {@link #getWarmingOffsetMc}, in turn read by
+     * {@code AirconClimateAmbientTempMixin} (a Cold-Sweat-only mixin, isolated
      * the same way as everything under {@code compat}) so that ANY
      * position-based Cold Sweat temperature query — a real Cold Sweat
      * Thermometer, PG's own {@code ThermalBehaviour} ambient baseline, our own
      * {@code isCold} freezing-texture check — sees the same room-wide warmth a
      * living entity standing there already receives via the per-entity
      * modifier above, instead of that warmth being invisible to every query
-     * that isn't "is a specific LivingEntity inside the room" (see
-     * {@code WorldHelper.getInsulationAt}'s real source: it only ever
-     * recognizes Cold Sweat's own native {@code HearthBlockEntity}, by a
-     * literal {@code instanceof} check with nothing to hook into otherwise —
-     * confirmed by reading it directly).
+     * that isn't "is a specific LivingEntity inside the room".
      */
     public int hearthStrengthAt(BlockPos pos) {
         BlockState state = getBlockState();
@@ -387,18 +513,143 @@ public class RadiatorValveNorthBlockEntity extends KineticBlockEntity {
     }
 
     /**
-     * Same {@code warm_air} ambient particle the real Cold Sweat Hearth
-     * drifts through its own trapped room, at the same density formula (see
-     * {@code HearthBlockEntity#spawnRandomAirParticles}: {@code count =
-     * max(1, roomSize / 100)}, one random cell per particle, small random
-     * offset within the cell plus a gentle horizontal drift) — this is what
-     * makes the room read as "the whole space is warm," not just wherever the
-     * player happens to be standing. Runs every tick (like the real Hearth's
-     * own client-tick spawner) rather than on the 20-tick WARMTH_APPLY
-     * cadence, since it's cosmetic and should feel continuous.
+     * WARM/HOT/BLAZING each ADD this many °C on top of whatever the ambient
+     * already is — deliberately NOT an absolute floor/target anymore. A
+     * floor ({@code Math.max(original, 19)}) reads fine in isolation, but
+     * breaks the moment a venter's own cooling delta can touch the same
+     * position: whichever of the two mixins happened to run last would
+     * simply clobber the other's result outright (a flat/floor override
+     * doesn't know or care that the value it's comparing against is itself
+     * someone else's deliberate adjustment, not the "real" baseline) — the
+     * radiator would win 100% of the time if its injector ran after the
+     * venter's, or lose 100% of the time if before, regardless of which
+     * source was actually stronger.
+     * <p>
+     * 12:22:32 ratio (not a clean 1:2:4 anymore — see this field's own
+     * revision history) still keeps the SAME proportional relationship to
+     * how much of this run's max steam throughput each tier costs to sustain
+     * (see {@link #WARM_STEAM_FRACTION}/{@link #HOT_STEAM_FRACTION}/
+     * {@link #BLAZING_STEAM_FRACTION}, each just this tier's own °C divided
+     * by {@link #BLAZING_ADD_C}), so "more heat" still genuinely costs
+     * proportionally more steam, whatever the exact degree numbers are.
+     */
+    private static final double WARM_ADD_C = 12.0;
+    private static final double HOT_ADD_C = 22.0;
+    private static final double BLAZING_ADD_C = 32.0;
+
+    /**
+     * Own thresholds — deliberately NOT
+     * {@link BrassHeaterBlockEntity#quantizeHeatTier}'s shared 0.25/0.65/0.88
+     * curve: Brass Heater doesn't add real flood-fill degrees at all, so
+     * there was never a real reason for its curve to also govern what this
+     * block's tiers mean. Each fraction is simply this tier's own °C
+     * ({@link #WARM_ADD_C}/{@link #HOT_ADD_C}) divided by
+     * {@link #BLAZING_ADD_C} — BLAZING (32°C) still costs the FULL max steam
+     * throughput of the run (100%), and WARM/HOT cost proportionally less,
+     * exactly matching how much warmer each tier actually makes the room.
+     * <p>
+     * On "100% valve, still not BLAZING" reports: the boiler's own real
+     * output (see {@link SteamOutletBlockEntity#availableSteamPerTick}) is
+     * essentially never the bottleneck — even a small, 4-block boiler at
+     * heat level 1 already supplies far more than this run's max throughput
+     * ever needs (an unbounded, at-most-256-mB/t{@literal ,} see below). The
+     * REAL ceiling, confirmed by reading Create: Pipes n Physics' own config
+     * defaults, is its real hydraulics simulation: pipes do NOT self-propel
+     * fluid off boiler "pressure" alone — {@code pipeConductance} (240 mB/t
+     * per block of real head difference) only moves anything at all if
+     * something is actually supplying head, and a bare boiler-to-radiator
+     * pipe run with zero elevation and no pump in line has ~zero head, hence
+     * ~zero flow, REGARDLESS of boiler size. A real Create Mechanical Pump
+     * physically inserted into the run fixes this ({@code pumpFlowPerRpm} =
+     * 1.0 mB/t per RPM, so a pump's own RPM needs to be roughly at least
+     * this run's {@link #maxSteamConsumptionPerTick()} — up to 60 mB/t at
+     * {@link RadiatorAssembly#MAX_MIDDLE} middles, i.e. a ~60+ RPM pump is
+     * plenty). Everything here comfortably clears PnP's own hard
+     * {@code maxFlowPerEndpoint} cap (256 mB/t default) at any legal chain
+     * length, so nothing on OUR side needed lowering — a "big boiler" alone,
+     * with no pump providing real head, was never going to reach BLAZING no
+     * matter how large it got.
+     */
+    private static final float WARM_STEAM_FRACTION = (float) (WARM_ADD_C / BLAZING_ADD_C);
+    private static final float HOT_STEAM_FRACTION = (float) (HOT_ADD_C / BLAZING_ADD_C);
+    private static final float BLAZING_STEAM_FRACTION = 1.0f;
+
+    /** @return the tier {@code fraction} (of this run's own max steam throughput, see {@link #maxSteamConsumptionPerTick}) lands in — COLD/FREEZING below {@link #WARM_STEAM_FRACTION}, same as Brass Heater's own low end. */
+    private static BrassHeaterBlock.HeatLevel quantizeHeatTier(float fraction, boolean coldBiome) {
+        if (fraction < WARM_STEAM_FRACTION) {
+            return coldBiome ? BrassHeaterBlock.HeatLevel.FREEZING : BrassHeaterBlock.HeatLevel.COLD;
+        }
+        if (fraction < HOT_STEAM_FRACTION) {
+            return BrassHeaterBlock.HeatLevel.WARM;
+        }
+        if (fraction < BLAZING_STEAM_FRACTION) {
+            return BrassHeaterBlock.HeatLevel.HOT;
+        }
+        return BrassHeaterBlock.HeatLevel.BLAZING;
+    }
+
+    /**
+     * @return the (always &gt;= 0) ambient-temperature delta, in Cold
+     * Sweat's "MC" unit, this run's current tier currently adds at
+     * {@code pos}, or 0 if {@link #hearthStrengthAt} says this Hearth isn't
+     * heating there at all. Deliberately a pure additive delta, not an
+     * absolute target — see this class's own {@link #WARM_ADD_C} doc for
+     * why. Read by {@code AirconClimateAmbientTempMixin}, which sums this
+     * with every other nearby radiator's and venter's own delta into one
+     * real, order-independent result on top of
+     * {@code WorldHelper.getRoughTemperatureAt}'s real return value — the
+     * same reliable direct-override technique
+     * {@code AirconVenterBlockEntity#getCoolingOffsetMc} already uses for
+     * cooling, deliberately NOT the per-entity {@code WarmthTempModifier}
+     * this class also applies below (see {@link #tickHearthEffect}) — that
+     * mob-effect layer stays as real, visible player feedback, but the
+     * ambient READING itself (what a Cold Sweat Thermometer, or PG's own
+     * ThermalBehaviour, actually sees) needs this direct delta to genuinely
+     * move, which a per-entity modifier alone doesn't achieve.
+     * <p>
+     * Only reachable when Cold Sweat is present (checked by the caller's
+     * own mixin gate, same as {@link #hearthStrengthAt}) — this method
+     * itself only calls the isolated {@link ColdSweatWorldTemp#celsiusToMc}
+     * helper, never a Cold-Sweat type directly, so it's safe to leave
+     * unguarded here too.
+     */
+    public double getWarmingOffsetMc(BlockPos pos) {
+        int strength = hearthStrengthAt(pos);
+        if (strength <= 0) {
+            return 0.0;
+        }
+        double addC = switch (strength) {
+            case 3 -> BLAZING_ADD_C;
+            case 2 -> HOT_ADD_C;
+            default -> WARM_ADD_C;
+        };
+        // Same near-segment gradient boost as the per-entity WARMTH effect
+        // (see #tickHearthEffect) — computed fresh at this exact pos, so it
+        // can never reintroduce the old "cold corner" double-count bug (see
+        // NEAR_RADIATOR_BOOST_FRACTION's own doc).
+        return ColdSweatWorldTemp.celsiusToMc(addC * gradientMultiplierAt(pos));
+    }
+
+    /**
+     * Drifts {@code warm_air} or {@code cold_air} through the trapped room
+     * (same density formula as the real Cold Sweat Hearth's own
+     * {@code spawnRandomAirParticles}: {@code count = max(1, roomSize / 100)},
+     * one random cell per particle, small random offset within the cell plus
+     * a gentle horizontal drift) — WHICH of the two depends on
+     * {@link RoomClimateComparison#particleFor}, not on this being "the heat
+     * block": a radiator can legitimately read as the COLDER side of its own
+     * room (e.g. a much stronger nearby venter overpowering it), and this
+     * should show cold particles in that case rather than always assuming
+     * warm. Runs every tick (like the real Hearth's own client-tick spawner)
+     * rather than on the 20-tick WARMTH_APPLY cadence, since it's cosmetic
+     * and should feel continuous.
      */
     private void tickHearthAirParticles(ServerLevel serverLevel) {
         if (roomCache.isEmpty()) {
+            return;
+        }
+        RoomClimateComparison.RoomParticle particle = RoomClimateComparison.particleFor(insideTempC, outsideTempC);
+        if (particle == RoomClimateComparison.RoomParticle.NONE) {
             return;
         }
         int count = Math.max(1, roomCache.size() / 100);
@@ -410,7 +661,11 @@ public class RadiatorValveNorthBlockEntity extends KineticBlockEntity {
             double z = pos.getZ() + serverLevel.random.nextDouble();
             double xMotion = serverLevel.random.nextDouble() / 20 - 0.025;
             double zMotion = serverLevel.random.nextDouble() / 20 - 0.025;
-            ColdSweatWarmthEffect.spawnAirParticle(serverLevel, x, y, z, xMotion, zMotion);
+            if (particle == RoomClimateComparison.RoomParticle.HOT) {
+                ColdSweatWarmthEffect.spawnAirParticle(serverLevel, x, y, z, xMotion, zMotion);
+            } else {
+                ColdSweatChillEffect.spawnAirParticle(serverLevel, x, y, z, xMotion, zMotion);
+            }
         }
     }
 
@@ -422,16 +677,37 @@ public class RadiatorValveNorthBlockEntity extends KineticBlockEntity {
      * expanded from (heat escapes there instead of spreading further),
      * mirroring the real Hearth's own skylight-pruning behavior without
      * needing its full incremental SpreadPath machinery.
+     * <p>
+     * Never expands below {@code floorY} (the lowest Y among this run's own
+     * seed positions) — heat rises, so a Steam Hearth warms everything above
+     * and beside it but never the floor(s) underneath, a deliberate incentive
+     * to place heating low in a build rather than mid-way up (matches
+     * {@link AirconVenterBlockEntity#computeRoom}'s own opposite rule for
+     * cooling, which caps upward reach instead of downward).
+     * <p>
+     * Also picks {@link #outsideReferencePos} as a side effect: every cell
+     * the BFS REJECTS right at the boundary of an already-accepted room cell
+     * (out of range, below the floor, a solid wall, or open to the sky) is a
+     * genuine "just past the limit" point — recorded here for free since the
+     * BFS already visits it, no separate walk needed. One is picked at
+     * random, and the reference point is 5 more blocks further in that same
+     * outward direction, per the design conversation ("a random point 5
+     * blocks outside the limits of the flood-fill area").
      */
     private Set<BlockPos> computeRoom(ServerLevel serverLevel) {
         Set<BlockPos> room = new HashSet<>();
         Deque<BlockPos> frontier = new ArrayDeque<>();
+        List<BoundaryStep> boundarySteps = new ArrayList<>();
 
         List<BlockPos> seeds = new ArrayList<>(middlePositions.size() + 2);
         seeds.add(worldPosition);
         seeds.addAll(middlePositions);
         if (southPos != null) {
             seeds.add(southPos);
+        }
+        int floorY = worldPosition.getY();
+        for (BlockPos seed : seeds) {
+            floorY = Math.min(floorY, seed.getY());
         }
         for (BlockPos seed : seeds) {
             if (room.add(seed)) {
@@ -443,21 +719,40 @@ public class RadiatorValveNorthBlockEntity extends KineticBlockEntity {
             BlockPos current = frontier.poll();
             for (Direction direction : Direction.values()) {
                 BlockPos next = current.relative(direction);
-                if (room.contains(next) || !withinRoomRange(next)) {
+                if (room.contains(next)) {
+                    continue;
+                }
+                if (!withinRoomRange(next) || next.getY() < floorY) {
+                    boundarySteps.add(new BoundaryStep(next, direction));
                     continue;
                 }
                 BlockState state = serverLevel.getBlockState(next);
                 if (state.canOcclude() && !state.isAir()) {
+                    boundarySteps.add(new BoundaryStep(next, direction));
                     continue;
                 }
                 if (serverLevel.canSeeSky(next)) {
+                    boundarySteps.add(new BoundaryStep(next, direction));
                     continue;
                 }
                 room.add(next);
                 frontier.add(next);
             }
         }
+
+        outsideReferencePos = boundarySteps.isEmpty() ? null
+                : boundarySteps.get(serverLevel.random.nextInt(boundarySteps.size())).outward(OUTSIDE_REFERENCE_DISTANCE);
         return room;
+    }
+
+    /** How far past a rejected boundary cell {@link #outsideReferencePos} sits — "5 blocks outside the limits" per the design conversation. */
+    private static final int OUTSIDE_REFERENCE_DISTANCE = 5;
+
+    /** A boundary cell the flood-fill rejected, plus the direction it was reached from — see {@link #computeRoom}'s own doc. */
+    private record BoundaryStep(BlockPos pos, Direction direction) {
+        BlockPos outward(int extraDistance) {
+            return pos.relative(direction, extraDistance);
+        }
     }
 
     private boolean withinRoomRange(BlockPos pos) {
@@ -465,6 +760,141 @@ public class RadiatorValveNorthBlockEntity extends KineticBlockEntity {
         int dy = Math.abs(pos.getY() - worldPosition.getY());
         int dz = Math.abs(pos.getZ() - worldPosition.getZ());
         return Math.max(dx, Math.max(dy, dz)) <= ROOM_MAX_RANGE;
+    }
+
+    // --- Ice/snow melting — the warmth mirror of AirconVenterBlockEntity#tickWaterFreeze. ---
+
+    /** Real (Euclidean) distance from any run segment within which ice/snow always melts immediately, regardless of the flood-filled room — "4 blocks around a working radiator" per the design request. */
+    private static final double NEAR_MELT_RADIUS = 4.0;
+    /** Same cadence as {@code AirconVenterBlockEntity#FREEZE_SCAN_INTERVAL_TICKS} — short enough that "a few seconds" reads responsively, independent of the much slower room recompute. */
+    private static final int MELT_SCAN_INTERVAL_TICKS = 5;
+    /** Real seconds of continuous exposure a room-interior ice block needs at each tier before turning to water — "a few seconds (depending on setting)" per the design request; BLAZING melts fastest. */
+    private static final double MELT_SECONDS_WARM = 8.0;
+    private static final double MELT_SECONDS_HOT = 4.0;
+    private static final double MELT_SECONDS_BLAZING = 1.0;
+
+    /** Accumulated exposure ticks per room-interior ice position currently mid-melt (positions within {@link #NEAR_MELT_RADIUS} skip this entirely — see {@link #tickIceSnowMelt}, they melt immediately instead). Pruned the instant a position stops being ice (melted, mined, or the room reshaped). */
+    private final Map<BlockPos, Integer> meltExposureTicks = new HashMap<>();
+    private long meltScanComputedAtTick = -MELT_SCAN_INTERVAL_TICKS;
+
+    /** @return real seconds of exposure required to melt room-interior ice at {@code tier} — see {@link #MELT_SECONDS_WARM}/{@link #MELT_SECONDS_HOT}/{@link #MELT_SECONDS_BLAZING}. */
+    private static int meltRequiredTicks(BrassHeaterBlock.HeatLevel tier) {
+        double seconds = switch (tier) {
+            case BLAZING -> MELT_SECONDS_BLAZING;
+            case HOT -> MELT_SECONDS_HOT;
+            default -> MELT_SECONDS_WARM;
+        };
+        return Math.max(1, (int) Math.round(seconds * 20.0));
+    }
+
+    /**
+     * The warmth mirror of {@code AirconVenterBlockEntity#tickWaterFreeze} —
+     * "ice and snow 4 blocks around a working radiator should melt, and also
+     * inside the flood-filled area, no ice blocks should survive, turning to
+     * water sources after a few seconds (depending on setting); snow gets
+     * removed anywhere the flood-filled area touches" per the design request.
+     * Two independent effects:
+     * <ul>
+     *     <li>Within {@link #NEAR_MELT_RADIUS} of ANY run segment (self, a
+     *     middle, or South) — ice and snow melt immediately, every scan.</li>
+     *     <li>Throughout the whole flood-filled {@link #roomCache} — snow is
+     *     removed immediately (same as the near-radius case), while ice
+     *     accumulates exposure and converts to a water source only after
+     *     {@link #meltRequiredTicks(BrassHeaterBlock.HeatLevel)} — genuinely
+     *     "after a few seconds," not instant, unlike snow or the near-radius
+     *     case.</li>
+     * </ul>
+     * Called every tick from {@link #tickHearthEffect} (already gated there
+     * on WARM/HOT/BLAZING) — this method's own {@link #MELT_SCAN_INTERVAL_TICKS}
+     * gate keeps the real scan cost down to once every quarter-second rather
+     * than every tick.
+     */
+    private void tickIceSnowMelt(ServerLevel serverLevel, BrassHeaterBlock.HeatLevel tier) {
+        long gameTime = serverLevel.getGameTime();
+        if (gameTime - meltScanComputedAtTick < MELT_SCAN_INTERVAL_TICKS) {
+            return;
+        }
+        int elapsedTicks = meltScanComputedAtTick < 0 ? MELT_SCAN_INTERVAL_TICKS
+                : (int) (gameTime - meltScanComputedAtTick);
+        meltScanComputedAtTick = gameTime;
+
+        Set<BlockPos> meltedNear = meltNearSegments(serverLevel);
+
+        int requiredTicks = meltRequiredTicks(tier);
+        Set<BlockPos> stillIce = new HashSet<>();
+        for (BlockPos pos : roomCache) {
+            if (meltedNear.contains(pos)) {
+                // Already handled (instantly) by the near-radius pass above
+                // — skip so it isn't also entered into the exposure map.
+                continue;
+            }
+            BlockState state = serverLevel.getBlockState(pos);
+            if (isSnow(state)) {
+                serverLevel.removeBlock(pos, false);
+                continue;
+            }
+            if (!state.is(Blocks.ICE)) {
+                continue;
+            }
+            stillIce.add(pos);
+            int exposure = meltExposureTicks.getOrDefault(pos, 0) + elapsedTicks;
+            if (exposure >= requiredTicks) {
+                serverLevel.setBlockAndUpdate(pos, Blocks.WATER.defaultBlockState());
+            } else {
+                meltExposureTicks.put(pos, exposure);
+            }
+        }
+        meltExposureTicks.keySet().retainAll(stillIce);
+    }
+
+    /**
+     * Melts ice and removes snow immediately at every position within
+     * {@link #NEAR_MELT_RADIUS} of any run segment — deliberately a real
+     * Euclidean sphere per segment (not the room's own Chebyshev range), and
+     * deduplicated across overlapping segments so a short multiblock run
+     * doesn't redo the same position multiple times in one scan.
+     *
+     * @return every position actually visited (melted or not) by this pass,
+     * so {@link #tickIceSnowMelt} can skip re-entering them into the room's
+     * own slower exposure-based path.
+     */
+    private Set<BlockPos> meltNearSegments(ServerLevel serverLevel) {
+        List<BlockPos> seeds = new ArrayList<>(middlePositions.size() + 2);
+        seeds.add(worldPosition);
+        seeds.addAll(middlePositions);
+        if (southPos != null) {
+            seeds.add(southPos);
+        }
+
+        Set<BlockPos> visited = new HashSet<>();
+        int radius = (int) Math.ceil(NEAR_MELT_RADIUS);
+        double radiusSq = NEAR_MELT_RADIUS * NEAR_MELT_RADIUS;
+        for (BlockPos seed : seeds) {
+            for (int dx = -radius; dx <= radius; dx++) {
+                for (int dy = -radius; dy <= radius; dy++) {
+                    for (int dz = -radius; dz <= radius; dz++) {
+                        if (dx * dx + dy * dy + dz * dz > radiusSq) {
+                            continue;
+                        }
+                        BlockPos pos = seed.offset(dx, dy, dz);
+                        if (!visited.add(pos)) {
+                            continue;
+                        }
+                        BlockState state = serverLevel.getBlockState(pos);
+                        if (state.is(Blocks.ICE)) {
+                            serverLevel.setBlockAndUpdate(pos, Blocks.WATER.defaultBlockState());
+                        } else if (isSnow(state)) {
+                            serverLevel.removeBlock(pos, false);
+                        }
+                    }
+                }
+            }
+        }
+        return visited;
+    }
+
+    private static boolean isSnow(BlockState state) {
+        return state.is(Blocks.SNOW) || state.is(Blocks.SNOW_BLOCK);
     }
 
     /**
@@ -507,6 +937,49 @@ public class RadiatorValveNorthBlockEntity extends KineticBlockEntity {
                         .setValue(RadiatorValveSouthBlock.HEAT_BLAZING, blazing));
             }
         }
+    }
+
+    /**
+     * @return this run's current HEAT_LEVEL (COLD if not actually assembled
+     * right now — mirrors {@link #hearthStrengthAt}'s own "not heating"
+     * convention) — read from the synced blockstate rather than a separate
+     * cached field, same source {@link #applyHeatLevel} itself writes to.
+     * Used by {@link CatSteamHearthGoal} to decide whether/how cats should be
+     * attracted to this run at all right now.
+     */
+    public BrassHeaterBlock.HeatLevel getHeatTier() {
+        BlockState state = getBlockState();
+        if (!(state.getBlock() instanceof RadiatorValveNorthBlock) || !state.getValue(RadiatorValveNorthBlock.ASSEMBLED)) {
+            return BrassHeaterBlock.HeatLevel.COLD;
+        }
+        return state.getValue(RadiatorValveNorthBlock.HEAT_LEVEL);
+    }
+
+    /**
+     * @return every physical segment of this assembled run (self, every
+     * middle, South) — the same seed set {@link #computeRoom} floods outward
+     * from. Empty (well, just self) until assembled. Used by
+     * {@link CatSteamHearthGoal} to find lie-on-top/lie-beside candidate
+     * positions.
+     */
+    public List<BlockPos> getAllSegmentPositions() {
+        List<BlockPos> segments = new ArrayList<>(middlePositions.size() + 2);
+        segments.add(worldPosition);
+        segments.addAll(middlePositions);
+        if (southPos != null) {
+            segments.add(southPos);
+        }
+        return segments;
+    }
+
+    /**
+     * @return the current flood-filled "trapped room" — see {@link
+     * #computeRoom}. The returned set is replaced wholesale (never mutated
+     * in place) each recompute, so it's safe for a caller to hold onto this
+     * reference across ticks without it changing out from under them.
+     */
+    public Set<BlockPos> getRoomCache() {
+        return roomCache;
     }
 
     /** @return the fraction (0..1) of maximum steam throughput actually being burned right now. */

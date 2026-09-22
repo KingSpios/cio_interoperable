@@ -41,6 +41,13 @@
   "block.createinteroperable.multi_radiator_middle": "Steam Hearth Radiator",
   "block.createinteroperable.multi_radiator.tooltip": "Works like a Cold Sweat Hearth when powered by steam.",
 
+  "createinteroperable.aircon_power_setting": "Cooling Setting",
+
+  "block.createinteroperable.aircon_motor_bottom": "Aircon Motor",
+  "block.createinteroperable.cee_aircon_motor_bottom": "CEE Aircon Motor",
+  "block.createinteroperable.aircon_motor_top": "Aircon Fan",
+  "block.createinteroperable.aircon_venter": "Aircon Venter",
+
   "block.createinteroperable.telephone": "Interoperable Telephone",
   "block.createinteroperable.cpg_telephone": "CPG Telephone",
   "block.createinteroperable.cee_telephone": "CEE Telephone",
@@ -93,6 +100,8 @@
   "createinteroperable.goggle.power_kit.state_idle": " idle",
 
   "fluid.createinteroperable.steam": "Steam",
+  "fluid.createinteroperable.hot_air": "Hot Air",
+  "fluid.createinteroperable.cold_air": "Cold Air",
 
   "message.createinteroperable.fixture.no_supply": "No water supply connected to this fixture.",
   "message.createinteroperable.fixture.dry": "The connected supply has no water."

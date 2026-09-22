@@ -3,7 +3,8 @@
   "package": "com.cio.createinteroperable.mixin.coldsweat",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "WorldHelperMixin"
+    "AirconClimateAmbientTempMixin",
+    "PeacefulTemperatureMixin"
   ],
   "client": [],
   "minVersion": "0.8"

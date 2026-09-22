@@ -1,0 +1,25 @@
+{
+	"format_version": "1.9.0",
+	"credit": "Made with Blockbench",
+	"parent": "block/block",
+	"textures": {
+		"6": "createinteroperable:block/ac_white_venter",
+		"particle": "block/spruce_log"
+	},
+	"elements": [
+		{
+			"name": "flap1",
+			"from": [2, 14, 12],
+			"to": [14, 14, 14],
+			"rotation": {"angle": 0, "axis": "x", "origin": [8, 14, 13]},
+			"faces": {
+				"north": {"uv": [0, 2, 16, 2], "texture": "#6"},
+				"east": {"uv": [0, 2, 2, 2], "texture": "#6"},
+				"south": {"uv": [0, 2, 16, 2], "texture": "#6"},
+				"west": {"uv": [0, 2, 2, 2], "texture": "#6"},
+				"up": {"uv": [15, 0, 16, 6], "rotation": 90, "texture": "#6"},
+				"down": {"uv": [7.5, 0, 8.5, 6], "rotation": 90, "texture": "#6"}
+			}
+		}
+	]
+}

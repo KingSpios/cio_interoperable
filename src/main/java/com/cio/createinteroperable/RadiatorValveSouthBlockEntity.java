@@ -74,8 +74,8 @@ public class RadiatorValveSouthBlockEntity extends KineticBlockEntity {
     };
 
     private final LerpedFloat pointer = LerpedFloat.linear()
-            .startWithValue(0)
-            .chase(0, 0, Chaser.LINEAR);
+            .startWithValue(1)
+            .chase(1, 0, Chaser.LINEAR);
 
     @Nullable
     private BlockPos northPos;

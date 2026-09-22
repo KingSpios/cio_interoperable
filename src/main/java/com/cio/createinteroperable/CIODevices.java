@@ -52,6 +52,11 @@ public class CIODevices {
             DEVICES.register("redstone_switch", () -> new SimulatedDeviceType<>(CreateInteroperable.rl("redstone_switch"),
                     ((type, level, pos, sd) -> new RedstoneSwitchCeeDevice(level, pos, sd, type))));
 
+    /** Electro Energetics side of the CEE Aircon Motor (a single dynamic-resistance load). */
+    public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<AirconCeeDevice>> AIRCON_MOTOR =
+            DEVICES.register("aircon_motor", () -> new SimulatedDeviceType<>(CreateInteroperable.rl("aircon_motor"),
+                    ((type, level, pos, sd) -> new AirconCeeDevice(level, pos, sd, type))));
+
     public static void register(IEventBus modEventBus) {
         DEVICES.register(modEventBus);
     }

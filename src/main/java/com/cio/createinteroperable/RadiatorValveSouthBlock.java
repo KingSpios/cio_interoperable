@@ -95,7 +95,7 @@ public class RadiatorValveSouthBlock extends KineticBlock implements IBE<Radiato
                 return defaultBlockState().setValue(FACING, side);
             }
         }
-        return defaultBlockState().setValue(FACING, context.getHorizontalDirection());
+        return defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite());
     }
 
     @Override
