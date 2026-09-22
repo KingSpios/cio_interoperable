@@ -1,0 +1,24 @@
+{
+	"format_version": "1.9.0",
+	"credit": "Made with Blockbench",
+	"parent": "block/block",
+	"textures": {
+		"6": "createinteroperable:block/ac_white",
+		"particle": "block/spruce_log"
+	},
+	"elements": [
+		{
+			"name": "body_box",
+			"from": [0, 0, 1],
+			"to": [16, 16, 15],
+			"faces": {
+				"north": {"uv": [8, 7.5, 16, 16], "texture": "#6"},
+				"east": {"uv": [8.5, 0, 15.5, 8.5], "texture": "#6"},
+				"south": {"uv": [8, 0, 16, 8.5], "texture": "#6"},
+				"west": {"uv": [8.5, 0, 15.5, 8.5], "texture": "#6"},
+				"up": {"uv": [0, 0, 8, 6.5], "rotation": 180, "texture": "#6"},
+				"down": {"uv": [8, 0, 16, 7.5], "texture": "#6"}
+			}
+		}
+	]
+}

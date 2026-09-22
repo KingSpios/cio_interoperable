@@ -64,6 +64,10 @@ repositories {
     maven { url = "https://cursemaven.com" }
     // Modrinth's maven mirror, alternative source for the same jars
     maven { url = "https://api.modrinth.com/maven" }
+    // Create: Pipes n Physics (de.devin.pipesnphysics) doesn't publish to
+    // CurseForge/Modrinth — its own README points at JitPack, which builds
+    // straight from its GitHub tags. See gradle.properties for the exact tag.
+    maven { url = "https://jitpack.io" }
 }
 
 dependencies {
@@ -116,6 +120,32 @@ dependencies {
     // loader mod shades its `common` electricity package (IElectricityNode /
     // ISourceNode / Connection / ElectricityTicker) into this NeoForge jar.
     implementation "curse.maven:refurbished-furniture-897116:7473565"
+
+    // --- Cold Sweat -----------------------------------------------------
+    // com.momosoftworks.coldsweat, mod id "cold_sweat". Soft (optional)
+    // dependency — see ColdSweatCompat/ColdSweatIntegration and the note in
+    // gradle.properties on why this is real Java registration (via the
+    // public BlockTempRegisterEvent), not a datapack JSON. Cold Sweat 2.4.3
+    // (2026-09-13) deleted BlockTemp's old static-value constructor outright
+    // (moved to per-call getter overrides, with a new SimpleBlockTemp
+    // subclass preserving the old constructor shape) — a real breaking API
+    // change, confirmed by reading the upstream commit, that crashed 0.1.50
+    // against a user's Cold Sweat 2.4.3.1 with NoSuchMethodError inside
+    // ColdSweatHeatTemp's construction. No longer on Modrinth (still only
+    // 2.4.2 there as of 2026-09-22) — fetched from CurseForge instead:
+    // project 506194, file 8888797 = ColdSweat-2.4.3.1.jar (NeoForge,
+    // MC 1.21.1, uploaded 2026-09-15), matching the exact jar this addon's
+    // code is now verified against. See gradle.properties for the raised
+    // minimum-supported-version floor that goes with this bump.
+    implementation "curse.maven:cold-sweat-506194:8888797"
+
+    // --- Create: Pipes n Physics -----------------------------------------
+    // de.devin.pipesnphysics, mod id "pipesnphysics". Soft (optional) dependency:
+    // compileOnly so it's never required at runtime — see PnpCompat/PnpIntegration.
+    // Built by JitPack straight from the GitHub tag (see the repositories block
+    // above), matching the exact jar this addon's code was verified against
+    // (pipesnphysics-3.2.1.jar, z_reference_mods/create-pipes-n-physics-main).
+    compileOnly "com.github.StaticFX:create-pipes-n-physics:${pipes_n_physics_version}"
 }
 
 var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {
@@ -135,7 +165,9 @@ var generateModMetadata = tasks.register("generateModMetadata", ProcessResources
             create_version_range            : create_version_range,
             power_grid_version_range        : power_grid_version_range,
             electro_energetics_version_range: electro_energetics_version_range,
-            refurbished_furniture_version_range: refurbished_furniture_version_range
+            refurbished_furniture_version_range: refurbished_furniture_version_range,
+            cold_sweat_version_range        : cold_sweat_version_range,
+            pipes_n_physics_version_range   : pipes_n_physics_version_range
     ]
     inputs.properties replaceProperties
     expand replaceProperties

@@ -36,6 +36,17 @@
 
   "block.createinteroperable.steam_outlet": "Steam Outlet",
   "block.createinteroperable.brass_heater": "Brass Heater",
+  "block.createinteroperable.multi_radiator_north": "Steam Hearth Inlet",
+  "block.createinteroperable.multi_radiator_south": "Water Outlet",
+  "block.createinteroperable.multi_radiator_middle": "Steam Hearth Radiator",
+  "block.createinteroperable.multi_radiator.tooltip": "Works like a Cold Sweat Hearth when powered by steam.",
+
+  "createinteroperable.aircon_power_setting": "Cooling Setting",
+
+  "block.createinteroperable.aircon_motor_bottom": "Aircon Motor",
+  "block.createinteroperable.cee_aircon_motor_bottom": "CEE Aircon Motor",
+  "block.createinteroperable.aircon_motor_top": "Aircon Fan",
+  "block.createinteroperable.aircon_venter": "Aircon Venter",
 
   "block.createinteroperable.telephone": "Interoperable Telephone",
   "block.createinteroperable.cpg_telephone": "CPG Telephone",
@@ -43,6 +54,7 @@
 
   "block.createinteroperable.cio_connector": "Connector",
   "block.createinteroperable.cio_connector_glass": "Large Connector",
+  "block.createinteroperable.cpg_double_connector": "CPG Double Connector",
 
   "block.createinteroperable.deb_rectifier_tier1": "CPG Improvised Power Kit",
   "block.createinteroperable.deb_rectifier": "CPG Domestic Power Kit",
@@ -88,6 +100,8 @@
   "createinteroperable.goggle.power_kit.state_idle": " idle",
 
   "fluid.createinteroperable.steam": "Steam",
+  "fluid.createinteroperable.hot_air": "Hot Air",
+  "fluid.createinteroperable.cold_air": "Cold Air",
 
   "message.createinteroperable.fixture.no_supply": "No water supply connected to this fixture.",
   "message.createinteroperable.fixture.dry": "The connected supply has no water."

@@ -52,6 +52,16 @@ public class CIOItems {
     public static final DeferredItem<BlockItem> BRASS_HEATER = ITEMS.registerSimpleBlockItem(
             "brass_heater", CIOBlocks.BRASS_HEATER);
 
+    // Multi Radiator — only the two end caps are player-placed; the middle
+    // segment is only ever produced by wrenching a valid run (see
+    // RadiatorAssembly), same "no item" precedent as the real multiblock's
+    // own assembled-only positions.
+    public static final DeferredItem<BlockItem> RADIATOR_VALVE_NORTH = ITEMS.registerSimpleBlockItem(
+            "multi_radiator_north", CIOBlocks.RADIATOR_VALVE_NORTH);
+
+    public static final DeferredItem<BlockItem> RADIATOR_VALVE_SOUTH = ITEMS.registerSimpleBlockItem(
+            "multi_radiator_south", CIOBlocks.RADIATOR_VALVE_SOUTH);
+
     // --- Telephone — Interoperable (both), CPG-only, CEE-only ---
 
     public static final DeferredItem<BlockItem> TELEPHONE = BOTH ? ITEMS.registerSimpleBlockItem(
@@ -70,6 +80,9 @@ public class CIOItems {
 
     public static final DeferredItem<BlockItem> CIO_CONNECTOR_GLASS = BRIDGE_EXTRAS && PG ? ITEMS.registerSimpleBlockItem(
             "cio_connector_glass", CIOBlocks.CIO_CONNECTOR_GLASS) : null;
+
+    public static final DeferredItem<BlockItem> CIO_DOUBLE_CONNECTOR = PG ? ITEMS.registerSimpleBlockItem(
+            "cpg_double_connector", CIOBlocks.CIO_DOUBLE_CONNECTOR) : null;
 
     // --- Domestic Electrical Board (PG-only) ---
 
@@ -103,6 +116,20 @@ public class CIOItems {
 
     public static final DeferredItem<BlockItem> CEE_REDSTONE_SWITCH = CEE ? ITEMS.registerSimpleBlockItem(
             "cee_redstone_switch", CIOBlocks.CEE_REDSTONE_SWITCH) : null;
+
+    // --- Aircon (PG- and CEE-gated motor bottoms, unconditional top/venter — see CIOBlocks) ---
+
+    public static final DeferredItem<BlockItem> AIRCON_MOTOR_BOTTOM = PG ? ITEMS.registerSimpleBlockItem(
+            "aircon_motor_bottom", CIOBlocks.AIRCON_MOTOR_BOTTOM) : null;
+
+    public static final DeferredItem<BlockItem> CEE_AIRCON_MOTOR_BOTTOM = CEE ? ITEMS.registerSimpleBlockItem(
+            "cee_aircon_motor_bottom", CIOBlocks.CEE_AIRCON_MOTOR_BOTTOM) : null;
+
+    public static final DeferredItem<BlockItem> AIRCON_MOTOR_TOP = ITEMS.registerSimpleBlockItem(
+            "aircon_motor_top", CIOBlocks.AIRCON_MOTOR_TOP);
+
+    public static final DeferredItem<BlockItem> AIRCON_VENTER = ITEMS.registerSimpleBlockItem(
+            "aircon_venter", CIOBlocks.AIRCON_VENTER);
 
     public static void register(IEventBus modEventBus) {
         ITEMS.register(modEventBus);

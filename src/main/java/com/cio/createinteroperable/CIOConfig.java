@@ -124,6 +124,21 @@ public final class CIOConfig {
      */
     public static final ModConfigSpec.BooleanValue CRN_DISPLAYS_REQUIRE_POWER;
 
+    /**
+     * Master switch for the Vista (cameramod) TV integration, <b>on by
+     * default</b>. A Vista TV (single or grown into a connected N&times;N
+     * wall) becomes an electricity consumer instead of a plain redstone lamp:
+     * with no live rail from a Domestic Electrical Board it is always off, no
+     * matter what redstone signal reaches it. Once a rail reaches it, it is on
+     * by default with <em>no</em> redstone needed &mdash; redstone is repurposed
+     * as a manual kill switch, forcing the screen off without cutting power
+     * (billed only while actually on, 8&nbsp;W per tile, 12&nbsp;V,
+     * n&sup2; for a grown N&times;N wall). Set false to hand every TV straight
+     * back to Vista's own redstone-only behaviour. A no-op unless Vista is
+     * installed.
+     */
+    public static final ModConfigSpec.BooleanValue VISTA_TVS_REQUIRE_POWER;
+
     static {
         ModConfigSpec.Builder b = new ModConfigSpec.Builder();
         b.push("refurbishedFurniture");
@@ -223,6 +238,20 @@ public final class CIOConfig {
                         "onto a moving contraption are never touched. A no-op unless Create Train",
                         "Navigator is installed. Set false to hand displays back to Create Train",
                         "Navigator (no node attached).")
+                .define("requirePower", true);
+        b.pop();
+
+        b.push("vistaTvs");
+        VISTA_TVS_REQUIRE_POWER = b
+                .comment("ON by default. A Vista (cameramod) TV — single or grown into a",
+                        "connected N x N wall — becomes a Domestic Electrical Board electricity",
+                        "consumer instead of a plain redstone lamp: no live rail = always off, no",
+                        "matter what redstone signal reaches it. Once a rail reaches it, it is on",
+                        "by default with NO redstone needed; redstone is repurposed as a manual",
+                        "kill switch that forces the screen off without cutting power. Billed only",
+                        "while actually on (8 W per tile, 12 V, n^2 for a grown wall). A no-op",
+                        "unless Vista is installed. Set false to hand every TV straight back to",
+                        "Vista's own redstone-only behaviour.")
                 .define("requirePower", true);
         b.pop();
 

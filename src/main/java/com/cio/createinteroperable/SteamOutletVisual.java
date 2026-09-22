@@ -13,8 +13,10 @@ import java.util.function.Consumer;
 
 /**
  * Flywheel visual for the Steam Outlet's shaft — mirrors BrassHeaterVisual
- * (itself mirroring Create's own SawVisual) exactly: a single SHAFT_HALF
- * instance oriented out of the socket face (FACING's opposite).
+ * (itself mirroring Create's own SawVisual): a single SHAFT_HALF instance
+ * oriented out of the socket face. Unlike BrassHeaterVisual, that face is
+ * FACING itself, not its opposite — the model's shaft/valve geometry sits on
+ * the FACING side (see SteamOutletBlock#hasShaftTowards).
  */
 public class SteamOutletVisual extends KineticBlockEntityVisual<SteamOutletBlockEntity> {
     private final RotatingInstance shaft;
@@ -22,7 +24,7 @@ public class SteamOutletVisual extends KineticBlockEntityVisual<SteamOutletBlock
     public SteamOutletVisual(VisualizationContext context, SteamOutletBlockEntity blockEntity, float partialTick) {
         super(context, blockEntity, partialTick);
 
-        Direction socket = blockState.getValue(SteamOutletBlock.FACING).getOpposite();
+        Direction socket = blockState.getValue(SteamOutletBlock.FACING);
         shaft = instancerProvider()
                 .instancer(AllInstanceTypes.ROTATING, Models.partial(AllPartialModels.SHAFT_HALF))
                 .createInstance()

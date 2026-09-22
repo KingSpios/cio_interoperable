@@ -1,0 +1,11 @@
+{
+  "required": false,
+  "package": "com.cio.createinteroperable.mixin.coldsweat",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "AirconClimateAmbientTempMixin",
+    "PeacefulTemperatureMixin"
+  ],
+  "client": [],
+  "minVersion": "0.8"
+}

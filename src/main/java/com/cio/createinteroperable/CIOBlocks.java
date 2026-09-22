@@ -142,6 +142,50 @@ public class CIOBlocks {
                     .strength(2.0f, 6.0f)
                     .requiresCorrectToolForDrops()));
 
+    // --- Multi Radiator — extendable steam->water multiblock (scaffold, see
+    // RadiatorAssembly). North/South are player-placed end caps; middle is
+    // only ever produced by wrenching a valid run (see RadiatorMiddleBlock's
+    // own TODO on why it has no loot table yet). ---
+
+    public static final DeferredBlock<RadiatorValveNorthBlock> RADIATOR_VALVE_NORTH = BLOCKS.register("multi_radiator_north",
+            () -> new RadiatorValveNorthBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.METAL)
+                    .strength(2.0f, 6.0f)
+                    .requiresCorrectToolForDrops()
+                    .emissiveRendering((state, level, pos) -> isGlowingTier(state.getValue(RadiatorValveNorthBlock.HEAT_LEVEL)))));
+
+    public static final DeferredBlock<RadiatorValveSouthBlock> RADIATOR_VALVE_SOUTH = BLOCKS.register("multi_radiator_south",
+            () -> new RadiatorValveSouthBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.METAL)
+                    .strength(2.0f, 6.0f)
+                    .requiresCorrectToolForDrops()
+                    .emissiveRendering((state, level, pos) -> isGlowingTier(state.getValue(RadiatorValveSouthBlock.HEAT_LEVEL)))));
+
+    public static final DeferredBlock<RadiatorMiddleBlock> RADIATOR_MIDDLE = BLOCKS.register("multi_radiator_middle",
+            () -> new RadiatorMiddleBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.METAL)
+                    .strength(2.0f, 6.0f)
+                    .requiresCorrectToolForDrops()
+                    .noLootTable()
+                    .emissiveRendering((state, level, pos) -> isGlowingTier(state.getValue(RadiatorMiddleBlock.HEAT_LEVEL)))));
+
+    /**
+     * {@code Properties#emissiveRendering} is a whole-block flag (see
+     * {@code BlockBehaviour.BlockStateBase#emissiveRendering} — confirmed via
+     * javap, it forces every quad full-bright, not just a chosen texture
+     * slot), so this can't isolate just the {@code minipipe} elements' "0"
+     * texture from the block's brass/basin geometry. Accepted anyway: the
+     * pipe run dominates each segment's surface area, so the visible effect
+     * still reads as "the pipes glow" at WARM/HOT/BLAZING. No light is
+     * actually emitted (see {@code getLightEmission} — untouched) — this only
+     * changes how existing light renders on the model.
+     */
+    private static boolean isGlowingTier(BrassHeaterBlock.HeatLevel tier) {
+        return tier == BrassHeaterBlock.HeatLevel.WARM
+                || tier == BrassHeaterBlock.HeatLevel.HOT
+                || tier == BrassHeaterBlock.HeatLevel.BLAZING;
+    }
+
     // --- Telephone — three variants, same model. Interoperable needs both
     // mods; CPG/CEE Telephone each need only their own. ---
 
@@ -178,6 +222,48 @@ public class CIOBlocks {
                     .mapColor(MapColor.METAL)
                     .strength(2.0f, 6.0f)
                     .requiresCorrectToolForDrops())) : null;
+
+    // Double Connector — two independent, unconnected terminal points in one
+    // block (see CIODoubleConnectorBlock docs). Real, active content, unlike
+    // the reskins above.
+    public static final DeferredBlock<CIODoubleConnectorBlock> CIO_DOUBLE_CONNECTOR = PG ? BLOCKS.register("cpg_double_connector",
+            () -> new CIODoubleConnectorBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.METAL)
+                    .strength(2.0f, 6.0f)
+                    .requiresCorrectToolForDrops())) : null;
+
+    // --- Aircon — gas-mechanics phase. Motor bottom needs real electrical
+    // terminals, so it's split into a Power Grid variant (AIRCON_MOTOR_BOTTOM,
+    // PG-gated) and an Electro Energetics variant (CEE_AIRCON_MOTOR_BOTTOM,
+    // CEE-gated) — see AirconMotorBottomInfo's own doc. The top (fan) and the
+    // venter are both electrical-backend-agnostic (see AirconMotorTopBlockEntity/
+    // AirconVenterBlockEntity's own docs) and register unconditionally, so
+    // either bottom variant — or neither, on an install with neither mod —
+    // can pair with the exact same top half. ---
+
+    public static final DeferredBlock<AirconMotorBottomBlock> AIRCON_MOTOR_BOTTOM = PG ? BLOCKS.register("aircon_motor_bottom",
+            () -> new AirconMotorBottomBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.METAL)
+                    .strength(2.0f, 6.0f)
+                    .requiresCorrectToolForDrops())) : null;
+
+    public static final DeferredBlock<CeeAirconMotorBottomBlock> CEE_AIRCON_MOTOR_BOTTOM = CEE ? BLOCKS.register("cee_aircon_motor_bottom",
+            () -> new CeeAirconMotorBottomBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.METAL)
+                    .strength(2.0f, 6.0f)
+                    .requiresCorrectToolForDrops())) : null;
+
+    public static final DeferredBlock<AirconMotorTopBlock> AIRCON_MOTOR_TOP = BLOCKS.register("aircon_motor_top",
+            () -> new AirconMotorTopBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.METAL)
+                    .strength(2.0f, 6.0f)
+                    .requiresCorrectToolForDrops()));
+
+    public static final DeferredBlock<AirconVenterBlock> AIRCON_VENTER = BLOCKS.register("aircon_venter",
+            () -> new AirconVenterBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.METAL)
+                    .strength(2.0f, 6.0f)
+                    .requiresCorrectToolForDrops()));
 
     // --- Domestic Electrical Board (Power Grid-fed replacement for
     // Crayfish Refurbished Furniture's Electricity Generator) — PG-only. ---

@@ -20,8 +20,9 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+
+import java.util.Map;
 
 /**
  * A dead-end (single-socket) horizontal-shaft kinetic block — like Create's
@@ -59,19 +60,57 @@ public class BrassHeaterBlock extends KineticBlock implements IBE<BrassHeaterBlo
      */
     public static final BooleanProperty OPEN = BooleanProperty.create("open");
 
-    private static final VoxelShape SHAPE = Shapes.block();
+    /**
+     * Mirrors of {@link #HEAT_LEVEL} as three plain, mutually-exclusive
+     * booleans, deliberately NOT listed in {@code brass_heater.json}'s
+     * blockstate variants — an unmentioned property is a wildcard there
+     * (same trick {@code CIOProperties.CALL_ACTIVE} uses), so this needs no
+     * model changes at all. They exist purely for
+     * {@code data/createinteroperable/block/block_temp/brass_heater_*.json}
+     * to key off: Cold Sweat's own state-predicate matcher (confirmed by
+     * reading its real 2.4.2 source, {@code BlockRequirement.StateRequirement#test})
+     * compares a JSON string value via {@code property.getPossibleValues().contains(value)},
+     * which can never be true for an enum-valued property (a
+     * {@code Collection<HeatLevel>} never {@code .contains(String)}) — only
+     * its dedicated {@code Boolean} branch does a correctly-typed
+     * {@code .equals()}. Set alongside {@link #HEAT_LEVEL} wherever that's
+     * written (see BrassHeaterBlockEntity#updateHeatLevelState).
+     */
+    public static final BooleanProperty HEAT_WARM = BooleanProperty.create("heat_warm");
+    public static final BooleanProperty HEAT_HOT = BooleanProperty.create("heat_hot");
+    public static final BooleanProperty HEAT_BLAZING = BooleanProperty.create("heat_blazing");
+
+    /**
+     * Derived from the real {@code cold.json}/{@code warm.json}/etc. geometry
+     * (all 5 tiers share identical elements — only textures differ, verified
+     * by diffing every "from"/"to" across all 5 model files) rather than a
+     * full-cube placeholder: base slab spans the whole footprint, but
+     * everything above y=2 is a narrower x4-12 column plus two small nubs (a
+     * handle at x1-3 and the valve wheel at x13-15, both confined to z13-15)
+     * — a full cube here would incorrectly cull east/west neighbors' faces
+     * above y=2, where the model has nothing. Authored at FACING=NORTH (the
+     * blockstate's own 0° state) and rotated per-facing via ShapeRotation.
+     */
+    private static final Map<Direction, VoxelShape> SHAPES = ShapeRotation.forHorizontalFacing(
+            new ShapeRotation.Box(0, 0, 0, 16, 2, 16),      // base slab
+            new ShapeRotation.Box(4, 2, 1, 12, 16, 15),     // central column
+            new ShapeRotation.Box(1, 2, 13, 3, 4, 15),      // small handle nub
+            new ShapeRotation.Box(13, 2, 13, 15, 4, 15));   // valve wheel nub (45°-rotated in the model; approximated as axis-aligned)
 
     public BrassHeaterBlock(Properties properties) {
         super(properties);
         registerDefaultState(defaultBlockState().setValue(FACING, Direction.NORTH)
                 .setValue(HEAT_LEVEL, HeatLevel.COLD)
-                .setValue(OPEN, false));
+                .setValue(OPEN, false)
+                .setValue(HEAT_WARM, false)
+                .setValue(HEAT_HOT, false)
+                .setValue(HEAT_BLAZING, false));
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
-        builder.add(FACING, HEAT_LEVEL, OPEN);
+        builder.add(FACING, HEAT_LEVEL, OPEN, HEAT_WARM, HEAT_HOT, HEAT_BLAZING);
     }
 
     @Override
@@ -113,7 +152,13 @@ public class BrassHeaterBlock extends KineticBlock implements IBE<BrassHeaterBlo
     @Override
     public VoxelShape getShape(BlockState state, net.minecraft.world.level.BlockGetter level,
                                 net.minecraft.core.BlockPos pos, CollisionContext context) {
-        return SHAPE;
+        return SHAPES.get(state.getValue(FACING));
+    }
+
+    @Override
+    public VoxelShape getCollisionShape(BlockState state, net.minecraft.world.level.BlockGetter level,
+                                         net.minecraft.core.BlockPos pos, CollisionContext context) {
+        return SHAPES.get(state.getValue(FACING));
     }
 
     @Override
@@ -127,7 +172,7 @@ public class BrassHeaterBlock extends KineticBlock implements IBE<BrassHeaterBlo
     }
 
     public enum HeatLevel implements StringRepresentable {
-        COLD, WARM, HOT, BLAZING;
+        FREEZING, COLD, WARM, HOT, BLAZING;
 
         @Override
         public String getSerializedName() {

@@ -12,8 +12,9 @@ import net.minecraft.world.level.block.state.BlockState;
  * Classic (non-Flywheel) fallback renderer for the Steam Outlet's shaft —
  * same reasoning as BrassHeaterRenderer: only invoked when Flywheel
  * visualization isn't active. Renders a SHAFT_HALF stub pointing out of the
- * socket face (FACING's opposite) instead of the default (rotating the
- * whole static block model).
+ * socket face (FACING itself — the model's shaft/valve geometry sits on that
+ * side, unlike BrassHeaterBlock which uses FACING's opposite) instead of the
+ * default (rotating the whole static block model).
  */
 public class SteamOutletRenderer extends KineticBlockEntityRenderer<SteamOutletBlockEntity> {
     public SteamOutletRenderer(BlockEntityRendererProvider.Context context) {
@@ -22,7 +23,7 @@ public class SteamOutletRenderer extends KineticBlockEntityRenderer<SteamOutletB
 
     @Override
     protected SuperByteBuffer getRotatedModel(SteamOutletBlockEntity be, BlockState state) {
-        Direction socket = state.getValue(SteamOutletBlock.FACING).getOpposite();
+        Direction socket = state.getValue(SteamOutletBlock.FACING);
         return CachedBuffers.partialFacing(AllPartialModels.SHAFT_HALF, state, socket);
     }
 }

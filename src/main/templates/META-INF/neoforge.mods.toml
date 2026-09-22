@@ -13,6 +13,29 @@ license="${mod_license}"
 [[mixins]]
     config="createinteroperable.mixin.json"
 
+# Optional Power Grid integration: PG's own ThermalBehaviour (the thermal sim
+# backing overheat/fault mechanics on the Redstone Switch, Power Kits, and
+# Rectifiers) picks its cooling baseline once per component via its own
+# crude biome-only formula. When Cold Sweat is also present, this redirects
+# that one baseline read to Cold Sweat's real ambient-temperature calculation
+# instead (see com.cio.createinteroperable.mixin.powergrid), so a component
+# sitting somewhere genuinely hot, cold, or Steam Hearth-warmed heats up and
+# cools down accordingly. Name-targeted, non-required — a complete no-op
+# without Power Grid, and falls back to PG's own formula unchanged without
+# Cold Sweat.
+[[mixins]]
+    config="createinteroperable.powergrid.mixin.json"
+
+# Optional Cold Sweat integration: makes Cold Sweat's own real
+# WorldHelper#getInsulationAt (the lookup every position-based ambient
+# temperature query — a real Cold Sweat Thermometer, and now PG's own
+# ThermalBehaviour baseline above — uses to check "is a Hearth heating this
+# spot") also recognize our own Steam Hearth's room, not just Cold Sweat's
+# native HearthBlockEntity (see com.cio.createinteroperable.mixin.coldsweat).
+# Name-targeted, non-required — a complete no-op without Cold Sweat.
+[[mixins]]
+    config="createinteroperable.coldsweat.mixin.json"
+
 # Optional Let's Do (Farm & Charm / Alpine Whispers) sink + bathtub plumbing
 # integration. Name-targeted, non-required mixins in a required=false config —
 # a complete no-op when none of those mods are present, so Let's Do is never a
@@ -45,6 +68,21 @@ license="${mod_license}"
 # renderer). Same CrayfishMixinPlugin gate; a no-op without Refurbished Furniture.
 [[mixins]]
     config="createinteroperable.crn.crayfish.mixin.json"
+
+# Optional Vista (cameramod) integration: a TV (single, or grown into a
+# connected N x N wall) becomes a Domestic Electrical Board electricity
+# consumer, billed n^2 the base rate for a grown wall. With no power it is
+# always off; with power it defaults on, and redstone is repurposed as a
+# manual kill switch instead of an on-switch. Name-targeted, non-required — a
+# complete no-op without Vista (see com.cio.createinteroperable.mixin.vista).
+[[mixins]]
+    config="createinteroperable.vista.mixin.json"
+
+# The Crayfish-dependent slice of the Vista TV integration (the TV node also
+# driven through Crayfish's own electricity graph). Same CrayfishMixinPlugin
+# gate; a no-op without Refurbished Furniture.
+[[mixins]]
+    config="createinteroperable.vista.crayfish.mixin.json"
 
 [[dependencies.${mod_id}]]
     modId="neoforge"
@@ -103,5 +141,32 @@ license="${mod_license}"
     modId="refurbished_furniture"
     type="optional"
     versionRange="${refurbished_furniture_version_range}"
+    ordering="AFTER"
+    side="BOTH"
+
+# Soft dependency. When present, the steam-heating family (Brass Heater, Multi
+# Radiator) registers real heat sources with Cold Sweat via the public
+# BlockTempRegisterEvent (see com.cio.createinteroperable.compat.ColdSweatIntegration,
+# gated on com.cio.createinteroperable.compat.ColdSweatCompat). When absent,
+# that registration is skipped entirely and the mod still loads normally.
+[[dependencies.${mod_id}]]
+    modId="cold_sweat"
+    type="optional"
+    versionRange="${cold_sweat_version_range}"
+    ordering="AFTER"
+    side="BOTH"
+
+# Soft dependency. When present, this mod's own fluid-handler blocks (Steam
+# Outlet, Brass Heater, Multi Radiator) declare their PnP role explicitly
+# (see com.cio.createinteroperable.compat.PipesNPhysicsIntegration, gated on
+# com.cio.createinteroperable.compat.PipesNPhysicsCompat) so PnP's own
+# behavioural relay detector never misclassifies a block that fills its own
+# buffer from production (not from a pipe transfer) as a bottomless relay.
+# When absent, that registration is skipped entirely and the mod still loads
+# normally — PnP is otherwise fluid-agnostic and needs nothing else from us.
+[[dependencies.${mod_id}]]
+    modId="pipesnphysics"
+    type="optional"
+    versionRange="${pipes_n_physics_version_range}"
     ordering="AFTER"
     side="BOTH"

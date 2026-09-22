@@ -1,0 +1,13 @@
+{
+  "required": false,
+  "package": "com.cio.createinteroperable.mixin.vista",
+  "compatibilityLevel": "JAVA_21",
+  "plugin": "com.cio.createinteroperable.mixin.crayfish.CrayfishMixinPlugin",
+  "mixins": [
+    "VistaTvBlockEntityMixin"
+  ],
+  "client": [
+    "VistaTvRendererMixin"
+  ],
+  "minVersion": "0.8"
+}

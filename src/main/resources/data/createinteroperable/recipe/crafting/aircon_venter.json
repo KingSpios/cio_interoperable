@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "P": { "item": "create:fluid_pipe" },
+    "F": { "item": "create:encased_fan" }
+  },
+  "pattern": [
+    "   ",
+    "PFP",
+    "   "
+  ],
+  "result": {
+    "count": 1,
+    "id": "createinteroperable:aircon_venter"
+  }
+}

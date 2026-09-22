@@ -44,4 +44,16 @@ public class CIOProperties {
      * (same trick the telephone's own {@code wire_lock} already relies on).
      */
     public static final BooleanProperty CALL_ACTIVE = BooleanProperty.create("call_active");
+
+    /**
+     * Shared by {@link AirconMotorBottomBlock} (Power Grid), the CEE-wired
+     * {@code CeeAirconMotorBottomBlock}, and {@link AirconMotorTopBlock} —
+     * true once wrench-paired with its vertical partner (top &lt;-&gt;
+     * bottom, always exactly 1 block apart). One shared instance so
+     * {@link AirconMotorAssembly} can read/write it on whichever bottom
+     * variant it happens to be pairing without needing to know (or
+     * reference) which concrete Block class — and therefore which
+     * electrical backend — that bottom actually is.
+     */
+    public static final BooleanProperty AIRCON_ASSEMBLED = BooleanProperty.create("assembled");
 }

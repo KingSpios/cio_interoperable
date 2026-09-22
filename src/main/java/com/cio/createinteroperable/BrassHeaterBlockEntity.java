@@ -1,5 +1,7 @@
 package com.cio.createinteroperable;
 
+import com.cio.createinteroperable.compat.ColdSweatCompat;
+import com.cio.createinteroperable.compat.ColdSweatWorldTemp;
 import com.simibubi.create.content.kinetics.base.KineticBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import com.simibubi.create.foundation.utility.CreateLang;
@@ -37,20 +39,27 @@ import java.util.List;
  * {@code heatFraction} is how much of the REQUESTED draw (valve position ×
  * max rate) the internal tank could actually supply — so it can fall below
  * the valve's own position if upstream steam is scarce, which is what
- * produces the 4-tier HEAT_LEVEL display's real behavior: a fully open valve
+ * produces the 5-tier HEAT_LEVEL display's real behavior: a fully open valve
  * with no steam coming in still shows COLD, same as a real heater whose
- * valve is open but starved of fuel.
+ * valve is open but starved of fuel. See {@link #quantizeHeatTier(float, float, boolean)}
+ * for the exact valve-position bands (WARM is a deliberately wide band
+ * straddling the "ideal" 50% opening; BLAZING gets harder to reach the
+ * colder the room is).
  * <p>
- * {@link #getHeatFraction()} is the intended hook point for a future Cold
- * Sweat BlockTemp registration (see the block-level javadoc and the
- * conversation this was designed in) — deferred pending Cold Sweat being
- * added as a real build dependency; nothing here depends on Cold Sweat being
- * present.
+ * Cold Sweat itself is never a build dependency here — the actual "this
+ * heater warms the room" effect is a pure datapack integration (see
+ * {@code data/createinteroperable/block/block_temp/}), keyed entirely off
+ * the {@link BrassHeaterBlock#HEAT_LEVEL} blockstate this class drives, with
+ * Cold Sweat's own {@code max_temp} clamp enforcing the "never above 30°C
+ * standing next to it" requirement — nothing here reads or depends on
+ * whether Cold Sweat is even installed.
  */
 public class BrassHeaterBlockEntity extends KineticBlockEntity {
     /** mB of steam drawn per tick while the valve is open and supply allows it. Tunable. */
     private static final int MAX_STEAM_CONSUMPTION_PER_TICK = 20;
     private static final int TANK_CAPACITY_MB = 2000;
+    /** How fast the displayed heat tier settles toward the real rate each tick — see #tick's use of it for why this exists at all. 0.05 ≈ mostly converged within a second. */
+    private static final float HEAT_FRACTION_SMOOTHING = 0.05f;
 
     private final FluidTank steamTank = new FluidTank(TANK_CAPACITY_MB) {
         @Override
@@ -122,15 +131,32 @@ public class BrassHeaterBlockEntity extends KineticBlockEntity {
         float valvePosition = pointer.getValue();
         int desired = Math.round(valvePosition * MAX_STEAM_CONSUMPTION_PER_TICK);
 
-        float newHeatFraction = 0;
+        float instantFraction = 0;
         if (desired > 0) {
             FluidStack drained = steamTank.drain(desired, IFluidHandler.FluidAction.EXECUTE);
-            newHeatFraction = (float) drained.getAmount() / MAX_STEAM_CONSUMPTION_PER_TICK;
+            instantFraction = (float) drained.getAmount() / MAX_STEAM_CONSUMPTION_PER_TICK;
         }
 
-        if (Math.abs(newHeatFraction - heatFraction) > 0.001f) {
-            heatFraction = newHeatFraction;
-            updateHeatLevelState();
+        // Smoothed rather than assigned outright — see
+        // RadiatorValveNorthBlockEntity's own HEAT_FRACTION_SMOOTHING for the
+        // full reasoning: a raw single-tick consumed/max ratio flickers
+        // whenever a pipe's actual per-tick delivery doesn't land in lockstep
+        // with this block's own tick (real Create pipe throughput is
+        // RPM-based and not guaranteed to line up tick-for-tick), snapping the
+        // heat tier down and back up every tick instead of settling.
+        float newHeatFraction = heatFraction + (instantFraction - heatFraction) * HEAT_FRACTION_SMOOTHING;
+
+        // Always re-check the tier (cheap — updateHeatLevelState() itself
+        // no-ops unless the computed tier actually differs from the current
+        // blockstate), not just when heatFraction moves: a heater that's
+        // never received any steam at all sits at newHeatFraction == 0 from
+        // the moment it's placed, so the old "only on change" gate here
+        // never fired even once and left it stuck on whatever
+        // registerDefaultState() set, regardless of the actual environment.
+        boolean fractionChanged = Math.abs(newHeatFraction - heatFraction) > 0.001f;
+        heatFraction = newHeatFraction;
+        updateHeatLevelState();
+        if (fractionChanged) {
             notifyUpdate();
         }
     }
@@ -164,24 +190,111 @@ public class BrassHeaterBlockEntity extends KineticBlockEntity {
     }
 
     private void updateHeatLevelState() {
-        BrassHeaterBlock.HeatLevel newTier = quantizeHeatTier(heatFraction);
+        BrassHeaterBlock.HeatLevel newTier = quantizeHeatTier(heatFraction, getAmbientTemperatureC(), isCold(level, worldPosition));
         BlockState state = getBlockState();
         if (state.getValue(BrassHeaterBlock.HEAT_LEVEL) != newTier) {
-            level.setBlockAndUpdate(worldPosition, state.setValue(BrassHeaterBlock.HEAT_LEVEL, newTier));
+            // The 3 HEAT_WARM/HOT/BLAZING booleans are set here too, not just
+            // HEAT_LEVEL — see BrassHeaterBlock's doc on why Cold Sweat needs
+            // them (its own state-predicate matcher can't reliably compare
+            // against an enum-valued property).
+            level.setBlockAndUpdate(worldPosition, state.setValue(BrassHeaterBlock.HEAT_LEVEL, newTier)
+                    .setValue(BrassHeaterBlock.HEAT_WARM, newTier == BrassHeaterBlock.HeatLevel.WARM)
+                    .setValue(BrassHeaterBlock.HEAT_HOT, newTier == BrassHeaterBlock.HeatLevel.HOT)
+                    .setValue(BrassHeaterBlock.HEAT_BLAZING, newTier == BrassHeaterBlock.HeatLevel.BLAZING));
         }
     }
 
-    private static BrassHeaterBlock.HeatLevel quantizeHeatTier(float fraction) {
-        if (fraction >= 0.75f) {
-            return BrassHeaterBlock.HeatLevel.BLAZING;
+    /**
+     * Same rough biome-based approximation of real-world °C Power Grid's own
+     * ThermalBehaviour uses for its Cold Sweat ambient reading — kept
+     * consistent with that formula rather than invented fresh, even though
+     * this block has no Cold Sweat dependency of its own (no gradle
+     * dependency, no BlockTemp registered anywhere in this project yet).
+     */
+    private float getAmbientTemperatureC() {
+        if (level == null) {
+            return 0f;
         }
-        if (fraction >= 0.45f) {
-            return BrassHeaterBlock.HeatLevel.HOT;
+        return ambientTemperatureC(level, worldPosition);
+    }
+
+    /**
+     * Package-visible so other steam-heating blocks (see
+     * RadiatorValveNorthBlockEntity) can reuse the exact same formula instead
+     * of re-deriving it — single source of truth for "what ambient °C looks
+     * like here" across this whole feature family.
+     */
+    static float ambientTemperatureC(net.minecraft.world.level.Level level, BlockPos pos) {
+        return level.getBiome(pos).value().getBaseTemperature() * 13.65f + 7.1f;
+    }
+
+    /**
+     * Whether this position counts as "cold" for the FREEZING gate below.
+     * <p>
+     * When Cold Sweat is installed, this asks Cold Sweat's OWN real ambient
+     * temperature calculation for this exact coordinate
+     * ({@link ColdSweatWorldTemp#getWorldTemperatureC}, backed by its
+     * {@code WorldHelper#getRoughTemperatureAt}) — the same computation that
+     * decides the player's own world-temperature trait, accounting for
+     * biome, altitude, dimension, time of day, and nearby hearth/campfire
+     * insulation. That's a deliberate correction: an earlier version of this
+     * check approximated ambient °C straight from the raw Minecraft biome
+     * temperature attribute, which is exactly the kind of home-grown
+     * approximation Cold Sweat's own real number should be used instead of
+     * whenever Cold Sweat is actually present.
+     * <p>
+     * Without Cold Sweat installed there's no such calculation to query, so
+     * this falls back to the raw biome temperature attribute being negative
+     * — cruder, but keeps the FREEZING texture meaningful even on a
+     * Cold-Sweat-less install.
+     */
+    static boolean isCold(net.minecraft.world.level.Level level, BlockPos pos) {
+        if (ColdSweatCompat.present()) {
+            return ColdSweatWorldTemp.getWorldTemperatureC(level, pos) < 0;
         }
-        if (fraction >= 0.15f) {
+        return level.getBiome(pos).value().getBaseTemperature() < 0f;
+    }
+
+    /** Below this valve/throughput fraction the heater isn't doing anything useful — COLD (or FREEZING, see below). */
+    private static final float COLD_TO_WARM_THRESHOLD = 0.25f;
+    /** WARM is a deliberately wide, forgiving band straddling the "ideal" 50% valve opening. */
+    private static final float WARM_TO_HOT_THRESHOLD = 0.65f;
+    /** Base HOT->BLAZING cutover in a neutral-or-warm environment. */
+    private static final float BLAZING_BASE_THRESHOLD = 0.88f;
+    /** Extra fraction required per °C of ambient below 0°C — a heater loses more to a freezing room. */
+    private static final float BLAZING_COLD_PENALTY_PER_DEGREE_C = 0.005f;
+    /** However cold it gets, BLAZING must stay reachable short of a fully-open valve. */
+    private static final float BLAZING_MAX_THRESHOLD = 0.97f;
+
+    /**
+     * Below the "actually producing warmth" threshold (fraction <
+     * {@link #COLD_TO_WARM_THRESHOLD}), a starved/closed heater only reads as
+     * Freezing in a genuinely cold environment (ambient below 0°C — snowy
+     * biomes, roughly) — an idle heater sitting in a temperate or warm biome
+     * is just Cold, not actively making anything worse. WARM is intentionally
+     * wide (25%-65%) so the "ideal" 50% valve position doesn't need to be hit
+     * precisely; reaching BLAZING gets harder the colder the room is, via
+     * {@link #blazingThreshold(float)}.
+     */
+    static BrassHeaterBlock.HeatLevel quantizeHeatTier(float fraction, float ambientC, boolean coldBiome) {
+        if (fraction < COLD_TO_WARM_THRESHOLD) {
+            return coldBiome ? BrassHeaterBlock.HeatLevel.FREEZING : BrassHeaterBlock.HeatLevel.COLD;
+        }
+        if (fraction < WARM_TO_HOT_THRESHOLD) {
             return BrassHeaterBlock.HeatLevel.WARM;
         }
-        return BrassHeaterBlock.HeatLevel.COLD;
+        if (fraction < blazingThreshold(ambientC)) {
+            return BrassHeaterBlock.HeatLevel.HOT;
+        }
+        return BrassHeaterBlock.HeatLevel.BLAZING;
+    }
+
+    /** How much valve opening BLAZING needs, scaling up as the room gets colder than 0°C (capped, never unreachable). */
+    private static float blazingThreshold(float ambientC) {
+        if (ambientC >= 0f) {
+            return BLAZING_BASE_THRESHOLD;
+        }
+        return Math.min(BLAZING_BASE_THRESHOLD + (-ambientC * BLAZING_COLD_PENALTY_PER_DEGREE_C), BLAZING_MAX_THRESHOLD);
     }
 
     /**

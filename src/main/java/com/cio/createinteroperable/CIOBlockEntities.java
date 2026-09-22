@@ -79,6 +79,24 @@ public class CIOBlockEntities {
                     (pos, state) -> new BrassHeaterBlockEntity(CIOBlockEntities.BRASS_HEATER.get(), pos, state),
                     CIOBlocks.BRASS_HEATER.get()).build(null));
 
+    // Multi Radiator — see CIOBlocks.
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<RadiatorValveNorthBlockEntity>> RADIATOR_VALVE_NORTH =
+            BLOCK_ENTITIES.register("multi_radiator_north", () -> BlockEntityType.Builder.of(
+                    (pos, state) -> new RadiatorValveNorthBlockEntity(CIOBlockEntities.RADIATOR_VALVE_NORTH.get(), pos, state),
+                    CIOBlocks.RADIATOR_VALVE_NORTH.get()).build(null));
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<RadiatorValveSouthBlockEntity>> RADIATOR_VALVE_SOUTH =
+            BLOCK_ENTITIES.register("multi_radiator_south", () -> BlockEntityType.Builder.of(
+                    (pos, state) -> new RadiatorValveSouthBlockEntity(CIOBlockEntities.RADIATOR_VALVE_SOUTH.get(), pos, state),
+                    CIOBlocks.RADIATOR_VALVE_SOUTH.get()).build(null));
+
+    // Minimal, goggle-info-only BlockEntity — see RadiatorMiddleBlockEntity's
+    // own doc for why a middle segment needs one at all.
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<RadiatorMiddleBlockEntity>> RADIATOR_MIDDLE =
+            BLOCK_ENTITIES.register("multi_radiator_middle", () -> BlockEntityType.Builder.of(
+                    (pos, state) -> new RadiatorMiddleBlockEntity(CIOBlockEntities.RADIATOR_MIDDLE.get(), pos, state),
+                    CIOBlocks.RADIATOR_MIDDLE.get()).build(null));
+
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<TelephoneBlockEntity>> TELEPHONE =
             BOTH ? BLOCK_ENTITIES.register("telephone", () -> BlockEntityType.Builder.of(
                     (pos, state) -> new TelephoneBlockEntity(CIOBlockEntities.TELEPHONE.get(), pos, state),
@@ -103,6 +121,15 @@ public class CIOBlockEntities {
             BRIDGE_EXTRAS && PG ? BLOCK_ENTITIES.register("connector", () -> BlockEntityType.Builder.of(
                     (pos, state) -> new ConnectorBlockEntity(CIOBlockEntities.CONNECTOR.get(), pos, state),
                     CIOBlocks.CIO_CONNECTOR.get(), CIOBlocks.CIO_CONNECTOR_GLASS.get()).build(null)) : null;
+
+    // Double Connector — real, active content (unlike the disabled reskins
+    // above): two independent, unconnected terminal points in one block. Own
+    // BlockEntity (CIODoubleConnectorBlockEntity, setTerminalCount(2)) since
+    // ConnectorBlockEntity itself hardcodes 1.
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CIODoubleConnectorBlockEntity>> DOUBLE_CONNECTOR =
+            PG ? BLOCK_ENTITIES.register("cpg_double_connector", () -> BlockEntityType.Builder.of(
+                    (pos, state) -> new CIODoubleConnectorBlockEntity(CIOBlockEntities.DOUBLE_CONNECTOR.get(), pos, state),
+                    CIOBlocks.CIO_DOUBLE_CONNECTOR.get()).build(null)) : null;
 
     // Domestic Electrical Board (PG-only tiers) — its own BlockEntity carries
     // the PG 4-terminal circuit and the Crayfish ISourceNode bookkeeping. The
@@ -185,6 +212,27 @@ public class CIOBlockEntities {
                         .of(LetsDoLampBlockEntity::new, lamps.toArray(new Block[0]))
                         .build(null);
             });
+
+    // Aircon — see CIOBlocks.
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AirconMotorBottomBlockEntity>> AIRCON_MOTOR_BOTTOM =
+            PG ? BLOCK_ENTITIES.register("aircon_motor_bottom", () -> BlockEntityType.Builder.of(
+                    (pos, state) -> new AirconMotorBottomBlockEntity(CIOBlockEntities.AIRCON_MOTOR_BOTTOM.get(), pos, state),
+                    CIOBlocks.AIRCON_MOTOR_BOTTOM.get()).build(null)) : null;
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CeeAirconMotorBottomBlockEntity>> CEE_AIRCON_MOTOR_BOTTOM =
+            CEE ? BLOCK_ENTITIES.register("cee_aircon_motor_bottom", () -> BlockEntityType.Builder.of(
+                    (pos, state) -> new CeeAirconMotorBottomBlockEntity(CIOBlockEntities.CEE_AIRCON_MOTOR_BOTTOM.get(), pos, state),
+                    CIOBlocks.CEE_AIRCON_MOTOR_BOTTOM.get()).build(null)) : null;
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AirconMotorTopBlockEntity>> AIRCON_MOTOR_TOP =
+            BLOCK_ENTITIES.register("aircon_motor_top", () -> BlockEntityType.Builder.of(
+                    (pos, state) -> new AirconMotorTopBlockEntity(CIOBlockEntities.AIRCON_MOTOR_TOP.get(), pos, state),
+                    CIOBlocks.AIRCON_MOTOR_TOP.get()).build(null));
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AirconVenterBlockEntity>> AIRCON_VENTER =
+            BLOCK_ENTITIES.register("aircon_venter", () -> BlockEntityType.Builder.of(
+                    (pos, state) -> new AirconVenterBlockEntity(CIOBlockEntities.AIRCON_VENTER.get(), pos, state),
+                    CIOBlocks.AIRCON_VENTER.get()).build(null));
 
     public static void register(IEventBus modEventBus) {
         BLOCK_ENTITIES.register(modEventBus);

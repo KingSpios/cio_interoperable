@@ -1,0 +1,23 @@
+{
+  "neoforge:conditions": [
+    { "type": "neoforge:mod_loaded", "modid": "electroenergetics" }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "F": { "item": "create:encased_fan" },
+    "M": { "tag": "electroenergetics:electric_motors" },
+    "U": { "item": "electroenergetics:electric_pump" },
+    "P": { "item": "create:fluid_pipe" },
+    "B": { "item": "create:basin" }
+  },
+  "pattern": [
+    "FFF",
+    "MUM",
+    "PBP"
+  ],
+  "result": {
+    "count": 1,
+    "id": "createinteroperable:cee_aircon_motor_bottom"
+  }
+}

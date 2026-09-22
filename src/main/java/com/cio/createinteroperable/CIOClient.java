@@ -8,11 +8,14 @@ import com.cio.createinteroperable.deb.RedstoneSwitchRenderer;
 import com.cio.createinteroperable.grid.CrayfishCompat;
 import com.cio.createinteroperable.grid.CrayfishClient;
 import dev.engine_room.flywheel.lib.visualization.SimpleBlockEntityVisualizer;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.minecraft.client.renderer.RenderType;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 
 /**
  * Client-only rendering registration for the Brass Heater's and Steam
@@ -90,6 +93,20 @@ public class CIOClient {
         if (CrayfishCompat.present()) {
             CrayfishClient.registerApplianceNodeRenderers(event);
         }
+        // Aircon — the top (fan) registers unconditionally now (see
+        // CIOBlocks' own doc: it's electrical-backend-agnostic, sitting on
+        // either the PG or CEE bottom variant, or neither), so its renderer
+        // must too — gating this on PowerGridCompat alone would leave the
+        // fan's blades/flaps unrendered on a CEE-only (PG-absent) install
+        // even though the block itself places and works fine. The venter
+        // has no renderer of its own yet.
+        AirconMotorTopRenderer.init();
+        event.registerBlockEntityRenderer(CIOBlockEntities.AIRCON_MOTOR_TOP.get(), AirconMotorTopRenderer::new);
+    }
+
+    @SubscribeEvent
+    static void registerParticles(RegisterParticleProvidersEvent event) {
+        event.registerSpriteSet(CIOParticles.RADIATOR_SMOKE.get(), RadiatorSmokeParticle.Provider::new);
     }
 
     @SubscribeEvent
@@ -101,6 +118,41 @@ public class CIOClient {
             SimpleBlockEntityVisualizer.builder(CIOBlockEntities.STEAM_OUTLET.get())
                     .factory(SteamOutletVisual::new)
                     .apply();
+
+            // The Aircon blocks' own static baked models default to
+            // RenderType.solid() like every other block in this mod — no
+            // block anywhere in this project has ever called
+            // ItemBlockRenderTypes.setRenderLayer before. Solid ignores a
+            // texture's alpha channel entirely (every texel is drawn fully
+            // opaque), which is exactly what produced two real, separately
+            // reported "featureless grey plane instead of the actual
+            // detail" symptoms on aircon_motor_top's fin/blade geometry —
+            // both worked around so far by simply deleting the offending
+            // elements from the model, not by fixing the actual cause. Since
+            // this has now recurred twice, switch these 3 blocks to
+            // cutoutMipped (binary alpha-tested transparency, mipmapped —
+            // Create's own norm for anything with real cutout detail, e.g.
+            // its fan blades) so any current or future geometry on these
+            // blocks that relies on a texture's transparency renders
+            // correctly instead of needing to avoid transparency entirely.
+            // AIRCON_MOTOR_TOP registers unconditionally now (see CIOBlocks'
+            // own doc — it's electrical-backend-agnostic), so its own fix
+            // must be unconditional too: gating it on PowerGridCompat alone
+            // would silently let the exact "featureless grey plane" bug
+            // this comment describes recur on a CEE-only install, since the
+            // block (and its transparency-dependent blade/flap geometry)
+            // would still exist and render, just back on the wrong layer.
+            // CEE_AIRCON_MOTOR_BOTTOM reuses the SAME model file as the PG
+            // bottom (see its own blockstate JSON), so it needs the
+            // identical fix under its own gate.
+            if (PowerGridCompat.present()) {
+                ItemBlockRenderTypes.setRenderLayer(CIOBlocks.AIRCON_MOTOR_BOTTOM.get(), RenderType.cutoutMipped());
+            }
+            if (ElectroEnergeticsCompat.present()) {
+                ItemBlockRenderTypes.setRenderLayer(CIOBlocks.CEE_AIRCON_MOTOR_BOTTOM.get(), RenderType.cutoutMipped());
+            }
+            ItemBlockRenderTypes.setRenderLayer(CIOBlocks.AIRCON_MOTOR_TOP.get(), RenderType.cutoutMipped());
+            ItemBlockRenderTypes.setRenderLayer(CIOBlocks.AIRCON_VENTER.get(), RenderType.cutoutMipped());
         });
     }
 }

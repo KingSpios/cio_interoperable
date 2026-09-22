@@ -1,6 +1,10 @@
 package com.cio.createinteroperable;
 
+import com.cio.createinteroperable.compat.ColdSweatCompat;
+import com.cio.createinteroperable.compat.ColdSweatIntegration;
 import com.cio.createinteroperable.compat.ElectroEnergeticsCompat;
+import com.cio.createinteroperable.compat.PipesNPhysicsCompat;
+import com.cio.createinteroperable.compat.PipesNPhysicsIntegration;
 import com.cio.createinteroperable.compat.PowerGridCompat;
 import com.mojang.logging.LogUtils;
 import net.minecraft.resources.ResourceLocation;
@@ -25,6 +29,7 @@ public class CreateInteroperable {
 
         CIOConfig.register(modContainer);
         CIOFluids.register(modEventBus);
+        CIOParticles.register(modEventBus);
         CIOBlocks.register(modEventBus);
         CIOBlockEntities.register(modEventBus);
         CIOItems.register(modEventBus);
@@ -35,6 +40,21 @@ public class CreateInteroperable {
             CIODevices.register(modEventBus);
         }
         CIOCreativeTab.register(modEventBus);
+
+        // See ColdSweatIntegration's own doc for why this is a runtime
+        // present()-gated call rather than @EventBusSubscriber: that
+        // annotation would let NeoForge's classpath scanner load the class
+        // (and touch Cold-Sweat-only types in its method signatures)
+        // unconditionally, which throws on a Cold-Sweat-absent install.
+        if (ColdSweatCompat.present()) {
+            ColdSweatIntegration.register();
+        }
+        // Same present()-gated pattern: PipesNPhysicsIntegration's own method
+        // signatures touch Pipes-n-Physics-only types (FluidHandlerApi/Role),
+        // so this class must never load at all when that mod is absent.
+        if (PipesNPhysicsCompat.present()) {
+            PipesNPhysicsIntegration.register(modEventBus);
+        }
     }
 
     public static ResourceLocation rl(String path) {

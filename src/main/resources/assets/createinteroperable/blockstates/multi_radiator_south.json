@@ -1,0 +1,154 @@
+{
+  "variants": {
+    "facing=south,assembled=false,heat_level=cold": {
+      "model": "createinteroperable:block/brass_heater/multi_radiator_south"
+    },
+    "facing=south,assembled=true,heat_level=cold": {
+      "model": "createinteroperable:block/brass_heater/multi_radiator_south"
+    },
+    "facing=south,assembled=false,heat_level=warm": {
+      "model": "createinteroperable:block/brass_heater/multi_radiator_south_warm"
+    },
+    "facing=south,assembled=true,heat_level=warm": {
+      "model": "createinteroperable:block/brass_heater/multi_radiator_south_warm"
+    },
+    "facing=south,assembled=false,heat_level=hot": {
+      "model": "createinteroperable:block/brass_heater/multi_radiator_south_hot"
+    },
+    "facing=south,assembled=true,heat_level=hot": {
+      "model": "createinteroperable:block/brass_heater/multi_radiator_south_hot"
+    },
+    "facing=south,assembled=false,heat_level=blazing": {
+      "model": "createinteroperable:block/brass_heater/multi_radiator_south_blazing"
+    },
+    "facing=south,assembled=true,heat_level=blazing": {
+      "model": "createinteroperable:block/brass_heater/multi_radiator_south_blazing"
+    },
+    "facing=south,assembled=false,heat_level=freezing": {
+      "model": "createinteroperable:block/brass_heater/multi_radiator_south_freezing"
+    },
+    "facing=south,assembled=true,heat_level=freezing": {
+      "model": "createinteroperable:block/brass_heater/multi_radiator_south_freezing"
+    },
+    "facing=west,assembled=false,heat_level=cold": {
+      "model": "createinteroperable:block/brass_heater/multi_radiator_south",
+      "y": 90
+    },
+    "facing=west,assembled=true,heat_level=cold": {
+      "model": "createinteroperable:block/brass_heater/multi_radiator_south",
+      "y": 90
+    },
+    "facing=west,assembled=false,heat_level=warm": {
+      "model": "createinteroperable:block/brass_heater/multi_radiator_south_warm",
+      "y": 90
+    },
+    "facing=west,assembled=true,heat_level=warm": {
+      "model": "createinteroperable:block/brass_heater/multi_radiator_south_warm",
+      "y": 90
+    },
+    "facing=west,assembled=false,heat_level=hot": {
+      "model": "createinteroperable:block/brass_heater/multi_radiator_south_hot",
+      "y": 90
+    },
+    "facing=west,assembled=true,heat_level=hot": {
+      "model": "createinteroperable:block/brass_heater/multi_radiator_south_hot",
+      "y": 90
+    },
+    "facing=west,assembled=false,heat_level=blazing": {
+      "model": "createinteroperable:block/brass_heater/multi_radiator_south_blazing",
+      "y": 90
+    },
+    "facing=west,assembled=true,heat_level=blazing": {
+      "model": "createinteroperable:block/brass_heater/multi_radiator_south_blazing",
+      "y": 90
+    },
+    "facing=west,assembled=false,heat_level=freezing": {
+      "model": "createinteroperable:block/brass_heater/multi_radiator_south_freezing",
+      "y": 90
+    },
+    "facing=west,assembled=true,heat_level=freezing": {
+      "model": "createinteroperable:block/brass_heater/multi_radiator_south_freezing",
+      "y": 90
+    },
+    "facing=north,assembled=false,heat_level=cold": {
+      "model": "createinteroperable:block/brass_heater/multi_radiator_south",
+      "y": 180
+    },
+    "facing=north,assembled=true,heat_level=cold": {
+      "model": "createinteroperable:block/brass_heater/multi_radiator_south",
+      "y": 180
+    },
+    "facing=north,assembled=false,heat_level=warm": {
+      "model": "createinteroperable:block/brass_heater/multi_radiator_south_warm",
+      "y": 180
+    },
+    "facing=north,assembled=true,heat_level=warm": {
+      "model": "createinteroperable:block/brass_heater/multi_radiator_south_warm",
+      "y": 180
+    },
+    "facing=north,assembled=false,heat_level=hot": {
+      "model": "createinteroperable:block/brass_heater/multi_radiator_south_hot",
+      "y": 180
+    },
+    "facing=north,assembled=true,heat_level=hot": {
+      "model": "createinteroperable:block/brass_heater/multi_radiator_south_hot",
+      "y": 180
+    },
+    "facing=north,assembled=false,heat_level=blazing": {
+      "model": "createinteroperable:block/brass_heater/multi_radiator_south_blazing",
+      "y": 180
+    },
+    "facing=north,assembled=true,heat_level=blazing": {
+      "model": "createinteroperable:block/brass_heater/multi_radiator_south_blazing",
+      "y": 180
+    },
+    "facing=north,assembled=false,heat_level=freezing": {
+      "model": "createinteroperable:block/brass_heater/multi_radiator_south_freezing",
+      "y": 180
+    },
+    "facing=north,assembled=true,heat_level=freezing": {
+      "model": "createinteroperable:block/brass_heater/multi_radiator_south_freezing",
+      "y": 180
+    },
+    "facing=east,assembled=false,heat_level=cold": {
+      "model": "createinteroperable:block/brass_heater/multi_radiator_south",
+      "y": 270
+    },
+    "facing=east,assembled=true,heat_level=cold": {
+      "model": "createinteroperable:block/brass_heater/multi_radiator_south",
+      "y": 270
+    },
+    "facing=east,assembled=false,heat_level=warm": {
+      "model": "createinteroperable:block/brass_heater/multi_radiator_south_warm",
+      "y": 270
+    },
+    "facing=east,assembled=true,heat_level=warm": {
+      "model": "createinteroperable:block/brass_heater/multi_radiator_south_warm",
+      "y": 270
+    },
+    "facing=east,assembled=false,heat_level=hot": {
+      "model": "createinteroperable:block/brass_heater/multi_radiator_south_hot",
+      "y": 270
+    },
+    "facing=east,assembled=true,heat_level=hot": {
+      "model": "createinteroperable:block/brass_heater/multi_radiator_south_hot",
+      "y": 270
+    },
+    "facing=east,assembled=false,heat_level=blazing": {
+      "model": "createinteroperable:block/brass_heater/multi_radiator_south_blazing",
+      "y": 270
+    },
+    "facing=east,assembled=true,heat_level=blazing": {
+      "model": "createinteroperable:block/brass_heater/multi_radiator_south_blazing",
+      "y": 270
+    },
+    "facing=east,assembled=false,heat_level=freezing": {
+      "model": "createinteroperable:block/brass_heater/multi_radiator_south_freezing",
+      "y": 270
+    },
+    "facing=east,assembled=true,heat_level=freezing": {
+      "model": "createinteroperable:block/brass_heater/multi_radiator_south_freezing",
+      "y": 270
+    }
+  }
+}

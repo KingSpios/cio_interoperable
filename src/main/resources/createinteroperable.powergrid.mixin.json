@@ -1,0 +1,10 @@
+{
+  "required": false,
+  "package": "com.cio.createinteroperable.mixin.powergrid",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "ThermalBehaviourMixin"
+  ],
+  "client": [],
+  "minVersion": "0.8"
+}
