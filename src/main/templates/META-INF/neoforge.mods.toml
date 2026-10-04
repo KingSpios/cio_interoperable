@@ -77,6 +77,13 @@ license="${mod_license}"
 [[mixins]]
     config="createinteroperable.crayfish.mixin.json"
 
+# Optional Urban Decor integration. First fix: its faucet/sink/shower toggle
+# never actually changed the block (client-only, discarded setValue result).
+# Name-targeted, non-required — a complete no-op without Urban Decor (see
+# com.cio.createinteroperable.mixin.urbandecor).
+[[mixins]]
+    config="createinteroperable.urbandecor.mixin.json"
+
 # Optional Create Train Navigator integration: a freestanding Advanced Display
 # only renders its texts while powered from a Domestic Electrical Board.
 # Name-targeted, non-required — a complete no-op without Create Train Navigator
