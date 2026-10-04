@@ -4,7 +4,14 @@ plugins {
     id 'idea'
 }
 
-version = mod_version
+// Release channel: the experimental branch carries a one-line `release-channel`
+// file ("experimental"); main has none. A channel suffixes the version, so the
+// branches build distinguishable jars (createinteroperable-<v>.jar vs
+// createinteroperable-<v>-experimental.jar) and the game shows which is loaded.
+// Kept in a file only that branch has, so version bumps never conflict.
+def releaseChannelFile = file('release-channel')
+def releaseChannel = releaseChannelFile.exists() ? releaseChannelFile.text.trim() : ''
+version = releaseChannel ? "${mod_version}-${releaseChannel}" : mod_version
 group = mod_group_id
 
 base {
@@ -167,7 +174,7 @@ var generateModMetadata = tasks.register("generateModMetadata", ProcessResources
             mod_id                          : mod_id,
             mod_name                        : mod_name,
             mod_license                     : mod_license,
-            mod_version                     : mod_version,
+            mod_version                     : version,
             mod_authors                     : mod_authors,
             mod_credits                     : mod_credits,
             mod_description                 : mod_description,
