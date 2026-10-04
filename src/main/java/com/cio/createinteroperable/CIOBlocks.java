@@ -8,7 +8,9 @@ import com.cio.createinteroperable.deb.CeeDebRectifierBlock;
 import com.cio.createinteroperable.deb.CeePowerKitTier1Block;
 import com.cio.createinteroperable.deb.CeePowerKitTier3Block;
 import com.cio.createinteroperable.deb.CeePowerKitTier4Block;
+import com.cio.createinteroperable.deb.CeeRedstoneSwitchBlock;
 import com.cio.createinteroperable.deb.DebRectifierBlock;
+import com.cio.createinteroperable.deb.RedstoneSwitchBlock;
 import com.cio.createinteroperable.deb.PowerKitTier1Block;
 import com.cio.createinteroperable.deb.PowerKitTier3Block;
 import com.cio.createinteroperable.deb.PowerKitTier4Block;
@@ -305,6 +307,14 @@ public class CIOBlocks {
                     .strength(3.0f, 10.0f)
                     .noOcclusion())) : null;
 
+    // Redstone Switch — a redstone-gated two-pole inline break. Throughput caps
+    // and thermal model calibrated against the tier-2 Power Kit. PG-only.
+    public static final DeferredBlock<RedstoneSwitchBlock> REDSTONE_SWITCH = PG ? BLOCKS.register("redstone_switch",
+            () -> new RedstoneSwitchBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.METAL)
+                    .strength(2.0f, 6.0f)
+                    .noOcclusion())) : null;
+
     // --- CEE-wired Power Kits — same models as the CPG kits above, but their
     // own BlockEntity family (Cee*BlockEntity) runs entirely on Electro
     // Energetics' solver, with no Power Grid class anywhere in its hierarchy —
@@ -332,6 +342,12 @@ public class CIOBlocks {
             () -> new CeePowerKitTier4Block(BlockBehaviour.Properties.of()
                     .mapColor(MapColor.METAL)
                     .strength(3.0f, 10.0f)
+                    .noOcclusion())) : null;
+
+    public static final DeferredBlock<CeeRedstoneSwitchBlock> CEE_REDSTONE_SWITCH = CEE ? BLOCKS.register("cee_redstone_switch",
+            () -> new CeeRedstoneSwitchBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.METAL)
+                    .strength(2.0f, 6.0f)
                     .noOcclusion())) : null;
 
     // --- Iden's Decor "Electric" buttons & switches — appliance-grid switch

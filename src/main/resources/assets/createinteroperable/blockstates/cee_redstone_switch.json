@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "facing=north": { "model": "createinteroperable:block/redstone_switch" },
+    "facing=south": { "model": "createinteroperable:block/redstone_switch", "y": 180 },
+    "facing=east":  { "model": "createinteroperable:block/redstone_switch", "y": 90 },
+    "facing=west":  { "model": "createinteroperable:block/redstone_switch", "y": -90 },
+    "facing=down":  { "model": "createinteroperable:block/redstone_switch", "x": 90 },
+    "facing=up":    { "model": "createinteroperable:block/redstone_switch", "x": -90 }
+  }
+}

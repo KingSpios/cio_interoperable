@@ -3,6 +3,7 @@ package com.cio.createinteroperable;
 import com.cio.createinteroperable.compat.PnwTerminalDevice;
 import com.cio.createinteroperable.compat.PowerGridCompat;
 import com.cio.createinteroperable.deb.DebCeeDevice;
+import com.cio.createinteroperable.deb.RedstoneSwitchCeeDevice;
 import com.george_vi.electroenergetics.CEERegistries;
 import com.george_vi.electroenergetics.devices.device.SimulatedDeviceType;
 import net.neoforged.bus.api.IEventBus;
@@ -46,6 +47,11 @@ public class CIODevices {
     public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<DebCeeDevice>> POWER_KIT =
             DEVICES.register("power_kit", () -> new SimulatedDeviceType<>(CreateInteroperable.rl("power_kit"),
                     ((type, level, pos, sd) -> new DebCeeDevice(level, pos, sd, type))));
+
+    /** Electro Energetics side of the CEE Redstone Switch (two independent pole resistors). */
+    public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<RedstoneSwitchCeeDevice>> REDSTONE_SWITCH =
+            DEVICES.register("redstone_switch", () -> new SimulatedDeviceType<>(CreateInteroperable.rl("redstone_switch"),
+                    ((type, level, pos, sd) -> new RedstoneSwitchCeeDevice(level, pos, sd, type))));
 
     /** Electro Energetics side of the CEE Aircon Motor (a single dynamic-resistance load). */
     public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<AirconCeeDevice>> AIRCON_MOTOR =

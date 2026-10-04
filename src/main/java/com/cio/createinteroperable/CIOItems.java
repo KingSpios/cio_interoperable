@@ -99,6 +99,9 @@ public class CIOItems {
     public static final DeferredItem<BlockItem> DEB_RECTIFIER_TIER4 = PG ? ITEMS.registerSimpleBlockItem(
             "deb_rectifier_tier4", CIOBlocks.DEB_RECTIFIER_TIER4) : null;
 
+    public static final DeferredItem<BlockItem> REDSTONE_SWITCH = PG ? ITEMS.registerSimpleBlockItem(
+            "redstone_switch", CIOBlocks.REDSTONE_SWITCH) : null;
+
     // CEE-wired Power Kits (CEE-only).
     public static final DeferredItem<BlockItem> CEE_DEB_RECTIFIER = CEE ? ITEMS.registerSimpleBlockItem(
             "cee_deb_rectifier", CIOBlocks.CEE_DEB_RECTIFIER) : null;
@@ -111,6 +114,9 @@ public class CIOItems {
 
     public static final DeferredItem<BlockItem> CEE_DEB_RECTIFIER_TIER4 = CEE ? ITEMS.registerSimpleBlockItem(
             "cee_deb_rectifier_tier4", CIOBlocks.CEE_DEB_RECTIFIER_TIER4) : null;
+
+    public static final DeferredItem<BlockItem> CEE_REDSTONE_SWITCH = CEE ? ITEMS.registerSimpleBlockItem(
+            "cee_redstone_switch", CIOBlocks.CEE_REDSTONE_SWITCH) : null;
 
     // --- Aircon (PG- and CEE-gated motor bottoms, unconditional top/venter — see CIOBlocks) ---
 
