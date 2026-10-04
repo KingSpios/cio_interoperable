@@ -1,4 +1,10 @@
 {
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:item_exists",
+      "item": "createinteroperable:deb_rectifier_tier1"
+    }
+  ],
   "type": "minecraft:block",
   "pools": [
     {

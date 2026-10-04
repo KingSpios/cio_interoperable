@@ -1,4 +1,10 @@
 {
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:item_exists",
+      "item": "createinteroperable:steam_outlet"
+    }
+  ],
   "type": "minecraft:block",
   "pools": [
     {

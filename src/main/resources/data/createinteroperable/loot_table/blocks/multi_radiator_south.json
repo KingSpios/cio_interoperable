@@ -1,4 +1,10 @@
 {
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:item_exists",
+      "item": "createinteroperable:multi_radiator_south"
+    }
+  ],
   "type": "minecraft:block",
   "pools": [
     {

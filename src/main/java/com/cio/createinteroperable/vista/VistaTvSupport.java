@@ -1,5 +1,6 @@
 package com.cio.createinteroperable.vista;
 
+import com.cio.createinteroperable.CreateInteroperable;
 import com.cio.createinteroperable.grid.ApplianceNode;
 import com.cio.createinteroperable.grid.CrayfishCompat;
 import com.cio.createinteroperable.grid.GridConnection;
@@ -123,6 +124,7 @@ public final class VistaTvSupport {
         if (!level.isClientSide) {
             BlockPos masterPos = findMasterPos(level, pos, state);
             BlockEntity master = masterPos != null && !masterPos.equals(pos) ? level.getBlockEntity(masterPos) : null;
+            CreateInteroperable.LOGGER.debug("Vista TV {}: retiring stale block entity, links -> master {}", pos, masterPos);
             if (CrayfishCompat.present()) {
                 VistaCrayfishLinks.moveLinks(ghost, master);
             } else if (ghost instanceof ApplianceNode from) {

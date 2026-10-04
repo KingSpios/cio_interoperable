@@ -1,4 +1,10 @@
 {
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:item_exists",
+      "item": "createinteroperable:coupler"
+    }
+  ],
   "type": "minecraft:block",
   "pools": [
     {

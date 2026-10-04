@@ -1,4 +1,10 @@
 {
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:item_exists",
+      "item": "createinteroperable:cpg_telephone"
+    }
+  ],
   "type": "minecraft:block",
   "pools": [
     {

@@ -1,4 +1,10 @@
 {
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:item_exists",
+      "item": "createinteroperable:brass_heater"
+    }
+  ],
   "type": "minecraft:block",
   "pools": [
     {

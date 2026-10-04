@@ -1,4 +1,10 @@
 {
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:item_exists",
+      "item": "createinteroperable:cio_connector_glass"
+    }
+  ],
   "type": "minecraft:block",
   "pools": [
     {

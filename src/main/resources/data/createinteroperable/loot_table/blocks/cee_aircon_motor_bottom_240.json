@@ -1,4 +1,10 @@
 {
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:item_exists",
+      "item": "createinteroperable:cee_aircon_motor_bottom_240"
+    }
+  ],
   "type": "minecraft:block",
   "pools": [
     {

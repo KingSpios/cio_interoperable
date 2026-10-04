@@ -1,6 +1,7 @@
 package com.cio.createinteroperable.mixin.vista;
 
 import com.cio.createinteroperable.CIOConfig;
+import com.cio.createinteroperable.CreateInteroperable;
 import com.cio.createinteroperable.deb.MeteredAppliance;
 import com.cio.createinteroperable.deb.ScalableAppliance;
 import com.cio.createinteroperable.grid.ApplianceGrid;
@@ -82,6 +83,8 @@ public abstract class VistaTvNodeMixin implements ApplianceNode, MeteredApplianc
     @Unique private final Set<GridConnection> cioNode$conns = new HashSet<>();
     @Unique private boolean cioNode$powered;
     @Unique private boolean cioNode$receiving;
+    /** Last (fed, redstone) pair written to the debug log; -1 = none yet. */
+    @Unique private int cioNode$loggedInputs = -1;
 
     @Unique
     private BlockEntity cioNode$be() {
@@ -208,8 +211,18 @@ public abstract class VistaTvNodeMixin implements ApplianceNode, MeteredApplianc
         boolean receiving = applianceReceivingPower();
         BlockEntity be = cioNode$be();
         Level level = be.getLevel();
-        boolean kill = receiving && level != null && cioNode$wallHasSignal(level, be.getBlockPos());
+        boolean redstone = level != null && !level.isClientSide && cioNode$wallHasSignal(level, be.getBlockPos());
+        boolean kill = receiving && redstone;
         boolean powered = receiving && !kill;
+        if (level != null && !level.isClientSide) {
+            int inputs = (receiving ? 1 : 0) | (redstone ? 2 : 0);
+            if (inputs != this.cioNode$loggedInputs) {
+                this.cioNode$loggedInputs = inputs;
+                CreateInteroperable.LOGGER.debug("Vista TV {}: fed by a Power Kit={}, redstone on wall={}, wall {} tiles -> screen {}",
+                        be.getBlockPos(), receiving, redstone, cioNode$wallPositions(level, be.getBlockPos()).size(),
+                        powered ? "ON" : "OFF");
+            }
+        }
         if (this.cioNode$powered != powered) {
             setAppliancePowered(powered);
         } else if (level != null && !level.isClientSide && level.getGameTime() % 20L == 0L) {
