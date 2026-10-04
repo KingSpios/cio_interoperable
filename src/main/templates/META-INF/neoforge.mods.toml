@@ -26,6 +26,20 @@ license="${mod_license}"
 [[mixins]]
     config="createinteroperable.powergrid.mixin.json"
 
+# Electro Energetics' Electric Pump under Create: Pipes n Physics: stops PnP's
+# AUTO pump/turbine dial from resolving it to a turbine (see
+# com.cio.createinteroperable.mixin.pnp). Guarded by PnpCeePumpMixinPlugin, so
+# inert unless both optional mods load.
+[[mixins]]
+    config="createinteroperable.pnp.mixin.json"
+
+# Aircon Motor as its own pump under Create: Pipes n Physics. Patches PnP's
+# internal solver, so AirconEngineMixinPlugin applies it only to the PnP
+# version it was written against (3.2.x); a no-op otherwise or without PnP
+# (see com.cio.createinteroperable.mixin.pnpengine).
+[[mixins]]
+    config="createinteroperable.pnpengine.mixin.json"
+
 # Optional Cold Sweat integration: makes Cold Sweat's own real
 # WorldHelper#getInsulationAt (the lookup every position-based ambient
 # temperature query — a real Cold Sweat Thermometer, and now PG's own

@@ -1,5 +1,8 @@
 package com.cio.createinteroperable;
 
+import net.minecraft.core.Direction;
+import org.jetbrains.annotations.Nullable;
+
 /**
  * The handful of read accessors {@link AirconMotorTopBlockEntity} (the fan)
  * and {@link AirconVenterBlockEntity} (the venters) actually need from
@@ -27,6 +30,14 @@ public interface AirconMotorBottomInfo {
 
     /** How many °C a venter fed from this motor should treat as its own cooling ceiling right now — the current setting's real effect. */
     float getSettingDropC();
+
+    /** The world face cold_air leaves through right now, or null if this block is not in a valid state. Flips with the slider's flow direction. */
+    @Nullable
+    Direction getColdOutSide();
+
+    /** The world face hot_air is drawn in through right now, or null if this block is not in a valid state. */
+    @Nullable
+    Direction getHotInSide();
 
     /** The current setting's own relative intensity fraction (Off=0, Low=0.25, Mid=0.5, Max=1) — feeds a venter's own particle speed. */
     float getSettingIntensityFraction();

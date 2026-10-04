@@ -217,12 +217,12 @@ public class CIOBlockEntities {
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AirconMotorBottomBlockEntity>> AIRCON_MOTOR_BOTTOM =
             PG ? BLOCK_ENTITIES.register("aircon_motor_bottom", () -> BlockEntityType.Builder.of(
                     (pos, state) -> new AirconMotorBottomBlockEntity(CIOBlockEntities.AIRCON_MOTOR_BOTTOM.get(), pos, state),
-                    CIOBlocks.AIRCON_MOTOR_BOTTOM.get()).build(null)) : null;
+                    CIOBlocks.AIRCON_MOTOR_BOTTOM.get(), CIOBlocks.AIRCON_MOTOR_BOTTOM_240.get()).build(null)) : null;
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CeeAirconMotorBottomBlockEntity>> CEE_AIRCON_MOTOR_BOTTOM =
             CEE ? BLOCK_ENTITIES.register("cee_aircon_motor_bottom", () -> BlockEntityType.Builder.of(
                     (pos, state) -> new CeeAirconMotorBottomBlockEntity(CIOBlockEntities.CEE_AIRCON_MOTOR_BOTTOM.get(), pos, state),
-                    CIOBlocks.CEE_AIRCON_MOTOR_BOTTOM.get()).build(null)) : null;
+                    CIOBlocks.CEE_AIRCON_MOTOR_BOTTOM.get(), CIOBlocks.CEE_AIRCON_MOTOR_BOTTOM_240.get()).build(null)) : null;
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AirconMotorTopBlockEntity>> AIRCON_MOTOR_TOP =
             BLOCK_ENTITIES.register("aircon_motor_top", () -> BlockEntityType.Builder.of(

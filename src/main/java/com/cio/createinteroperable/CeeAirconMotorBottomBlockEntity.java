@@ -69,7 +69,7 @@ public class CeeAirconMotorBottomBlockEntity extends SmartBlockEntity
     private static final float[] SETTING_RESISTANCE = {24f, 24f, 12f, 6f};
     private static final float[] SETTING_DROP_C = {0f, 6f, 12f, 24f};
     private static final String[] SETTING_LABELS = {
-            "Off", "Low " + '❄', "Mid " + '❄' + '❄', "Max " + '❄' + '❄' + '❄'
+            CIOGlyphs.off("Off"), CIOGlyphs.snow(1, "Low"), CIOGlyphs.snow(2, "Mid"), CIOGlyphs.snow(3, "Max")
     };
     private static final float[] SETTING_HUM_FRACTION = {0f, 0.25f, 0.5f, 1f};
 
@@ -141,7 +141,7 @@ public class CeeAirconMotorBottomBlockEntity extends SmartBlockEntity
     @Override
     public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
         powerSetting = new PowerSettingScrollValueBehaviour(
-                Component.translatable("createinteroperable.aircon_power_setting"), this, new PowerSettingSlot())
+                Component.translatable("createinteroperable.aircon_power_setting"), this, powerSlot())
                 .between(0, 3)
                 .withFormatter(i -> SETTING_LABELS[Mth.clamp(i, 0, 3)]);
         behaviours.add(powerSetting);
@@ -159,6 +159,32 @@ public class CeeAirconMotorBottomBlockEntity extends SmartBlockEntity
         }
     }
 
+    /** Design voltage of this variant: 120 V standard, 240 V for the dual-motor block. */
+    private float ratedVolts() {
+        return getBlockState().getBlock() instanceof CeeAirconMotorBottomBlock b ? b.ratedVolts() : OPTIMAL_VOLTS;
+    }
+
+    /** 1 for the 120 V motor, 2 for the 240 V one - every voltage band, resistance and output rate scales by this. */
+    private float voltageScale() {
+        return ratedVolts() / OPTIMAL_VOLTS;
+    }
+
+    private float smokeVolts() {
+        return SMOKE_THRESHOLD_VOLTS * voltageScale();
+    }
+
+    private float explodeVolts() {
+        return EXPLODE_THRESHOLD_VOLTS * voltageScale();
+    }
+
+    private int coldAirRate() {
+        return Math.round(BASE_COLD_AIR_RATE * voltageScale());
+    }
+
+    private int hotAirRate() {
+        return Math.round(MAX_HOT_AIR_CONSUMPTION * voltageScale());
+    }
+
     private int getPowerSettingIndex() {
         return powerSetting == null ? SETTING_RESISTANCE.length - 1 : Mth.clamp(powerSetting.getValue(), 0, 3);
     }
@@ -174,7 +200,7 @@ public class CeeAirconMotorBottomBlockEntity extends SmartBlockEntity
 
     @Override
     public float getSettingDropC() {
-        return SETTING_DROP_C[getPowerSettingIndex()];
+        return SETTING_DROP_C[getPowerSettingIndex()] * voltageScale();
     }
 
     @Override
@@ -183,12 +209,12 @@ public class CeeAirconMotorBottomBlockEntity extends SmartBlockEntity
     }
 
     private float currentResistance() {
-        float base = SETTING_RESISTANCE[getPowerSettingIndex()];
+        float base = SETTING_RESISTANCE[getPowerSettingIndex()] * voltageScale();
         float ambientC = ambientTemperatureC();
         float hotExcess = Math.max(0f, ambientC - AMBIENT_NEUTRAL_C);
         float tempFactor = 1f + hotExcess * WATTAGE_INCREASE_PER_DEGREE_ABOVE_NEUTRAL;
         float roomFactor = 1f + totalCooledRoomSize() * WATTAGE_INCREASE_PER_COOLED_BLOCK;
-        return Math.max(base / (tempFactor * roomFactor), MIN_RESISTANCE_OHMS);
+        return Math.max(base / (tempFactor * roomFactor), MIN_RESISTANCE_OHMS * voltageScale());
     }
 
     private int totalCooledRoomSize() {
@@ -272,7 +298,7 @@ public class CeeAirconMotorBottomBlockEntity extends SmartBlockEntity
             voltage = 0f;
             reversed = false;
         }
-        efficiency = off ? 0f : Mth.clamp(voltage / OPTIMAL_VOLTS, 0f, 1f);
+        efficiency = off ? 0f : Mth.clamp(voltage / ratedVolts(), 0f, 1f);
         smoothedPerformance += (efficiency - smoothedPerformance) * EFFICIENCY_SMOOTHING;
         float humTarget = efficiency * SETTING_HUM_FRACTION[getPowerSettingIndex()];
         smoothedHumIntensity += (humTarget - smoothedHumIntensity) * EFFICIENCY_SMOOTHING;
@@ -286,12 +312,12 @@ public class CeeAirconMotorBottomBlockEntity extends SmartBlockEntity
             return;
         }
 
-        int coldProduced = Math.round(BASE_COLD_AIR_RATE * efficiency);
+        int coldProduced = Math.round(coldAirRate() * efficiency);
         if (coldProduced > 0) {
             coldAirTank.fill(new FluidStack(CIOFluids.COLD_AIR_STILL.get(), coldProduced), IFluidHandler.FluidAction.EXECUTE);
         }
 
-        int desiredConsume = Math.round(MAX_HOT_AIR_CONSUMPTION * efficiency);
+        int desiredConsume = Math.round(hotAirRate() * efficiency);
         if (desiredConsume > 0) {
             FluidStack drained = hotAirIntakeTank.drain(desiredConsume, IFluidHandler.FluidAction.EXECUTE);
             if (!drained.isEmpty()) {
@@ -311,11 +337,11 @@ public class CeeAirconMotorBottomBlockEntity extends SmartBlockEntity
     private static final float EXPLODE_THRESHOLD_VOLTS = 160f;
 
     private boolean tickOvervoltage(ServerLevel serverLevel) {
-        if (voltage >= EXPLODE_THRESHOLD_VOLTS) {
+        if (voltage >= explodeVolts()) {
             explode(serverLevel);
             return true;
         }
-        if (voltage >= SMOKE_THRESHOLD_VOLTS) {
+        if (voltage >= smokeVolts()) {
             tickSmoke(serverLevel);
         }
         return false;
@@ -323,7 +349,7 @@ public class CeeAirconMotorBottomBlockEntity extends SmartBlockEntity
 
     private void tickSmoke(ServerLevel serverLevel) {
         float dangerFraction = Mth.clamp(
-                (voltage - SMOKE_THRESHOLD_VOLTS) / (EXPLODE_THRESHOLD_VOLTS - SMOKE_THRESHOLD_VOLTS), 0f, 1f);
+                (voltage - smokeVolts()) / (explodeVolts() - smokeVolts()), 0f, 1f);
         int interval = Math.max(2, Math.round(24 * (1f - dangerFraction)) + 2);
         if ((serverLevel.getGameTime() + worldPosition.hashCode()) % interval != 0) {
             return;
@@ -396,16 +422,33 @@ public class CeeAirconMotorBottomBlockEntity extends SmartBlockEntity
         if (side == Direction.DOWN) {
             return waterTank;
         }
-        Direction facing = state.getValue(CeeAirconMotorBottomBlock.FACING);
-        Direction coldOut = rotate(reversed ? Direction.EAST : Direction.WEST, facing);
-        if (side == coldOut) {
+        if (side == getColdOutSide()) {
             return coldAirTank;
         }
-        Direction hotIn = rotate(reversed ? Direction.WEST : Direction.EAST, facing);
-        if (side == hotIn) {
+        if (side == getHotInSide()) {
             return hotAirIntakeTank;
         }
         return null;
+    }
+
+    @Nullable
+    @Override
+    public Direction getColdOutSide() {
+        BlockState state = getBlockState();
+        if (!(state.getBlock() instanceof CeeAirconMotorBottomBlock)) {
+            return null;
+        }
+        return rotate(reversed ? Direction.EAST : Direction.WEST, state.getValue(CeeAirconMotorBottomBlock.FACING));
+    }
+
+    @Nullable
+    @Override
+    public Direction getHotInSide() {
+        BlockState state = getBlockState();
+        if (!(state.getBlock() instanceof CeeAirconMotorBottomBlock)) {
+            return null;
+        }
+        return rotate(reversed ? Direction.WEST : Direction.EAST, state.getValue(CeeAirconMotorBottomBlock.FACING));
     }
 
     /** Same rotation convention as {@code AirconMotorBottomBlock#rotate} — duplicated locally since that method is package-visible to the PG class only in spirit (both live in this same root package, but this keeps the CEE class self-contained, matching the rest of this file's "no cross-references into the PG class" discipline). */
@@ -444,28 +487,18 @@ public class CeeAirconMotorBottomBlockEntity extends SmartBlockEntity
         };
     }
 
-    private static final Vec3 POWER_SLOT_BASE = VecHelper.voxelSpace(8, 8, 15.1);
+    private static final Vec3 POWER_SLOT_BASE = VecHelper.voxelSpace(8, 8, 15.05);
 
-    private static class PowerSettingSlot extends ValueBoxTransform {
-        @Override
-        public Vec3 getLocalOffset(LevelAccessor level, BlockPos pos, BlockState state) {
-            if (!(state.getBlock() instanceof CeeAirconMotorBottomBlock)) {
-                return POWER_SLOT_BASE;
-            }
-            return rotateY(POWER_SLOT_BASE, angleDegrees(state.getValue(CeeAirconMotorBottomBlock.FACING)));
-        }
-
-        @Override
-        public void rotate(LevelAccessor level, BlockPos pos, BlockState state, PoseStack ms) {
-            int angle = state.getBlock() instanceof CeeAirconMotorBottomBlock
-                    ? angleDegrees(state.getValue(CeeAirconMotorBottomBlock.FACING)) : 0;
-            TransformStack.of(ms).rotateYDegrees(180 + angle);
-        }
+    /** Slider box on the south face at the default facing, carried through the block's own facing (see {@link CIOValueBox}). */
+    private static CIOValueBox powerSlot() {
+        return new CIOValueBox(POWER_SLOT_BASE, Direction.SOUTH, CIOValueBox.SCALE_STANDARD,
+                (state, v) -> state.getBlock() instanceof CeeAirconMotorBottomBlock
+                        ? rotateY(v, angleDegrees(state.getValue(CeeAirconMotorBottomBlock.FACING))) : v);
     }
 
     @Override
     public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
-        CreateLang.text("AC Unit Motor (bottom, CEE)")
+        CreateLang.text("CEE Aircon Motor (" + Math.round(ratedVolts()) + "v)")
                 .style(ChatFormatting.WHITE)
                 .forGoggles(tooltip);
 
@@ -478,7 +511,7 @@ public class CeeAirconMotorBottomBlockEntity extends SmartBlockEntity
                         .style(assembled ? ChatFormatting.GREEN : ChatFormatting.RED))
                 .forGoggles(tooltip, 1);
 
-        boolean overvoltage = voltage >= SMOKE_THRESHOLD_VOLTS;
+        boolean overvoltage = voltage >= smokeVolts();
         CreateLang.text("Voltage: ")
                 .style(ChatFormatting.GRAY)
                 .add(CreateLang.number(Math.round(voltage))
@@ -514,8 +547,8 @@ public class CeeAirconMotorBottomBlockEntity extends SmartBlockEntity
 
         CreateLang.text("Cold Air Out: ")
                 .style(ChatFormatting.GRAY)
-                .add(CreateLang.number(Math.round(BASE_COLD_AIR_RATE * efficiency))
-                        .text(" / " + BASE_COLD_AIR_RATE + " mB/t")
+                .add(CreateLang.number(Math.round(coldAirRate() * efficiency))
+                        .text(" / " + coldAirRate() + " mB/t")
                         .style(ChatFormatting.AQUA))
                 .forGoggles(tooltip, 1);
         CreateLang.builder()
@@ -527,8 +560,8 @@ public class CeeAirconMotorBottomBlockEntity extends SmartBlockEntity
         boolean receivingHotAir = isReceivingHotAirSupply();
         CreateLang.text("Hot Air In: ")
                 .style(ChatFormatting.GRAY)
-                .add(CreateLang.number(Math.round(MAX_HOT_AIR_CONSUMPTION * efficiency))
-                        .text(" / " + MAX_HOT_AIR_CONSUMPTION + " mB/t max")
+                .add(CreateLang.number(Math.round(hotAirRate() * efficiency))
+                        .text(" / " + hotAirRate() + " mB/t max")
                         .style(ChatFormatting.GOLD))
                 .forGoggles(tooltip, 1);
         CreateLang.builder()

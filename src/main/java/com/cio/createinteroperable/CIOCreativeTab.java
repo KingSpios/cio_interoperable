@@ -52,9 +52,11 @@ public class CIOCreativeTab {
                         output.accept(CIOItems.AIRCON_MOTOR_TOP.get());
                         if (pg) {
                             output.accept(CIOItems.AIRCON_MOTOR_BOTTOM.get());
+                            output.accept(CIOItems.AIRCON_MOTOR_BOTTOM_240.get());
                         }
                         if (cee) {
                             output.accept(CIOItems.CEE_AIRCON_MOTOR_BOTTOM.get());
+                            output.accept(CIOItems.CEE_AIRCON_MOTOR_BOTTOM_240.get());
                         }
                         if (pg && cee) {
                             output.accept(CIOItems.DOUBLE_COUPLER.get());

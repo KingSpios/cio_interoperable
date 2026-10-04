@@ -60,6 +60,15 @@ public final class PipesNPhysicsIntegration {
             if (CIOBlocks.AIRCON_MOTOR_BOTTOM != null) {
                 FluidHandlerApi.setRole(CIOBlocks.AIRCON_MOTOR_BOTTOM.get(), FluidHandlerRole.RESERVOIR);
             }
+            if (CIOBlocks.AIRCON_MOTOR_BOTTOM_240 != null) {
+                FluidHandlerApi.setRole(CIOBlocks.AIRCON_MOTOR_BOTTOM_240.get(), FluidHandlerRole.RESERVOIR);
+            }
+            if (CIOBlocks.CEE_AIRCON_MOTOR_BOTTOM != null) {
+                FluidHandlerApi.setRole(CIOBlocks.CEE_AIRCON_MOTOR_BOTTOM.get(), FluidHandlerRole.RESERVOIR);
+            }
+            if (CIOBlocks.CEE_AIRCON_MOTOR_BOTTOM_240 != null) {
+                FluidHandlerApi.setRole(CIOBlocks.CEE_AIRCON_MOTOR_BOTTOM_240.get(), FluidHandlerRole.RESERVOIR);
+            }
             FluidHandlerApi.setRole(CIOBlocks.AIRCON_VENTER.get(), FluidHandlerRole.RESERVOIR);
         });
     }

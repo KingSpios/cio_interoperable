@@ -534,8 +534,8 @@ public class AirconVenterBlockEntity extends SmartBlockEntity implements IAirCur
     private static final float DEFAULT_DROP_C = 12f;
     /** Used when no motor is found — matches {@link #DEFAULT_DROP_C}'s own "fair Mid-like middle" reasoning, same value as {@code AirconMotorBottomBlockEntity}'s own Mid entry in {@code SETTING_HUM_FRACTION}. */
     private static final float DEFAULT_SETTING_FRACTION = 0.5f;
-    /** Cold sinks — the cooled room never extends more than this many blocks ABOVE the venter's own Y (no cap going down at all), the deliberate opposite of the Steam Hearth's "never below the radiator's own floor" rule. Tightened from 10 to 2 per user feedback — a venter's own cold output shouldn't reach nearly as far up as a full extra floor. */
-    private static final int MAX_RISE_ABOVE_VENTER = 2;
+    /** Cold sinks — the cooled room never extends more than this many blocks ABOVE the venter's own Y (no cap going down at all), the deliberate opposite of the Steam Hearth's "never below the radiator's own floor" rule. Tightened from 10 to 2, then to 0 per user feedback — cold air sinks, so the room is the venter's own layer and everything below it, nothing above. */
+    private static final int MAX_RISE_ABOVE_VENTER = 0;
 
     private float cachedDropC = DEFAULT_DROP_C;
     private float cachedSettingFraction = DEFAULT_SETTING_FRACTION;
@@ -901,7 +901,7 @@ public class AirconVenterBlockEntity extends SmartBlockEntity implements IAirCur
      * downward at all) — the deliberate opposite of the Steam Hearth's own
      * "never below the radiator's floor" rule, so a ground-floor venter
      * cools its own floor (and everything below, in a multi-story build)
-     * without reaching more than 10 blocks up, while a top-floor venter
+     * without reaching any higher than the venter itself, while a top-floor venter
      * reaches every floor beneath it with no limit.
      * <p>
      * Also picks {@link #outsideReferencePos} as a side effect — see

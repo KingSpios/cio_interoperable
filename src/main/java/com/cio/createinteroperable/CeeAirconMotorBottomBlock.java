@@ -31,7 +31,7 @@ import java.util.Map;
  * The Electro Energetics-wired twin of {@link AirconMotorBottomBlock}: same
  * model, same dynamic-resistance load, same Off/Low/Mid/Max slider, same
  * fluid mechanics (ported near-verbatim onto
- * {@link CeeAirconMotorBottomBlockEntity} — see that class's own doc for why
+ * {@link CeeAirconMotorBottomBlockEntity} â see that class's own doc for why
  * this codebase duplicates that logic rather than sharing it, matching the
  * existing {@code CeeDebRectifierBlockEntity}/{@code DebRectifierBlockEntity}
  * precedent), but it exposes CEE connection nodes instead of Power Grid
@@ -41,21 +41,21 @@ import java.util.Map;
  * install. Implements the zero-dependency {@link AirconMotorBottomMarker} so
  * the always-loaded {@link AirconMotorAssembly} can pair this with
  * {@link AirconMotorTopBlock} (the SAME top half the Power Grid variant
- * uses — see that class's own doc) without ever referencing this class
+ * uses â see that class's own doc) without ever referencing this class
  * directly.
  */
 public class CeeAirconMotorBottomBlock extends SimpleElectricalDeviceBlock<AirconCeeDevice>
         implements IBE<CeeAirconMotorBottomBlockEntity>, AirconMotorBottomMarker {
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
-    /** Shared with {@link AirconMotorBottomBlock}/{@link AirconMotorTopBlock} — see {@link CIOProperties#AIRCON_ASSEMBLED}'s own doc. */
+    /** Shared with {@link AirconMotorBottomBlock}/{@link AirconMotorTopBlock} â see {@link CIOProperties#AIRCON_ASSEMBLED}'s own doc. */
     public static final BooleanProperty ASSEMBLED = CIOProperties.AIRCON_ASSEMBLED;
 
-    /** Matches {@link AirconCeeDevice}'s own node ids — 0 positive, 1 negative. */
+    /** Matches {@link AirconCeeDevice}'s own node ids â 0 positive, 1 negative. */
     public static final int POSITIVE_NODE = 0;
     public static final int NEGATIVE_NODE = 1;
 
     /**
-     * NORTH-authored CEE node centres (block units) — copied from the exact
+     * NORTH-authored CEE node centres (block units) â copied from the exact
      * centres of {@link AirconMotorBottomBlock}'s own PG
      * {@code POSITIVE_TERMINAL_BASE}/{@code NEGATIVE_TERMINAL_BASE}
      * ({@code aircon_motor_bottom.json}'s {@code power_pin_1_positive}
@@ -68,10 +68,15 @@ public class CeeAirconMotorBottomBlock extends SimpleElectricalDeviceBlock<Airco
             {6.0, 1.1, 1.0},   // 1 negative
     });
 
-    /** Same rough envelope as {@link AirconMotorBottomBlock}'s own SHAPES — not pixel-perfect, just enough to avoid the full-cube neighbor-culling bug (see that class's own doc). Duplicated rather than shared since that field is private to the PG class. */
+    /** Same rough envelope as {@link AirconMotorBottomBlock}'s own SHAPES â not pixel-perfect, just enough to avoid the full-cube neighbor-culling bug (see that class's own doc). Duplicated rather than shared since that field is private to the PG class. */
     private static final Map<Direction, VoxelShape> SHAPES = ShapeRotation.forHorizontalFacing(
             new ShapeRotation.Box(0, 0, 1, 16, 16, 15),
             new ShapeRotation.Box(4, 0, 0, 12, 3, 2));
+
+    /** Design voltage of this motor variant — 120 V standard; {@link CeeAirconMotorBottom240Block} overrides. Read by the BlockEntity for every voltage-scaled number. */
+    public float ratedVolts() {
+        return 120f;
+    }
 
     public CeeAirconMotorBottomBlock(Properties properties) {
         super(properties);
@@ -99,7 +104,7 @@ public class CeeAirconMotorBottomBlock extends SimpleElectricalDeviceBlock<Airco
         return state.rotate(mirrorIn.getRotation(state.getValue(FACING)));
     }
 
-    /** Same "assemble-first-else-rotate" shape as {@link AirconMotorBottomBlock#onWrenched} — no PG-specific wire-connection refresh needed here (CEE node positions don't move with ASSEMBLED). */
+    /** Same "assemble-first-else-rotate" shape as {@link AirconMotorBottomBlock#onWrenched} â no PG-specific wire-connection refresh needed here (CEE node positions don't move with ASSEMBLED). */
     @Override
     public InteractionResult onWrenched(BlockState state, UseOnContext context) {
         Level level = context.getLevel();
@@ -149,7 +154,7 @@ public class CeeAirconMotorBottomBlock extends SimpleElectricalDeviceBlock<Airco
     }
 
     /**
-     * NORTH=0, EAST=90, SOUTH=180, WEST=270 — same convention
+     * NORTH=0, EAST=90, SOUTH=180, WEST=270 â same convention
      * {@code AirconMotorBottomBlockEntity}'s own (private) copy uses; that
      * package-private {@code deb.PowerKitGeometry} helper the other CEE
      * blocks in this codebase share isn't accessible from this (root)
@@ -166,7 +171,7 @@ public class CeeAirconMotorBottomBlock extends SimpleElectricalDeviceBlock<Airco
         };
     }
 
-    /** Rotates a block-local (0..1) offset about the block's own vertical center by a multiple of 90° — same pattern as {@code AirconMotorBottomBlockEntity#rotateY}. */
+    /** Rotates a block-local (0..1) offset about the block's own vertical center by a multiple of 90Â° â same pattern as {@code AirconMotorBottomBlockEntity#rotateY}. */
     private static Vec3 rotateY(Vec3 base, int angle) {
         double dx = base.x - 0.5, dz = base.z - 0.5;
         return switch (angle) {

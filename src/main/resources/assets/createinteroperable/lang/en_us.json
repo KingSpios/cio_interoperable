@@ -43,8 +43,10 @@
 
   "createinteroperable.aircon_power_setting": "Cooling Setting",
 
-  "block.createinteroperable.aircon_motor_bottom": "Aircon Motor",
-  "block.createinteroperable.cee_aircon_motor_bottom": "CEE Aircon Motor",
+  "block.createinteroperable.aircon_motor_bottom": "CPG Aircon Motor (120v)",
+  "block.createinteroperable.aircon_motor_bottom_240": "CPG Aircon Motor (240v)",
+  "block.createinteroperable.cee_aircon_motor_bottom": "CEE Aircon Motor (120v)",
+  "block.createinteroperable.cee_aircon_motor_bottom_240": "CEE Aircon Motor (240v)",
   "block.createinteroperable.aircon_motor_top": "Aircon Fan",
   "block.createinteroperable.aircon_venter": "Aircon Venter",
 

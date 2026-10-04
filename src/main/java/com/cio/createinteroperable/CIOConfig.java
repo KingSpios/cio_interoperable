@@ -139,6 +139,13 @@ public final class CIOConfig {
      */
     public static final ModConfigSpec.BooleanValue VISTA_TVS_REQUIRE_POWER;
 
+    /**
+     * Create: Pipes n Physics only. How hard the Aircon Motor pumps, in Create RPM
+     * (Pipes n Physics' own pump scale; 256 is the maximum a Mechanical Pump can turn).
+     * 0 turns the feature off.
+     */
+    public static final ModConfigSpec.DoubleValue AIRCON_PUMP_RPM;
+
     static {
         ModConfigSpec.Builder b = new ModConfigSpec.Builder();
         b.push("refurbishedFurniture");
@@ -253,6 +260,17 @@ public final class CIOConfig {
                         "unless Vista is installed. Set false to hand every TV straight back to",
                         "Vista's own redstone-only behaviour.")
                 .define("requirePower", true);
+        b.pop();
+
+        b.push("aircon");
+        AIRCON_PUMP_RPM = b
+                .comment("A no-op unless Create: Pipes n Physics is installed. With it, the Aircon",
+                        "Motor acts as its own pump: the cold-air face pushes cold air out and the",
+                        "hot-air face sucks hot air in, so an AC loop needs no pumps along its pipes.",
+                        "This is the pump strength at full power, on Pipes n Physics' Create-RPM",
+                        "scale (256 = the fastest a Mechanical Pump turns). It scales down with the",
+                        "motor's power. 0 disables it and leaves the motor as a plain tank.")
+                .defineInRange("motorPumpRpm", 256.0, 0.0, 256.0);
         b.pop();
 
         SPEC = b.build();

@@ -1,0 +1,11 @@
+{
+  "required": false,
+  "package": "com.cio.createinteroperable.mixin.pnp",
+  "compatibilityLevel": "JAVA_21",
+  "plugin": "com.cio.createinteroperable.mixin.pnp.PnpCeePumpMixinPlugin",
+  "mixins": [
+    "CeeElectricPumpNeverTurbineMixin"
+  ],
+  "client": [],
+  "minVersion": "0.8"
+}

@@ -23,4 +23,20 @@ public final class PipesNPhysicsCompat {
         LoadingModList loading = LoadingModList.get();
         return loading != null && loading.getModFileById(MOD_ID) != null;
     }
+
+    /**
+     * The installed Pipes n Physics version string, or null if it is absent or unreadable. Reads
+     * {@link LoadingModList}, which exists from the earliest mixin-plugin load onward.
+     */
+    public static String version() {
+        LoadingModList loading = LoadingModList.get();
+        if (loading == null) {
+            return null;
+        }
+        var file = loading.getModFileById(MOD_ID);
+        if (file == null || file.getMods().isEmpty()) {
+            return null;
+        }
+        return file.getMods().get(0).getVersion().toString();
+    }
 }

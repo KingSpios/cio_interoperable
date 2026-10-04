@@ -34,13 +34,13 @@ import java.util.Map;
  * / {@link AirconMotorAssembly} for the wrench pairing). The real "engine":
  * carries the two CPG wire terminals (matching {@code aircon_motor_bottom.json}'s
  * {@code power_pin_1_positive}/{@code power_pin_2_negative} cubes) and exposes
- * 3 Create-pipe faces — NORTH is always water OUT; WEST/EAST are cold_air OUT
+ * 3 Create-pipe faces â NORTH is always water OUT; WEST/EAST are cold_air OUT
  * / hot_air IN, swapped if the player wires reversed polarity (see
- * AirconMotorBottomBlockEntity#isReversed) — same reversing-valve idea a real
+ * AirconMotorBottomBlockEntity#isReversed) â same reversing-valve idea a real
  * heat pump uses.
  * <p>
  * Model authored at FACING=NORTH (its literal N/W/E faces map 1:1 to the
- * unrotated state) — {@link #rotate(Direction, Direction)} remaps any of
+ * unrotated state) â {@link #rotate(Direction, Direction)} remaps any of
  * those base directions to the actual world direction for any other FACING,
  * using the same clockwise "y" blockstate rotation convention as
  * {@link ShapeRotation}/{@code TerminalBoundingBox#rotateAroundY}.
@@ -48,7 +48,7 @@ import java.util.Map;
 public class AirconMotorBottomBlock extends ElectricBlock
         implements IBE<AirconMotorBottomBlockEntity>, AirconMotorBottomMarker {
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
-    /** Shared with {@link AirconMotorTopBlock} and the CEE-wired bottom variant — see {@link CIOProperties#AIRCON_ASSEMBLED}'s own doc. */
+    /** Shared with {@link AirconMotorTopBlock} and the CEE-wired bottom variant â see {@link CIOProperties#AIRCON_ASSEMBLED}'s own doc. */
     public static final BooleanProperty ASSEMBLED = CIOProperties.AIRCON_ASSEMBLED;
 
     /** Terminal indices, referenced by {@link AirconMotorBottomBlockEntity#buildCircuit}. */
@@ -70,10 +70,15 @@ public class AirconMotorBottomBlock extends ElectricBlock
                     7 + CHECK_MARGIN, 2.1 + CHECK_MARGIN, 2 + CHECK_MARGIN)
                     .withColor(IDecoratedTerminal.BLUE);
 
-    /** Rough envelope of body_box + fin + pin elements — not pixel-perfect, just enough to avoid the full-cube neighbor-culling bug (see ShapeRotation's doc). */
+    /** Rough envelope of body_box + fin + pin elements â not pixel-perfect, just enough to avoid the full-cube neighbor-culling bug (see ShapeRotation's doc). */
     private static final Map<Direction, VoxelShape> SHAPES = ShapeRotation.forHorizontalFacing(
             new ShapeRotation.Box(0, 0, 1, 16, 16, 15),
             new ShapeRotation.Box(4, 0, 0, 12, 3, 2));
+
+    /** Design voltage of this motor variant — 120 V standard; {@link AirconMotorBottom240Block} overrides. Read by the BlockEntity for every voltage-scaled number. */
+    public float ratedVolts() {
+        return 120f;
+    }
 
     public AirconMotorBottomBlock(Properties properties) {
         super(properties);
@@ -84,7 +89,7 @@ public class AirconMotorBottomBlock extends ElectricBlock
                 .build());
     }
 
-    /** NORTH=0, EAST=1, SOUTH=2, WEST=3 clockwise steps — same convention {@link ShapeRotation} uses internally. */
+    /** NORTH=0, EAST=1, SOUTH=2, WEST=3 clockwise steps â same convention {@link ShapeRotation} uses internally. */
     private static int clockwiseSteps(Direction facing) {
         return switch (facing) {
             case NORTH -> 0;
@@ -138,7 +143,7 @@ public class AirconMotorBottomBlock extends ElectricBlock
      * (see {@link AirconMotorAssembly}); falls back to a plain facing-cycle
      * rotate, same "assemble-first-else-rotate" shape as
      * {@code RadiatorValveNorthBlock#onWrenched}. An already-assembled pair
-     * refuses to rotate in place (would desync the top half) — unwrench
+     * refuses to rotate in place (would desync the top half) â unwrench
      * conceptually isn't supported yet, matching this project's existing
      * "no failure feedback / no disassembly" precedent for other multiblocks.
      */
@@ -164,15 +169,15 @@ public class AirconMotorBottomBlock extends ElectricBlock
 
     /**
      * Accepts any real PG wire, not just the default light-tier subset
-     * ({@code IElectric#accepts}'s own default is {@code LIGHT_WIRES} only —
+     * ({@code IElectric#accepts}'s own default is {@code LIGHT_WIRES} only â
      * copper/golden/insulated-copper, confirmed by reading real PG source,
      * {@code ModdedItems}: those are rated 24/12/16 A). This motor's own
      * resistive load is a genuinely heavy draw (~2400 W at its 120 V design
-     * point, i.e. ~20 A continuous, more under overvoltage) — real reported
+     * point, i.e. ~20 A continuous, more under overvoltage) â real reported
      * symptom was players' ordinary (light) wires burning out under that
      * load. PG's own {@code iron_wire} is rated 64 A specifically for this
      * kind of load and is deliberately NOT tagged {@code LIGHT_WIRES} (it's
-     * tagged {@code FUSE_RESETTING} instead) — so it was being silently
+     * tagged {@code FUSE_RESETTING} instead) â so it was being silently
      * rejected by the inherited default. Widened to the broad
      * {@code WIRES} tag (every real PG wire, light or heavy) rather than
      * hand-picking iron specifically, so a player using an even heavier

@@ -1,0 +1,15 @@
+{
+  "required": false,
+  "package": "com.cio.createinteroperable.mixin.pnpengine",
+  "compatibilityLevel": "JAVA_21",
+  "plugin": "com.cio.createinteroperable.mixin.pnpengine.AirconEngineMixinPlugin",
+  "injectors": {
+    "defaultRequire": 0
+  },
+  "mixins": [
+    "BoundaryColumnMixin",
+    "FluidPassAirconMixin"
+  ],
+  "client": [],
+  "minVersion": "0.8"
+}

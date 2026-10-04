@@ -253,6 +253,18 @@ public class CIOBlocks {
                     .strength(2.0f, 6.0f)
                     .requiresCorrectToolForDrops())) : null;
 
+    public static final DeferredBlock<AirconMotorBottom240Block> AIRCON_MOTOR_BOTTOM_240 = PG ? BLOCKS.register("aircon_motor_bottom_240",
+            () -> new AirconMotorBottom240Block(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.METAL)
+                    .strength(2.0f, 6.0f)
+                    .requiresCorrectToolForDrops())) : null;
+
+    public static final DeferredBlock<CeeAirconMotorBottom240Block> CEE_AIRCON_MOTOR_BOTTOM_240 = CEE ? BLOCKS.register("cee_aircon_motor_bottom_240",
+            () -> new CeeAirconMotorBottom240Block(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.METAL)
+                    .strength(2.0f, 6.0f)
+                    .requiresCorrectToolForDrops())) : null;
+
     public static final DeferredBlock<AirconMotorTopBlock> AIRCON_MOTOR_TOP = BLOCKS.register("aircon_motor_top",
             () -> new AirconMotorTopBlock(BlockBehaviour.Properties.of()
                     .mapColor(MapColor.METAL)

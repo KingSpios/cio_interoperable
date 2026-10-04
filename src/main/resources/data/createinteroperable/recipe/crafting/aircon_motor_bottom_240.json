@@ -1,0 +1,17 @@
+{
+  "neoforge:conditions": [
+    { "type": "neoforge:mod_loaded", "modid": "powergrid" }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "M": { "item": "createinteroperable:aircon_motor_bottom" }
+  },
+  "pattern": [
+    "MM"
+  ],
+  "result": {
+    "count": 1,
+    "id": "createinteroperable:aircon_motor_bottom_240"
+  }
+}

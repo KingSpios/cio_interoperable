@@ -147,9 +147,11 @@ public class CIOClient {
             // identical fix under its own gate.
             if (PowerGridCompat.present()) {
                 ItemBlockRenderTypes.setRenderLayer(CIOBlocks.AIRCON_MOTOR_BOTTOM.get(), RenderType.cutoutMipped());
+                ItemBlockRenderTypes.setRenderLayer(CIOBlocks.AIRCON_MOTOR_BOTTOM_240.get(), RenderType.cutoutMipped());
             }
             if (ElectroEnergeticsCompat.present()) {
                 ItemBlockRenderTypes.setRenderLayer(CIOBlocks.CEE_AIRCON_MOTOR_BOTTOM.get(), RenderType.cutoutMipped());
+                ItemBlockRenderTypes.setRenderLayer(CIOBlocks.CEE_AIRCON_MOTOR_BOTTOM_240.get(), RenderType.cutoutMipped());
             }
             ItemBlockRenderTypes.setRenderLayer(CIOBlocks.AIRCON_MOTOR_TOP.get(), RenderType.cutoutMipped());
             ItemBlockRenderTypes.setRenderLayer(CIOBlocks.AIRCON_VENTER.get(), RenderType.cutoutMipped());

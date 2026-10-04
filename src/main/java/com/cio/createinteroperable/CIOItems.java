@@ -125,6 +125,12 @@ public class CIOItems {
     public static final DeferredItem<BlockItem> CEE_AIRCON_MOTOR_BOTTOM = CEE ? ITEMS.registerSimpleBlockItem(
             "cee_aircon_motor_bottom", CIOBlocks.CEE_AIRCON_MOTOR_BOTTOM) : null;
 
+    public static final DeferredItem<BlockItem> AIRCON_MOTOR_BOTTOM_240 = PG ? ITEMS.registerSimpleBlockItem(
+            "aircon_motor_bottom_240", CIOBlocks.AIRCON_MOTOR_BOTTOM_240) : null;
+
+    public static final DeferredItem<BlockItem> CEE_AIRCON_MOTOR_BOTTOM_240 = CEE ? ITEMS.registerSimpleBlockItem(
+            "cee_aircon_motor_bottom_240", CIOBlocks.CEE_AIRCON_MOTOR_BOTTOM_240) : null;
+
     public static final DeferredItem<BlockItem> AIRCON_MOTOR_TOP = ITEMS.registerSimpleBlockItem(
             "aircon_motor_top", CIOBlocks.AIRCON_MOTOR_TOP);
 
