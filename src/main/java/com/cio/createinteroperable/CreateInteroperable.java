@@ -3,6 +3,9 @@ package com.cio.createinteroperable;
 import com.cio.createinteroperable.compat.ColdSweatCompat;
 import com.cio.createinteroperable.compat.ColdSweatIntegration;
 import com.cio.createinteroperable.compat.ElectroEnergeticsCompat;
+import com.cio.createinteroperable.compat.IdenDecorCompat;
+import com.cio.createinteroperable.iden.ElectricSwitches;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import com.cio.createinteroperable.compat.PipesNPhysicsCompat;
 import com.cio.createinteroperable.compat.PipesNPhysicsIntegration;
 import com.cio.createinteroperable.compat.PowerGridCompat;
@@ -40,6 +43,12 @@ public class CreateInteroperable {
             CIODevices.register(modEventBus);
         }
         CIOCreativeTab.register(modEventBus);
+
+        // Iden's Decor: rename its redstone buttons/switches "Redstone ..." so
+        // they read apart from CIO's Electric twins (see ElectricSwitches).
+        if (IdenDecorCompat.present()) {
+            modEventBus.addListener((FMLCommonSetupEvent event) -> ElectricSwitches.renameOriginals());
+        }
 
         // See ColdSweatIntegration's own doc for why this is a runtime
         // present()-gated call rather than @EventBusSubscriber: that

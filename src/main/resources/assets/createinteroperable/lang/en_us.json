@@ -106,5 +106,25 @@
   "fluid.createinteroperable.cold_air": "Cold Air",
 
   "message.createinteroperable.fixture.no_supply": "No water supply connected to this fixture.",
-  "message.createinteroperable.fixture.dry": "The connected supply has no water."
+  "message.createinteroperable.fixture.dry": "The connected supply has no water.",
+  "block.createinteroperable.electric_heavy_button": "Electric Heavy Button",
+  "block.createinteroperable.redstone_heavy_button": "Redstone Heavy Button",
+  "block.createinteroperable.electric_gate_button": "Electric Gate Button",
+  "block.createinteroperable.redstone_gate_button": "Redstone Gate Button",
+  "block.createinteroperable.electric_heavy_lever": "Electric Heavy Lever",
+  "block.createinteroperable.redstone_heavy_lever": "Redstone Heavy Lever",
+  "block.createinteroperable.electric_emergency_lever": "Electric Emergency Lever",
+  "block.createinteroperable.redstone_emergency_lever": "Redstone Emergency Lever",
+  "block.createinteroperable.electric_light_switch": "Electric Light Switch",
+  "block.createinteroperable.redstone_light_switch": "Redstone Light Switch",
+  "block.createinteroperable.electric_power_switch": "Electric Power Switch",
+  "block.createinteroperable.redstone_power_switch": "Redstone Power Switch",
+  "block.createinteroperable.electric_valve_switch": "Electric Valve Switch",
+  "block.createinteroperable.redstone_valve_switch": "Redstone Valve Switch",
+  "block.createinteroperable.electric_blast_lever": "Electric Blast Lever",
+  "block.createinteroperable.redstone_blast_lever": "Redstone Blast Lever",
+  "block.createinteroperable.electric_core_button_control_panel": "Electric Core Button Control Panel",
+  "block.createinteroperable.redstone_core_button_control_panel": "Redstone Core Button Control Panel",
+  "block.createinteroperable.electric_core_lever_control_panel": "Electric Core Lever Control Panel",
+  "block.createinteroperable.redstone_core_lever_control_panel": "Redstone Core Lever Control Panel"
 }

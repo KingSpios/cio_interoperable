@@ -102,6 +102,31 @@ public final class ApplianceLoads {
         // n^2 * this, see com.cio.createinteroperable.mixin.vista).
         put("vista", "tv", Pool.LV, 8);
 
+        // Iden's Decor lights — Iden's Decor itself makes its LightBlockEntity a
+        // Crayfish IModuleNode (its own CompatRefurbishedFurnitureMixin), so it
+        // can already be wrench-linked, but ships no load figure. One BE type
+        // behind all 16 light blocks (LED lamps in every colour, light bulb,
+        // industrial red lamp, fluorescent light, ceiling lamp); 3 W each,
+        // mirroring a Crayfish lamp. Billed whenever linked: a light only
+        // accepts links in its "refurbished_energy" pliers mode (0 max
+        // connections otherwise, and a mode change drops them), where it has
+        // no switch of its own — its POWERED state is driven by the node.
+        put("iden_decor", "light_be", Pool.LV, 3);
+        // Iden's Decor Computer — made a node by mixin.letsdo.IdenComputerNodeMixin
+        // (+ IdenComputerBlockEntityMixin under Crayfish); shows its floppy disk's
+        // text only while powered. Rated like the Crayfish computer (15 W, 12 V),
+        // billed only while a disk is in (MeteredAppliance).
+        put("iden_decor", "computer_be", Pool.LV, 15);
+        // Iden's Decor telephone — CIO's swapped-in block (iden/IdenTelephones)
+        // with its own BE (PG-installed or CEE-only type). A doorbell-class load
+        // (2 W, 12 V), billed only while ringing or on a call (MeteredAppliance).
+        put("createinteroperable", "iden_telephone", Pool.LV, 2);
+        put("createinteroperable", "iden_cee_telephone", Pool.LV, 2);
+        // CIO's Electric twins of Iden's buttons / switches / control panels
+        // (com.cio.createinteroperable.iden) — one BE type. A relay, like the
+        // Crayfish lightswitch above; billed only while closed (MeteredAppliance).
+        put("createinteroperable", "electric_switch", Pool.LV, 0.5);
+
         // WaterFrames displays — STOP-GAP integration, only meaningful when the
         // third-party `waterframes_refurbished_compat` jar is installed. That jar
         // makes WaterFrames' DisplayTile a Crayfish IElectricityNode (so it can

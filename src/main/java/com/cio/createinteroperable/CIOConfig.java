@@ -140,6 +140,13 @@ public final class CIOConfig {
     public static final ModConfigSpec.BooleanValue VISTA_TVS_REQUIRE_POWER;
 
     /**
+     * Master switch for the Iden's Decor Computer integration, <b>on by default</b>.
+     * The computer becomes an appliance-grid consumer and shows its inserted
+     * floppy disk's text only while powered.
+     */
+    public static final ModConfigSpec.BooleanValue IDEN_COMPUTER_REQUIRE_POWER;
+
+    /**
      * Create: Pipes n Physics only. How hard the Aircon Motor pumps, in Create RPM
      * (Pipes n Physics' own pump scale; 256 is the maximum a Mechanical Pump can turn).
      * 0 turns the feature off.
@@ -196,12 +203,15 @@ public final class CIOConfig {
         b.push("lamps");
         LETSDO_LAMPS_REQUIRE_POWER = b
                 .comment("ON by default. Let's Do Furniture / Candlelight lamps and street lanterns,",
-                        "Alpine Whispers fairy lights, and Another Furniture lamps become Crayfish",
+                        "Alpine Whispers fairy lights, Another Furniture lamps, and Iden's Decor Wall Lamp /",
+                        "Flood Lamp / Floodlight / Fluorescent Light Block become Crayfish",
                         "electricity consumers: unwired or unpowered = dark, and a lit lamp draws",
                         "3 W (12 V). Right-click (Another Furniture) or sneak-right-click (Let's Do)",
                         "toggles a lamp's switch. A no-op unless one of those mods is installed. Set",
                         "false to hand every lamp straight back to its own mod (no block entity",
-                        "attached); Another Furniture lamps also regain their redstone response.")
+                        "attached); Another Furniture lamps also regain their redstone response.",
+                        "Also makes new Iden's Decor lights (Pliers-configurable) place in their",
+                        "Refurbished mode when Refurbished Furniture is installed.")
                 .define("requirePower", true);
         b.pop();
 
@@ -259,6 +269,16 @@ public final class CIOConfig {
                         "while actually on (8 W per tile, 12 V, n^2 for a grown wall). A no-op",
                         "unless Vista is installed. Set false to hand every TV straight back to",
                         "Vista's own redstone-only behaviour.")
+                .define("requirePower", true);
+        b.pop();
+
+        b.push("idenComputer");
+        IDEN_COMPUTER_REQUIRE_POWER = b
+                .comment("ON by default. Iden's Decor's Computer becomes a Domestic Electrical",
+                        "Board electricity consumer: it only shows an inserted floppy disk's text",
+                        "while a live rail reaches it (15 W, 12 V, billed only while a disk is in).",
+                        "Disks still insert and eject unpowered. A no-op unless Iden's Decor is",
+                        "installed. Set false to hand the computer straight back to Iden's Decor.")
                 .define("requirePower", true);
         b.pop();
 

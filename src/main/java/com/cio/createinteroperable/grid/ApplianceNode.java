@@ -281,6 +281,27 @@ public interface ApplianceNode {
      * {@code stopEarly} caps the result the moment {@code maxNodes} is reached.
      */
     default List<ApplianceNode> searchApplianceNetwork(int maxNodes, boolean stopEarly, AABB bounds) {
+        return searchApplianceNetwork(maxNodes, stopEarly, bounds, false);
+    }
+
+    /**
+     * Whether power may flow <em>through</em> this node to the ones beyond it
+     * &mdash; the native twin of Crayfish's {@code canPowerTraverseNode()}. A
+     * switch returns false while open: it is still reached (and billed), but the
+     * walk doesn't continue past it.
+     */
+    default boolean applianceTraversable() {
+        return true;
+    }
+
+    /**
+     * As {@link #searchApplianceNetwork(int, boolean, AABB)}; with
+     * {@code respectSwitches}, the walk never expands out of a node (other than
+     * the start) whose {@link #applianceTraversable()} is false &mdash; the
+     * power-distribution walk, mirroring Crayfish's {@code searchNodeNetwork}.
+     * Without it, it's the raw connection graph (conflict detection).
+     */
+    default List<ApplianceNode> searchApplianceNetwork(int maxNodes, boolean stopEarly, AABB bounds, boolean respectSwitches) {
         Level level = applianceLevel();
         List<ApplianceNode> result = new ArrayList<>();
         if (level == null) {
@@ -304,6 +325,9 @@ public interface ApplianceNode {
                 result.add(next);
                 if (stopEarly && result.size() >= maxNodes) {
                     return result;
+                }
+                if (respectSwitches && !next.applianceTraversable()) {
+                    continue;
                 }
                 queue.add(next);
             }

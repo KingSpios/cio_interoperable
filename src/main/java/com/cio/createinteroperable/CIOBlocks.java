@@ -1,6 +1,7 @@
 package com.cio.createinteroperable;
 
 import com.cio.createinteroperable.compat.ElectroEnergeticsCompat;
+import com.cio.createinteroperable.compat.IdenDecorCompat;
 import com.cio.createinteroperable.compat.PowerGridCompat;
 import com.cio.createinteroperable.deb.CeeDebRectifierBlock;
 import com.cio.createinteroperable.deb.CeePowerKitTier1Block;
@@ -12,8 +13,14 @@ import com.cio.createinteroperable.deb.RedstoneSwitchBlock;
 import com.cio.createinteroperable.deb.PowerKitTier1Block;
 import com.cio.createinteroperable.deb.PowerKitTier3Block;
 import com.cio.createinteroperable.deb.PowerKitTier4Block;
+import com.cio.createinteroperable.iden.ElectricButtonBlock;
+import com.cio.createinteroperable.iden.ElectricControlPanelBlock;
+import com.cio.createinteroperable.iden.ElectricHeavyLeverBlock;
+import com.cio.createinteroperable.iden.ElectricLeverBlock;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
+import net.minecraft.world.level.material.PushReaction;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -359,6 +366,47 @@ public class CIOBlocks {
                     .strength(2.0f, 6.0f)
                     .requiresCorrectToolForDrops()
                     .noOcclusion())) : null;
+
+    // --- Iden's Decor "Electric" buttons & switches — appliance-grid switch
+    // twins of Iden's redstone ones (see com.cio.createinteroperable.iden),
+    // rendered with Iden's own models. Properties copied from Iden's ModBlocks.
+    // Only with Iden's Decor installed. ---
+
+    private static final boolean IDEN = IdenDecorCompat.present();
+
+    public static final DeferredBlock<ElectricButtonBlock> ELECTRIC_HEAVY_BUTTON = IDEN ? BLOCKS.register("electric_heavy_button",
+            () -> new ElectricButtonBlock(ElectricButtonBlock.Style.HEAVY, idenButtonProperties())) : null;
+    public static final DeferredBlock<ElectricButtonBlock> ELECTRIC_GATE_BUTTON = IDEN ? BLOCKS.register("electric_gate_button",
+            () -> new ElectricButtonBlock(ElectricButtonBlock.Style.GATE, idenButtonProperties())) : null;
+    public static final DeferredBlock<ElectricHeavyLeverBlock> ELECTRIC_HEAVY_LEVER = IDEN ? BLOCKS.register("electric_heavy_lever",
+            () -> new ElectricHeavyLeverBlock(idenLeverProperties())) : null;
+    public static final DeferredBlock<ElectricLeverBlock> ELECTRIC_EMERGENCY_LEVER = IDEN ? BLOCKS.register("electric_emergency_lever",
+            () -> new ElectricLeverBlock(idenLeverProperties())) : null;
+    public static final DeferredBlock<ElectricLeverBlock> ELECTRIC_LIGHT_SWITCH = IDEN ? BLOCKS.register("electric_light_switch",
+            () -> new ElectricLeverBlock(idenLeverProperties())) : null;
+    public static final DeferredBlock<ElectricLeverBlock> ELECTRIC_POWER_SWITCH = IDEN ? BLOCKS.register("electric_power_switch",
+            () -> new ElectricLeverBlock(idenLeverProperties())) : null;
+    public static final DeferredBlock<ElectricLeverBlock> ELECTRIC_VALVE_SWITCH = IDEN ? BLOCKS.register("electric_valve_switch",
+            () -> new ElectricLeverBlock(idenLeverProperties())) : null;
+    // Iden's Blast Lever is solid (no noCollission) and tougher.
+    public static final DeferredBlock<ElectricLeverBlock> ELECTRIC_BLAST_LEVER = IDEN ? BLOCKS.register("electric_blast_lever",
+            () -> new ElectricLeverBlock(BlockBehaviour.Properties.of().strength(2.0f))) : null;
+    public static final DeferredBlock<ElectricControlPanelBlock> ELECTRIC_CORE_BUTTON_CONTROL_PANEL = IDEN ? BLOCKS.register("electric_core_button_control_panel",
+            () -> new ElectricControlPanelBlock(true, idenPanelProperties())) : null;
+    public static final DeferredBlock<ElectricControlPanelBlock> ELECTRIC_CORE_LEVER_CONTROL_PANEL = IDEN ? BLOCKS.register("electric_core_lever_control_panel",
+            () -> new ElectricControlPanelBlock(false, idenPanelProperties())) : null;
+
+    private static BlockBehaviour.Properties idenButtonProperties() {
+        return BlockBehaviour.Properties.of().pushReaction(PushReaction.DESTROY).noCollission().strength(0.5f).noOcclusion();
+    }
+
+    private static BlockBehaviour.Properties idenLeverProperties() {
+        return BlockBehaviour.Properties.of().strength(0.5f).noCollission();
+    }
+
+    private static BlockBehaviour.Properties idenPanelProperties() {
+        return BlockBehaviour.Properties.of().sound(SoundType.METAL).noOcclusion().strength(3.5f, 4.0f);
+    }
 
     public static void register(IEventBus modEventBus) {
         BLOCKS.register(modEventBus);

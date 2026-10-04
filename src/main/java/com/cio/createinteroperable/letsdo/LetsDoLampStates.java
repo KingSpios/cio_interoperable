@@ -46,7 +46,15 @@ public final class LetsDoLampStates {
             // Bibliocraft Fancy Lamp: no manual toggle, already redstone-gated
             // (see BibliocraftLampBlockMixin, which suppresses that once a node
             // is present). Property is 'lit'.
-            "com.github.minecraftschurlimods.bibliocraft.content.fancylight.FancyLampBlock");
+            "com.github.minecraftschurlimods.bibliocraft.content.fancylight.FancyLampBlock",
+            // Iden's Decor Wall Lamp / Flood Lamp / Floodlight: always-lit, no
+            // lit blockstate, so handled like the fairy lights (see IdenLampBlockMixin).
+            "net.identidade.iden_decor.block.custom.WallLampBlock",
+            "net.identidade.iden_decor.block.custom.FloodLampBlock",
+            "net.identidade.iden_decor.block.custom.FloodlightBlock",
+            // Iden's Fluorescent Light Block is a bare vanilla Block on Iden's side;
+            // CIO swaps in its own subclass (see IdenModBlocksMixin).
+            "com.cio.createinteroperable.iden.IdenFluorescentLightBlock");
 
     /** Blocks that carry a manual light toggle we redirect into the switch (see LetsDoLampToggleMixin). */
     private static final Set<String> TOGGLEABLE_CLASSES = Set.of(

@@ -1,6 +1,7 @@
 package com.cio.createinteroperable;
 
 import com.cio.createinteroperable.compat.ElectroEnergeticsCompat;
+import com.cio.createinteroperable.compat.IdenDecorCompat;
 import com.cio.createinteroperable.compat.PowerGridCompat;
 import com.cio.createinteroperable.deb.CeeDebRectifierBlockEntity;
 import com.cio.createinteroperable.deb.CeePowerKitTier1BlockEntity;
@@ -12,6 +13,10 @@ import com.cio.createinteroperable.deb.RedstoneSwitchBlockEntity;
 import com.cio.createinteroperable.deb.PowerKitTier1BlockEntity;
 import com.cio.createinteroperable.deb.PowerKitTier3BlockEntity;
 import com.cio.createinteroperable.deb.PowerKitTier4BlockEntity;
+import com.cio.createinteroperable.iden.ElectricSwitchBlockEntity;
+import com.cio.createinteroperable.iden.IdenCeeTelephoneBlockEntity;
+import com.cio.createinteroperable.iden.IdenPgTelephoneBlockEntity;
+import com.cio.createinteroperable.iden.IdenTelephones;
 import com.cio.createinteroperable.letsdo.LetsDoLampBlockEntity;
 import com.cio.createinteroperable.letsdo.LetsDoLampStates;
 import com.cio.createinteroperable.letsdo.SinkBlockEntity;
@@ -233,6 +238,32 @@ public class CIOBlockEntities {
             BLOCK_ENTITIES.register("aircon_venter", () -> BlockEntityType.Builder.of(
                     (pos, state) -> new AirconVenterBlockEntity(CIOBlockEntities.AIRCON_VENTER.get(), pos, state),
                     CIOBlocks.AIRCON_VENTER.get()).build(null));
+
+    // Iden's Decor Electric buttons & switches — one appliance-grid switch node
+    // type behind all ten (see com.cio.createinteroperable.iden). Iden-only.
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ElectricSwitchBlockEntity>> ELECTRIC_SWITCH =
+            IdenDecorCompat.present() ? BLOCK_ENTITIES.register("electric_switch", () -> BlockEntityType.Builder.of(
+                    ElectricSwitchBlockEntity::new,
+                    CIOBlocks.ELECTRIC_HEAVY_BUTTON.get(), CIOBlocks.ELECTRIC_GATE_BUTTON.get(),
+                    CIOBlocks.ELECTRIC_HEAVY_LEVER.get(), CIOBlocks.ELECTRIC_EMERGENCY_LEVER.get(),
+                    CIOBlocks.ELECTRIC_LIGHT_SWITCH.get(), CIOBlocks.ELECTRIC_POWER_SWITCH.get(),
+                    CIOBlocks.ELECTRIC_VALVE_SWITCH.get(), CIOBlocks.ELECTRIC_BLAST_LEVER.get(),
+                    CIOBlocks.ELECTRIC_CORE_BUTTON_CONTROL_PANEL.get(),
+                    CIOBlocks.ELECTRIC_CORE_LEVER_CONTROL_PANEL.get()).build(null)) : null;
+
+    // Iden's Decor telephone — CIO swaps its own block in at Iden's registration
+    // (see com.cio.createinteroperable.iden.IdenTelephones); these carry the
+    // call logic + appliance-grid node. The PG type backs both the PG-only and
+    // the PG+CEE block; the CEE type only exists on a CEE-only install.
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<IdenPgTelephoneBlockEntity>> IDEN_PG_TELEPHONE =
+            IdenDecorCompat.present() && PG ? BLOCK_ENTITIES.register("iden_telephone", () -> BlockEntityType.Builder.of(
+                    (pos, state) -> new IdenPgTelephoneBlockEntity(CIOBlockEntities.IDEN_PG_TELEPHONE.get(), pos, state),
+                    IdenTelephones.block()).build(null)) : null;
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<IdenCeeTelephoneBlockEntity>> IDEN_CEE_TELEPHONE =
+            IdenDecorCompat.present() && CEE && !PG ? BLOCK_ENTITIES.register("iden_cee_telephone", () -> BlockEntityType.Builder.of(
+                    (pos, state) -> new IdenCeeTelephoneBlockEntity(CIOBlockEntities.IDEN_CEE_TELEPHONE.get(), pos, state),
+                    IdenTelephones.block()).build(null)) : null;
 
     public static void register(IEventBus modEventBus) {
         BLOCK_ENTITIES.register(modEventBus);

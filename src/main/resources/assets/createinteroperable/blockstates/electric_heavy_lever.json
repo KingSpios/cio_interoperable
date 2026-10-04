@@ -1,0 +1,1806 @@
+{
+  "variants": {
+    "color=base,face=ceiling,facing=east,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_base",
+      "x": 180,
+      "y": 90
+    },
+    "color=base,face=ceiling,facing=east,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_base",
+      "x": 180,
+      "y": 90
+    },
+    "color=base,face=ceiling,facing=north,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_base",
+      "x": 180
+    },
+    "color=base,face=ceiling,facing=north,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_base",
+      "x": 180
+    },
+    "color=base,face=ceiling,facing=south,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_base",
+      "x": 180,
+      "y": 180
+    },
+    "color=base,face=ceiling,facing=south,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_base",
+      "x": 180,
+      "y": 180
+    },
+    "color=base,face=ceiling,facing=west,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_base",
+      "x": 180,
+      "y": 270
+    },
+    "color=base,face=ceiling,facing=west,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_base",
+      "x": 180,
+      "y": 270
+    },
+    "color=base,face=floor,facing=east,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_base",
+      "y": 90
+    },
+    "color=base,face=floor,facing=east,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_base",
+      "y": 90
+    },
+    "color=base,face=floor,facing=north,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_base"
+    },
+    "color=base,face=floor,facing=north,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_base"
+    },
+    "color=base,face=floor,facing=south,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_base",
+      "y": 180
+    },
+    "color=base,face=floor,facing=south,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_base",
+      "y": 180
+    },
+    "color=base,face=floor,facing=west,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_base",
+      "y": 270
+    },
+    "color=base,face=floor,facing=west,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_base",
+      "y": 270
+    },
+    "color=base,face=wall,facing=east,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_base",
+      "x": 90,
+      "y": 90
+    },
+    "color=base,face=wall,facing=east,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_base",
+      "x": 90,
+      "y": 90
+    },
+    "color=base,face=wall,facing=north,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_base",
+      "x": 90
+    },
+    "color=base,face=wall,facing=north,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_base",
+      "x": 90
+    },
+    "color=base,face=wall,facing=south,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_base",
+      "x": 90,
+      "y": 180
+    },
+    "color=base,face=wall,facing=south,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_base",
+      "x": 90,
+      "y": 180
+    },
+    "color=base,face=wall,facing=west,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_base",
+      "x": 90,
+      "y": 270
+    },
+    "color=base,face=wall,facing=west,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_base",
+      "x": 90,
+      "y": 270
+    },
+    "color=black,face=ceiling,facing=east,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_black",
+      "x": 180,
+      "y": 90
+    },
+    "color=black,face=ceiling,facing=east,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_black",
+      "x": 180,
+      "y": 90
+    },
+    "color=black,face=ceiling,facing=north,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_black",
+      "x": 180
+    },
+    "color=black,face=ceiling,facing=north,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_black",
+      "x": 180
+    },
+    "color=black,face=ceiling,facing=south,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_black",
+      "x": 180,
+      "y": 180
+    },
+    "color=black,face=ceiling,facing=south,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_black",
+      "x": 180,
+      "y": 180
+    },
+    "color=black,face=ceiling,facing=west,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_black",
+      "x": 180,
+      "y": 270
+    },
+    "color=black,face=ceiling,facing=west,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_black",
+      "x": 180,
+      "y": 270
+    },
+    "color=black,face=floor,facing=east,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_black",
+      "y": 90
+    },
+    "color=black,face=floor,facing=east,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_black",
+      "y": 90
+    },
+    "color=black,face=floor,facing=north,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_black"
+    },
+    "color=black,face=floor,facing=north,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_black"
+    },
+    "color=black,face=floor,facing=south,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_black",
+      "y": 180
+    },
+    "color=black,face=floor,facing=south,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_black",
+      "y": 180
+    },
+    "color=black,face=floor,facing=west,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_black",
+      "y": 270
+    },
+    "color=black,face=floor,facing=west,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_black",
+      "y": 270
+    },
+    "color=black,face=wall,facing=east,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_black",
+      "x": 90,
+      "y": 90
+    },
+    "color=black,face=wall,facing=east,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_black",
+      "x": 90,
+      "y": 90
+    },
+    "color=black,face=wall,facing=north,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_black",
+      "x": 90
+    },
+    "color=black,face=wall,facing=north,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_black",
+      "x": 90
+    },
+    "color=black,face=wall,facing=south,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_black",
+      "x": 90,
+      "y": 180
+    },
+    "color=black,face=wall,facing=south,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_black",
+      "x": 90,
+      "y": 180
+    },
+    "color=black,face=wall,facing=west,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_black",
+      "x": 90,
+      "y": 270
+    },
+    "color=black,face=wall,facing=west,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_black",
+      "x": 90,
+      "y": 270
+    },
+    "color=blue,face=ceiling,facing=east,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_blue",
+      "x": 180,
+      "y": 90
+    },
+    "color=blue,face=ceiling,facing=east,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_blue",
+      "x": 180,
+      "y": 90
+    },
+    "color=blue,face=ceiling,facing=north,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_blue",
+      "x": 180
+    },
+    "color=blue,face=ceiling,facing=north,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_blue",
+      "x": 180
+    },
+    "color=blue,face=ceiling,facing=south,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_blue",
+      "x": 180,
+      "y": 180
+    },
+    "color=blue,face=ceiling,facing=south,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_blue",
+      "x": 180,
+      "y": 180
+    },
+    "color=blue,face=ceiling,facing=west,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_blue",
+      "x": 180,
+      "y": 270
+    },
+    "color=blue,face=ceiling,facing=west,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_blue",
+      "x": 180,
+      "y": 270
+    },
+    "color=blue,face=floor,facing=east,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_blue",
+      "y": 90
+    },
+    "color=blue,face=floor,facing=east,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_blue",
+      "y": 90
+    },
+    "color=blue,face=floor,facing=north,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_blue"
+    },
+    "color=blue,face=floor,facing=north,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_blue"
+    },
+    "color=blue,face=floor,facing=south,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_blue",
+      "y": 180
+    },
+    "color=blue,face=floor,facing=south,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_blue",
+      "y": 180
+    },
+    "color=blue,face=floor,facing=west,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_blue",
+      "y": 270
+    },
+    "color=blue,face=floor,facing=west,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_blue",
+      "y": 270
+    },
+    "color=blue,face=wall,facing=east,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_blue",
+      "x": 90,
+      "y": 90
+    },
+    "color=blue,face=wall,facing=east,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_blue",
+      "x": 90,
+      "y": 90
+    },
+    "color=blue,face=wall,facing=north,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_blue",
+      "x": 90
+    },
+    "color=blue,face=wall,facing=north,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_blue",
+      "x": 90
+    },
+    "color=blue,face=wall,facing=south,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_blue",
+      "x": 90,
+      "y": 180
+    },
+    "color=blue,face=wall,facing=south,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_blue",
+      "x": 90,
+      "y": 180
+    },
+    "color=blue,face=wall,facing=west,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_blue",
+      "x": 90,
+      "y": 270
+    },
+    "color=blue,face=wall,facing=west,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_blue",
+      "x": 90,
+      "y": 270
+    },
+    "color=brown,face=ceiling,facing=east,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_brown",
+      "x": 180,
+      "y": 90
+    },
+    "color=brown,face=ceiling,facing=east,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_brown",
+      "x": 180,
+      "y": 90
+    },
+    "color=brown,face=ceiling,facing=north,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_brown",
+      "x": 180
+    },
+    "color=brown,face=ceiling,facing=north,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_brown",
+      "x": 180
+    },
+    "color=brown,face=ceiling,facing=south,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_brown",
+      "x": 180,
+      "y": 180
+    },
+    "color=brown,face=ceiling,facing=south,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_brown",
+      "x": 180,
+      "y": 180
+    },
+    "color=brown,face=ceiling,facing=west,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_brown",
+      "x": 180,
+      "y": 270
+    },
+    "color=brown,face=ceiling,facing=west,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_brown",
+      "x": 180,
+      "y": 270
+    },
+    "color=brown,face=floor,facing=east,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_brown",
+      "y": 90
+    },
+    "color=brown,face=floor,facing=east,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_brown",
+      "y": 90
+    },
+    "color=brown,face=floor,facing=north,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_brown"
+    },
+    "color=brown,face=floor,facing=north,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_brown"
+    },
+    "color=brown,face=floor,facing=south,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_brown",
+      "y": 180
+    },
+    "color=brown,face=floor,facing=south,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_brown",
+      "y": 180
+    },
+    "color=brown,face=floor,facing=west,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_brown",
+      "y": 270
+    },
+    "color=brown,face=floor,facing=west,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_brown",
+      "y": 270
+    },
+    "color=brown,face=wall,facing=east,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_brown",
+      "x": 90,
+      "y": 90
+    },
+    "color=brown,face=wall,facing=east,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_brown",
+      "x": 90,
+      "y": 90
+    },
+    "color=brown,face=wall,facing=north,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_brown",
+      "x": 90
+    },
+    "color=brown,face=wall,facing=north,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_brown",
+      "x": 90
+    },
+    "color=brown,face=wall,facing=south,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_brown",
+      "x": 90,
+      "y": 180
+    },
+    "color=brown,face=wall,facing=south,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_brown",
+      "x": 90,
+      "y": 180
+    },
+    "color=brown,face=wall,facing=west,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_brown",
+      "x": 90,
+      "y": 270
+    },
+    "color=brown,face=wall,facing=west,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_brown",
+      "x": 90,
+      "y": 270
+    },
+    "color=cyan,face=ceiling,facing=east,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_cyan",
+      "x": 180,
+      "y": 90
+    },
+    "color=cyan,face=ceiling,facing=east,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_cyan",
+      "x": 180,
+      "y": 90
+    },
+    "color=cyan,face=ceiling,facing=north,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_cyan",
+      "x": 180
+    },
+    "color=cyan,face=ceiling,facing=north,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_cyan",
+      "x": 180
+    },
+    "color=cyan,face=ceiling,facing=south,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_cyan",
+      "x": 180,
+      "y": 180
+    },
+    "color=cyan,face=ceiling,facing=south,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_cyan",
+      "x": 180,
+      "y": 180
+    },
+    "color=cyan,face=ceiling,facing=west,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_cyan",
+      "x": 180,
+      "y": 270
+    },
+    "color=cyan,face=ceiling,facing=west,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_cyan",
+      "x": 180,
+      "y": 270
+    },
+    "color=cyan,face=floor,facing=east,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_cyan",
+      "y": 90
+    },
+    "color=cyan,face=floor,facing=east,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_cyan",
+      "y": 90
+    },
+    "color=cyan,face=floor,facing=north,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_cyan"
+    },
+    "color=cyan,face=floor,facing=north,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_cyan"
+    },
+    "color=cyan,face=floor,facing=south,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_cyan",
+      "y": 180
+    },
+    "color=cyan,face=floor,facing=south,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_cyan",
+      "y": 180
+    },
+    "color=cyan,face=floor,facing=west,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_cyan",
+      "y": 270
+    },
+    "color=cyan,face=floor,facing=west,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_cyan",
+      "y": 270
+    },
+    "color=cyan,face=wall,facing=east,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_cyan",
+      "x": 90,
+      "y": 90
+    },
+    "color=cyan,face=wall,facing=east,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_cyan",
+      "x": 90,
+      "y": 90
+    },
+    "color=cyan,face=wall,facing=north,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_cyan",
+      "x": 90
+    },
+    "color=cyan,face=wall,facing=north,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_cyan",
+      "x": 90
+    },
+    "color=cyan,face=wall,facing=south,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_cyan",
+      "x": 90,
+      "y": 180
+    },
+    "color=cyan,face=wall,facing=south,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_cyan",
+      "x": 90,
+      "y": 180
+    },
+    "color=cyan,face=wall,facing=west,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_cyan",
+      "x": 90,
+      "y": 270
+    },
+    "color=cyan,face=wall,facing=west,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_cyan",
+      "x": 90,
+      "y": 270
+    },
+    "color=gray,face=ceiling,facing=east,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_gray",
+      "x": 180,
+      "y": 90
+    },
+    "color=gray,face=ceiling,facing=east,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_gray",
+      "x": 180,
+      "y": 90
+    },
+    "color=gray,face=ceiling,facing=north,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_gray",
+      "x": 180
+    },
+    "color=gray,face=ceiling,facing=north,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_gray",
+      "x": 180
+    },
+    "color=gray,face=ceiling,facing=south,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_gray",
+      "x": 180,
+      "y": 180
+    },
+    "color=gray,face=ceiling,facing=south,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_gray",
+      "x": 180,
+      "y": 180
+    },
+    "color=gray,face=ceiling,facing=west,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_gray",
+      "x": 180,
+      "y": 270
+    },
+    "color=gray,face=ceiling,facing=west,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_gray",
+      "x": 180,
+      "y": 270
+    },
+    "color=gray,face=floor,facing=east,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_gray",
+      "y": 90
+    },
+    "color=gray,face=floor,facing=east,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_gray",
+      "y": 90
+    },
+    "color=gray,face=floor,facing=north,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_gray"
+    },
+    "color=gray,face=floor,facing=north,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_gray"
+    },
+    "color=gray,face=floor,facing=south,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_gray",
+      "y": 180
+    },
+    "color=gray,face=floor,facing=south,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_gray",
+      "y": 180
+    },
+    "color=gray,face=floor,facing=west,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_gray",
+      "y": 270
+    },
+    "color=gray,face=floor,facing=west,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_gray",
+      "y": 270
+    },
+    "color=gray,face=wall,facing=east,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_gray",
+      "x": 90,
+      "y": 90
+    },
+    "color=gray,face=wall,facing=east,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_gray",
+      "x": 90,
+      "y": 90
+    },
+    "color=gray,face=wall,facing=north,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_gray",
+      "x": 90
+    },
+    "color=gray,face=wall,facing=north,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_gray",
+      "x": 90
+    },
+    "color=gray,face=wall,facing=south,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_gray",
+      "x": 90,
+      "y": 180
+    },
+    "color=gray,face=wall,facing=south,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_gray",
+      "x": 90,
+      "y": 180
+    },
+    "color=gray,face=wall,facing=west,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_gray",
+      "x": 90,
+      "y": 270
+    },
+    "color=gray,face=wall,facing=west,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_gray",
+      "x": 90,
+      "y": 270
+    },
+    "color=green,face=ceiling,facing=east,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_green",
+      "x": 180,
+      "y": 90
+    },
+    "color=green,face=ceiling,facing=east,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_green",
+      "x": 180,
+      "y": 90
+    },
+    "color=green,face=ceiling,facing=north,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_green",
+      "x": 180
+    },
+    "color=green,face=ceiling,facing=north,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_green",
+      "x": 180
+    },
+    "color=green,face=ceiling,facing=south,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_green",
+      "x": 180,
+      "y": 180
+    },
+    "color=green,face=ceiling,facing=south,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_green",
+      "x": 180,
+      "y": 180
+    },
+    "color=green,face=ceiling,facing=west,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_green",
+      "x": 180,
+      "y": 270
+    },
+    "color=green,face=ceiling,facing=west,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_green",
+      "x": 180,
+      "y": 270
+    },
+    "color=green,face=floor,facing=east,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_green",
+      "y": 90
+    },
+    "color=green,face=floor,facing=east,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_green",
+      "y": 90
+    },
+    "color=green,face=floor,facing=north,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_green"
+    },
+    "color=green,face=floor,facing=north,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_green"
+    },
+    "color=green,face=floor,facing=south,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_green",
+      "y": 180
+    },
+    "color=green,face=floor,facing=south,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_green",
+      "y": 180
+    },
+    "color=green,face=floor,facing=west,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_green",
+      "y": 270
+    },
+    "color=green,face=floor,facing=west,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_green",
+      "y": 270
+    },
+    "color=green,face=wall,facing=east,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_green",
+      "x": 90,
+      "y": 90
+    },
+    "color=green,face=wall,facing=east,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_green",
+      "x": 90,
+      "y": 90
+    },
+    "color=green,face=wall,facing=north,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_green",
+      "x": 90
+    },
+    "color=green,face=wall,facing=north,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_green",
+      "x": 90
+    },
+    "color=green,face=wall,facing=south,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_green",
+      "x": 90,
+      "y": 180
+    },
+    "color=green,face=wall,facing=south,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_green",
+      "x": 90,
+      "y": 180
+    },
+    "color=green,face=wall,facing=west,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_green",
+      "x": 90,
+      "y": 270
+    },
+    "color=green,face=wall,facing=west,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_green",
+      "x": 90,
+      "y": 270
+    },
+    "color=light_blue,face=ceiling,facing=east,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_light_blue",
+      "x": 180,
+      "y": 90
+    },
+    "color=light_blue,face=ceiling,facing=east,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_light_blue",
+      "x": 180,
+      "y": 90
+    },
+    "color=light_blue,face=ceiling,facing=north,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_light_blue",
+      "x": 180
+    },
+    "color=light_blue,face=ceiling,facing=north,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_light_blue",
+      "x": 180
+    },
+    "color=light_blue,face=ceiling,facing=south,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_light_blue",
+      "x": 180,
+      "y": 180
+    },
+    "color=light_blue,face=ceiling,facing=south,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_light_blue",
+      "x": 180,
+      "y": 180
+    },
+    "color=light_blue,face=ceiling,facing=west,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_light_blue",
+      "x": 180,
+      "y": 270
+    },
+    "color=light_blue,face=ceiling,facing=west,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_light_blue",
+      "x": 180,
+      "y": 270
+    },
+    "color=light_blue,face=floor,facing=east,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_light_blue",
+      "y": 90
+    },
+    "color=light_blue,face=floor,facing=east,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_light_blue",
+      "y": 90
+    },
+    "color=light_blue,face=floor,facing=north,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_light_blue"
+    },
+    "color=light_blue,face=floor,facing=north,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_light_blue"
+    },
+    "color=light_blue,face=floor,facing=south,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_light_blue",
+      "y": 180
+    },
+    "color=light_blue,face=floor,facing=south,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_light_blue",
+      "y": 180
+    },
+    "color=light_blue,face=floor,facing=west,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_light_blue",
+      "y": 270
+    },
+    "color=light_blue,face=floor,facing=west,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_light_blue",
+      "y": 270
+    },
+    "color=light_blue,face=wall,facing=east,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_light_blue",
+      "x": 90,
+      "y": 90
+    },
+    "color=light_blue,face=wall,facing=east,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_light_blue",
+      "x": 90,
+      "y": 90
+    },
+    "color=light_blue,face=wall,facing=north,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_light_blue",
+      "x": 90
+    },
+    "color=light_blue,face=wall,facing=north,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_light_blue",
+      "x": 90
+    },
+    "color=light_blue,face=wall,facing=south,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_light_blue",
+      "x": 90,
+      "y": 180
+    },
+    "color=light_blue,face=wall,facing=south,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_light_blue",
+      "x": 90,
+      "y": 180
+    },
+    "color=light_blue,face=wall,facing=west,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_light_blue",
+      "x": 90,
+      "y": 270
+    },
+    "color=light_blue,face=wall,facing=west,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_light_blue",
+      "x": 90,
+      "y": 270
+    },
+    "color=light_gray,face=ceiling,facing=east,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_light_gray",
+      "x": 180,
+      "y": 90
+    },
+    "color=light_gray,face=ceiling,facing=east,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_light_gray",
+      "x": 180,
+      "y": 90
+    },
+    "color=light_gray,face=ceiling,facing=north,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_light_gray",
+      "x": 180
+    },
+    "color=light_gray,face=ceiling,facing=north,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_light_gray",
+      "x": 180
+    },
+    "color=light_gray,face=ceiling,facing=south,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_light_gray",
+      "x": 180,
+      "y": 180
+    },
+    "color=light_gray,face=ceiling,facing=south,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_light_gray",
+      "x": 180,
+      "y": 180
+    },
+    "color=light_gray,face=ceiling,facing=west,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_light_gray",
+      "x": 180,
+      "y": 270
+    },
+    "color=light_gray,face=ceiling,facing=west,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_light_gray",
+      "x": 180,
+      "y": 270
+    },
+    "color=light_gray,face=floor,facing=east,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_light_gray",
+      "y": 90
+    },
+    "color=light_gray,face=floor,facing=east,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_light_gray",
+      "y": 90
+    },
+    "color=light_gray,face=floor,facing=north,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_light_gray"
+    },
+    "color=light_gray,face=floor,facing=north,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_light_gray"
+    },
+    "color=light_gray,face=floor,facing=south,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_light_gray",
+      "y": 180
+    },
+    "color=light_gray,face=floor,facing=south,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_light_gray",
+      "y": 180
+    },
+    "color=light_gray,face=floor,facing=west,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_light_gray",
+      "y": 270
+    },
+    "color=light_gray,face=floor,facing=west,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_light_gray",
+      "y": 270
+    },
+    "color=light_gray,face=wall,facing=east,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_light_gray",
+      "x": 90,
+      "y": 90
+    },
+    "color=light_gray,face=wall,facing=east,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_light_gray",
+      "x": 90,
+      "y": 90
+    },
+    "color=light_gray,face=wall,facing=north,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_light_gray",
+      "x": 90
+    },
+    "color=light_gray,face=wall,facing=north,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_light_gray",
+      "x": 90
+    },
+    "color=light_gray,face=wall,facing=south,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_light_gray",
+      "x": 90,
+      "y": 180
+    },
+    "color=light_gray,face=wall,facing=south,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_light_gray",
+      "x": 90,
+      "y": 180
+    },
+    "color=light_gray,face=wall,facing=west,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_light_gray",
+      "x": 90,
+      "y": 270
+    },
+    "color=light_gray,face=wall,facing=west,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_light_gray",
+      "x": 90,
+      "y": 270
+    },
+    "color=lime,face=ceiling,facing=east,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_lime",
+      "x": 180,
+      "y": 90
+    },
+    "color=lime,face=ceiling,facing=east,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_lime",
+      "x": 180,
+      "y": 90
+    },
+    "color=lime,face=ceiling,facing=north,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_lime",
+      "x": 180
+    },
+    "color=lime,face=ceiling,facing=north,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_lime",
+      "x": 180
+    },
+    "color=lime,face=ceiling,facing=south,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_lime",
+      "x": 180,
+      "y": 180
+    },
+    "color=lime,face=ceiling,facing=south,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_lime",
+      "x": 180,
+      "y": 180
+    },
+    "color=lime,face=ceiling,facing=west,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_lime",
+      "x": 180,
+      "y": 270
+    },
+    "color=lime,face=ceiling,facing=west,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_lime",
+      "x": 180,
+      "y": 270
+    },
+    "color=lime,face=floor,facing=east,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_lime",
+      "y": 90
+    },
+    "color=lime,face=floor,facing=east,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_lime",
+      "y": 90
+    },
+    "color=lime,face=floor,facing=north,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_lime"
+    },
+    "color=lime,face=floor,facing=north,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_lime"
+    },
+    "color=lime,face=floor,facing=south,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_lime",
+      "y": 180
+    },
+    "color=lime,face=floor,facing=south,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_lime",
+      "y": 180
+    },
+    "color=lime,face=floor,facing=west,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_lime",
+      "y": 270
+    },
+    "color=lime,face=floor,facing=west,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_lime",
+      "y": 270
+    },
+    "color=lime,face=wall,facing=east,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_lime",
+      "x": 90,
+      "y": 90
+    },
+    "color=lime,face=wall,facing=east,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_lime",
+      "x": 90,
+      "y": 90
+    },
+    "color=lime,face=wall,facing=north,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_lime",
+      "x": 90
+    },
+    "color=lime,face=wall,facing=north,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_lime",
+      "x": 90
+    },
+    "color=lime,face=wall,facing=south,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_lime",
+      "x": 90,
+      "y": 180
+    },
+    "color=lime,face=wall,facing=south,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_lime",
+      "x": 90,
+      "y": 180
+    },
+    "color=lime,face=wall,facing=west,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_lime",
+      "x": 90,
+      "y": 270
+    },
+    "color=lime,face=wall,facing=west,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_lime",
+      "x": 90,
+      "y": 270
+    },
+    "color=magenta,face=ceiling,facing=east,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_magenta",
+      "x": 180,
+      "y": 90
+    },
+    "color=magenta,face=ceiling,facing=east,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_magenta",
+      "x": 180,
+      "y": 90
+    },
+    "color=magenta,face=ceiling,facing=north,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_magenta",
+      "x": 180
+    },
+    "color=magenta,face=ceiling,facing=north,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_magenta",
+      "x": 180
+    },
+    "color=magenta,face=ceiling,facing=south,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_magenta",
+      "x": 180,
+      "y": 180
+    },
+    "color=magenta,face=ceiling,facing=south,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_magenta",
+      "x": 180,
+      "y": 180
+    },
+    "color=magenta,face=ceiling,facing=west,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_magenta",
+      "x": 180,
+      "y": 270
+    },
+    "color=magenta,face=ceiling,facing=west,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_magenta",
+      "x": 180,
+      "y": 270
+    },
+    "color=magenta,face=floor,facing=east,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_magenta",
+      "y": 90
+    },
+    "color=magenta,face=floor,facing=east,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_magenta",
+      "y": 90
+    },
+    "color=magenta,face=floor,facing=north,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_magenta"
+    },
+    "color=magenta,face=floor,facing=north,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_magenta"
+    },
+    "color=magenta,face=floor,facing=south,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_magenta",
+      "y": 180
+    },
+    "color=magenta,face=floor,facing=south,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_magenta",
+      "y": 180
+    },
+    "color=magenta,face=floor,facing=west,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_magenta",
+      "y": 270
+    },
+    "color=magenta,face=floor,facing=west,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_magenta",
+      "y": 270
+    },
+    "color=magenta,face=wall,facing=east,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_magenta",
+      "x": 90,
+      "y": 90
+    },
+    "color=magenta,face=wall,facing=east,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_magenta",
+      "x": 90,
+      "y": 90
+    },
+    "color=magenta,face=wall,facing=north,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_magenta",
+      "x": 90
+    },
+    "color=magenta,face=wall,facing=north,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_magenta",
+      "x": 90
+    },
+    "color=magenta,face=wall,facing=south,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_magenta",
+      "x": 90,
+      "y": 180
+    },
+    "color=magenta,face=wall,facing=south,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_magenta",
+      "x": 90,
+      "y": 180
+    },
+    "color=magenta,face=wall,facing=west,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_magenta",
+      "x": 90,
+      "y": 270
+    },
+    "color=magenta,face=wall,facing=west,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_magenta",
+      "x": 90,
+      "y": 270
+    },
+    "color=orange,face=ceiling,facing=east,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_orange",
+      "x": 180,
+      "y": 90
+    },
+    "color=orange,face=ceiling,facing=east,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_orange",
+      "x": 180,
+      "y": 90
+    },
+    "color=orange,face=ceiling,facing=north,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_orange",
+      "x": 180
+    },
+    "color=orange,face=ceiling,facing=north,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_orange",
+      "x": 180
+    },
+    "color=orange,face=ceiling,facing=south,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_orange",
+      "x": 180,
+      "y": 180
+    },
+    "color=orange,face=ceiling,facing=south,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_orange",
+      "x": 180,
+      "y": 180
+    },
+    "color=orange,face=ceiling,facing=west,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_orange",
+      "x": 180,
+      "y": 270
+    },
+    "color=orange,face=ceiling,facing=west,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_orange",
+      "x": 180,
+      "y": 270
+    },
+    "color=orange,face=floor,facing=east,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_orange",
+      "y": 90
+    },
+    "color=orange,face=floor,facing=east,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_orange",
+      "y": 90
+    },
+    "color=orange,face=floor,facing=north,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_orange"
+    },
+    "color=orange,face=floor,facing=north,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_orange"
+    },
+    "color=orange,face=floor,facing=south,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_orange",
+      "y": 180
+    },
+    "color=orange,face=floor,facing=south,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_orange",
+      "y": 180
+    },
+    "color=orange,face=floor,facing=west,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_orange",
+      "y": 270
+    },
+    "color=orange,face=floor,facing=west,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_orange",
+      "y": 270
+    },
+    "color=orange,face=wall,facing=east,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_orange",
+      "x": 90,
+      "y": 90
+    },
+    "color=orange,face=wall,facing=east,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_orange",
+      "x": 90,
+      "y": 90
+    },
+    "color=orange,face=wall,facing=north,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_orange",
+      "x": 90
+    },
+    "color=orange,face=wall,facing=north,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_orange",
+      "x": 90
+    },
+    "color=orange,face=wall,facing=south,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_orange",
+      "x": 90,
+      "y": 180
+    },
+    "color=orange,face=wall,facing=south,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_orange",
+      "x": 90,
+      "y": 180
+    },
+    "color=orange,face=wall,facing=west,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_orange",
+      "x": 90,
+      "y": 270
+    },
+    "color=orange,face=wall,facing=west,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_orange",
+      "x": 90,
+      "y": 270
+    },
+    "color=pink,face=ceiling,facing=east,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_pink",
+      "x": 180,
+      "y": 90
+    },
+    "color=pink,face=ceiling,facing=east,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_pink",
+      "x": 180,
+      "y": 90
+    },
+    "color=pink,face=ceiling,facing=north,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_pink",
+      "x": 180
+    },
+    "color=pink,face=ceiling,facing=north,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_pink",
+      "x": 180
+    },
+    "color=pink,face=ceiling,facing=south,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_pink",
+      "x": 180,
+      "y": 180
+    },
+    "color=pink,face=ceiling,facing=south,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_pink",
+      "x": 180,
+      "y": 180
+    },
+    "color=pink,face=ceiling,facing=west,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_pink",
+      "x": 180,
+      "y": 270
+    },
+    "color=pink,face=ceiling,facing=west,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_pink",
+      "x": 180,
+      "y": 270
+    },
+    "color=pink,face=floor,facing=east,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_pink",
+      "y": 90
+    },
+    "color=pink,face=floor,facing=east,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_pink",
+      "y": 90
+    },
+    "color=pink,face=floor,facing=north,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_pink"
+    },
+    "color=pink,face=floor,facing=north,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_pink"
+    },
+    "color=pink,face=floor,facing=south,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_pink",
+      "y": 180
+    },
+    "color=pink,face=floor,facing=south,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_pink",
+      "y": 180
+    },
+    "color=pink,face=floor,facing=west,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_pink",
+      "y": 270
+    },
+    "color=pink,face=floor,facing=west,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_pink",
+      "y": 270
+    },
+    "color=pink,face=wall,facing=east,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_pink",
+      "x": 90,
+      "y": 90
+    },
+    "color=pink,face=wall,facing=east,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_pink",
+      "x": 90,
+      "y": 90
+    },
+    "color=pink,face=wall,facing=north,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_pink",
+      "x": 90
+    },
+    "color=pink,face=wall,facing=north,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_pink",
+      "x": 90
+    },
+    "color=pink,face=wall,facing=south,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_pink",
+      "x": 90,
+      "y": 180
+    },
+    "color=pink,face=wall,facing=south,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_pink",
+      "x": 90,
+      "y": 180
+    },
+    "color=pink,face=wall,facing=west,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_pink",
+      "x": 90,
+      "y": 270
+    },
+    "color=pink,face=wall,facing=west,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_pink",
+      "x": 90,
+      "y": 270
+    },
+    "color=purple,face=ceiling,facing=east,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_purple",
+      "x": 180,
+      "y": 90
+    },
+    "color=purple,face=ceiling,facing=east,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_purple",
+      "x": 180,
+      "y": 90
+    },
+    "color=purple,face=ceiling,facing=north,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_purple",
+      "x": 180
+    },
+    "color=purple,face=ceiling,facing=north,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_purple",
+      "x": 180
+    },
+    "color=purple,face=ceiling,facing=south,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_purple",
+      "x": 180,
+      "y": 180
+    },
+    "color=purple,face=ceiling,facing=south,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_purple",
+      "x": 180,
+      "y": 180
+    },
+    "color=purple,face=ceiling,facing=west,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_purple",
+      "x": 180,
+      "y": 270
+    },
+    "color=purple,face=ceiling,facing=west,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_purple",
+      "x": 180,
+      "y": 270
+    },
+    "color=purple,face=floor,facing=east,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_purple",
+      "y": 90
+    },
+    "color=purple,face=floor,facing=east,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_purple",
+      "y": 90
+    },
+    "color=purple,face=floor,facing=north,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_purple"
+    },
+    "color=purple,face=floor,facing=north,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_purple"
+    },
+    "color=purple,face=floor,facing=south,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_purple",
+      "y": 180
+    },
+    "color=purple,face=floor,facing=south,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_purple",
+      "y": 180
+    },
+    "color=purple,face=floor,facing=west,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_purple",
+      "y": 270
+    },
+    "color=purple,face=floor,facing=west,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_purple",
+      "y": 270
+    },
+    "color=purple,face=wall,facing=east,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_purple",
+      "x": 90,
+      "y": 90
+    },
+    "color=purple,face=wall,facing=east,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_purple",
+      "x": 90,
+      "y": 90
+    },
+    "color=purple,face=wall,facing=north,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_purple",
+      "x": 90
+    },
+    "color=purple,face=wall,facing=north,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_purple",
+      "x": 90
+    },
+    "color=purple,face=wall,facing=south,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_purple",
+      "x": 90,
+      "y": 180
+    },
+    "color=purple,face=wall,facing=south,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_purple",
+      "x": 90,
+      "y": 180
+    },
+    "color=purple,face=wall,facing=west,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_purple",
+      "x": 90,
+      "y": 270
+    },
+    "color=purple,face=wall,facing=west,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_purple",
+      "x": 90,
+      "y": 270
+    },
+    "color=red,face=ceiling,facing=east,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_red",
+      "x": 180,
+      "y": 90
+    },
+    "color=red,face=ceiling,facing=east,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_red",
+      "x": 180,
+      "y": 90
+    },
+    "color=red,face=ceiling,facing=north,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_red",
+      "x": 180
+    },
+    "color=red,face=ceiling,facing=north,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_red",
+      "x": 180
+    },
+    "color=red,face=ceiling,facing=south,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_red",
+      "x": 180,
+      "y": 180
+    },
+    "color=red,face=ceiling,facing=south,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_red",
+      "x": 180,
+      "y": 180
+    },
+    "color=red,face=ceiling,facing=west,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_red",
+      "x": 180,
+      "y": 270
+    },
+    "color=red,face=ceiling,facing=west,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_red",
+      "x": 180,
+      "y": 270
+    },
+    "color=red,face=floor,facing=east,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_red",
+      "y": 90
+    },
+    "color=red,face=floor,facing=east,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_red",
+      "y": 90
+    },
+    "color=red,face=floor,facing=north,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_red"
+    },
+    "color=red,face=floor,facing=north,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_red"
+    },
+    "color=red,face=floor,facing=south,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_red",
+      "y": 180
+    },
+    "color=red,face=floor,facing=south,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_red",
+      "y": 180
+    },
+    "color=red,face=floor,facing=west,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_red",
+      "y": 270
+    },
+    "color=red,face=floor,facing=west,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_red",
+      "y": 270
+    },
+    "color=red,face=wall,facing=east,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_red",
+      "x": 90,
+      "y": 90
+    },
+    "color=red,face=wall,facing=east,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_red",
+      "x": 90,
+      "y": 90
+    },
+    "color=red,face=wall,facing=north,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_red",
+      "x": 90
+    },
+    "color=red,face=wall,facing=north,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_red",
+      "x": 90
+    },
+    "color=red,face=wall,facing=south,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_red",
+      "x": 90,
+      "y": 180
+    },
+    "color=red,face=wall,facing=south,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_red",
+      "x": 90,
+      "y": 180
+    },
+    "color=red,face=wall,facing=west,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_red",
+      "x": 90,
+      "y": 270
+    },
+    "color=red,face=wall,facing=west,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_red",
+      "x": 90,
+      "y": 270
+    },
+    "color=white,face=ceiling,facing=east,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_white",
+      "x": 180,
+      "y": 90
+    },
+    "color=white,face=ceiling,facing=east,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_white",
+      "x": 180,
+      "y": 90
+    },
+    "color=white,face=ceiling,facing=north,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_white",
+      "x": 180
+    },
+    "color=white,face=ceiling,facing=north,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_white",
+      "x": 180
+    },
+    "color=white,face=ceiling,facing=south,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_white",
+      "x": 180,
+      "y": 180
+    },
+    "color=white,face=ceiling,facing=south,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_white",
+      "x": 180,
+      "y": 180
+    },
+    "color=white,face=ceiling,facing=west,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_white",
+      "x": 180,
+      "y": 270
+    },
+    "color=white,face=ceiling,facing=west,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_white",
+      "x": 180,
+      "y": 270
+    },
+    "color=white,face=floor,facing=east,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_white",
+      "y": 90
+    },
+    "color=white,face=floor,facing=east,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_white",
+      "y": 90
+    },
+    "color=white,face=floor,facing=north,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_white"
+    },
+    "color=white,face=floor,facing=north,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_white"
+    },
+    "color=white,face=floor,facing=south,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_white",
+      "y": 180
+    },
+    "color=white,face=floor,facing=south,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_white",
+      "y": 180
+    },
+    "color=white,face=floor,facing=west,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_white",
+      "y": 270
+    },
+    "color=white,face=floor,facing=west,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_white",
+      "y": 270
+    },
+    "color=white,face=wall,facing=east,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_white",
+      "x": 90,
+      "y": 90
+    },
+    "color=white,face=wall,facing=east,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_white",
+      "x": 90,
+      "y": 90
+    },
+    "color=white,face=wall,facing=north,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_white",
+      "x": 90
+    },
+    "color=white,face=wall,facing=north,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_white",
+      "x": 90
+    },
+    "color=white,face=wall,facing=south,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_white",
+      "x": 90,
+      "y": 180
+    },
+    "color=white,face=wall,facing=south,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_white",
+      "x": 90,
+      "y": 180
+    },
+    "color=white,face=wall,facing=west,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_white",
+      "x": 90,
+      "y": 270
+    },
+    "color=white,face=wall,facing=west,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_white",
+      "x": 90,
+      "y": 270
+    },
+    "color=yellow,face=ceiling,facing=east,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_yellow",
+      "x": 180,
+      "y": 90
+    },
+    "color=yellow,face=ceiling,facing=east,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_yellow",
+      "x": 180,
+      "y": 90
+    },
+    "color=yellow,face=ceiling,facing=north,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_yellow",
+      "x": 180
+    },
+    "color=yellow,face=ceiling,facing=north,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_yellow",
+      "x": 180
+    },
+    "color=yellow,face=ceiling,facing=south,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_yellow",
+      "x": 180,
+      "y": 180
+    },
+    "color=yellow,face=ceiling,facing=south,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_yellow",
+      "x": 180,
+      "y": 180
+    },
+    "color=yellow,face=ceiling,facing=west,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_yellow",
+      "x": 180,
+      "y": 270
+    },
+    "color=yellow,face=ceiling,facing=west,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_yellow",
+      "x": 180,
+      "y": 270
+    },
+    "color=yellow,face=floor,facing=east,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_yellow",
+      "y": 90
+    },
+    "color=yellow,face=floor,facing=east,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_yellow",
+      "y": 90
+    },
+    "color=yellow,face=floor,facing=north,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_yellow"
+    },
+    "color=yellow,face=floor,facing=north,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_yellow"
+    },
+    "color=yellow,face=floor,facing=south,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_yellow",
+      "y": 180
+    },
+    "color=yellow,face=floor,facing=south,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_yellow",
+      "y": 180
+    },
+    "color=yellow,face=floor,facing=west,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_yellow",
+      "y": 270
+    },
+    "color=yellow,face=floor,facing=west,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_yellow",
+      "y": 270
+    },
+    "color=yellow,face=wall,facing=east,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_yellow",
+      "x": 90,
+      "y": 90
+    },
+    "color=yellow,face=wall,facing=east,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_yellow",
+      "x": 90,
+      "y": 90
+    },
+    "color=yellow,face=wall,facing=north,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_yellow",
+      "x": 90
+    },
+    "color=yellow,face=wall,facing=north,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_yellow",
+      "x": 90
+    },
+    "color=yellow,face=wall,facing=south,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_yellow",
+      "x": 90,
+      "y": 180
+    },
+    "color=yellow,face=wall,facing=south,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_yellow",
+      "x": 90,
+      "y": 180
+    },
+    "color=yellow,face=wall,facing=west,powered=false": {
+      "model": "iden_decor:block/heavy_lever_off_yellow",
+      "x": 90,
+      "y": 270
+    },
+    "color=yellow,face=wall,facing=west,powered=true": {
+      "model": "iden_decor:block/heavy_lever_on_yellow",
+      "x": 90,
+      "y": 270
+    }
+  }
+}

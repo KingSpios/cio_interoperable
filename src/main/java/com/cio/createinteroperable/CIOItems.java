@@ -1,6 +1,7 @@
 package com.cio.createinteroperable;
 
 import com.cio.createinteroperable.compat.ElectroEnergeticsCompat;
+import com.cio.createinteroperable.compat.IdenDecorCompat;
 import com.cio.createinteroperable.compat.PowerGridCompat;
 import net.minecraft.world.item.BlockItem;
 import net.neoforged.bus.api.IEventBus;
@@ -136,6 +137,31 @@ public class CIOItems {
 
     public static final DeferredItem<BlockItem> AIRCON_VENTER = ITEMS.registerSimpleBlockItem(
             "aircon_venter", CIOBlocks.AIRCON_VENTER);
+
+    // --- Iden's Decor Electric buttons & switches (Iden-only — see CIOBlocks) ---
+
+    private static final boolean IDEN = IdenDecorCompat.present();
+
+    public static final DeferredItem<BlockItem> ELECTRIC_HEAVY_BUTTON = IDEN ? ITEMS.registerSimpleBlockItem(
+            "electric_heavy_button", CIOBlocks.ELECTRIC_HEAVY_BUTTON) : null;
+    public static final DeferredItem<BlockItem> ELECTRIC_GATE_BUTTON = IDEN ? ITEMS.registerSimpleBlockItem(
+            "electric_gate_button", CIOBlocks.ELECTRIC_GATE_BUTTON) : null;
+    public static final DeferredItem<BlockItem> ELECTRIC_HEAVY_LEVER = IDEN ? ITEMS.registerSimpleBlockItem(
+            "electric_heavy_lever", CIOBlocks.ELECTRIC_HEAVY_LEVER) : null;
+    public static final DeferredItem<BlockItem> ELECTRIC_EMERGENCY_LEVER = IDEN ? ITEMS.registerSimpleBlockItem(
+            "electric_emergency_lever", CIOBlocks.ELECTRIC_EMERGENCY_LEVER) : null;
+    public static final DeferredItem<BlockItem> ELECTRIC_LIGHT_SWITCH = IDEN ? ITEMS.registerSimpleBlockItem(
+            "electric_light_switch", CIOBlocks.ELECTRIC_LIGHT_SWITCH) : null;
+    public static final DeferredItem<BlockItem> ELECTRIC_POWER_SWITCH = IDEN ? ITEMS.registerSimpleBlockItem(
+            "electric_power_switch", CIOBlocks.ELECTRIC_POWER_SWITCH) : null;
+    public static final DeferredItem<BlockItem> ELECTRIC_VALVE_SWITCH = IDEN ? ITEMS.registerSimpleBlockItem(
+            "electric_valve_switch", CIOBlocks.ELECTRIC_VALVE_SWITCH) : null;
+    public static final DeferredItem<BlockItem> ELECTRIC_BLAST_LEVER = IDEN ? ITEMS.registerSimpleBlockItem(
+            "electric_blast_lever", CIOBlocks.ELECTRIC_BLAST_LEVER) : null;
+    public static final DeferredItem<BlockItem> ELECTRIC_CORE_BUTTON_CONTROL_PANEL = IDEN ? ITEMS.registerSimpleBlockItem(
+            "electric_core_button_control_panel", CIOBlocks.ELECTRIC_CORE_BUTTON_CONTROL_PANEL) : null;
+    public static final DeferredItem<BlockItem> ELECTRIC_CORE_LEVER_CONTROL_PANEL = IDEN ? ITEMS.registerSimpleBlockItem(
+            "electric_core_lever_control_panel", CIOBlocks.ELECTRIC_CORE_LEVER_CONTROL_PANEL) : null;
 
     public static void register(IEventBus modEventBus) {
         ITEMS.register(modEventBus);

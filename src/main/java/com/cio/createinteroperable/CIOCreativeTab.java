@@ -1,6 +1,7 @@
 package com.cio.createinteroperable;
 
 import com.cio.createinteroperable.compat.ElectroEnergeticsCompat;
+import com.cio.createinteroperable.compat.IdenDecorCompat;
 import com.cio.createinteroperable.compat.PowerGridCompat;
 import com.simibubi.create.AllCreativeModeTabs;
 import net.minecraft.core.registries.Registries;
@@ -77,6 +78,18 @@ public class CIOCreativeTab {
                             output.accept(CIOItems.CEE_DEB_RECTIFIER_TIER4.get());
                             output.accept(CIOItems.CEE_REDSTONE_SWITCH.get());
                             output.accept(CIOItems.CEE_TELEPHONE.get());
+                        }
+                        if (IdenDecorCompat.present()) {
+                            output.accept(CIOItems.ELECTRIC_HEAVY_BUTTON.get());
+                            output.accept(CIOItems.ELECTRIC_GATE_BUTTON.get());
+                            output.accept(CIOItems.ELECTRIC_HEAVY_LEVER.get());
+                            output.accept(CIOItems.ELECTRIC_EMERGENCY_LEVER.get());
+                            output.accept(CIOItems.ELECTRIC_LIGHT_SWITCH.get());
+                            output.accept(CIOItems.ELECTRIC_POWER_SWITCH.get());
+                            output.accept(CIOItems.ELECTRIC_VALVE_SWITCH.get());
+                            output.accept(CIOItems.ELECTRIC_BLAST_LEVER.get());
+                            output.accept(CIOItems.ELECTRIC_CORE_BUTTON_CONTROL_PANEL.get());
+                            output.accept(CIOItems.ELECTRIC_CORE_LEVER_CONTROL_PANEL.get());
                         }
                     })
                     .build());

@@ -1,0 +1,17 @@
+{
+  "neoforge:conditions": [
+    { "type": "neoforge:mod_loaded", "modid": "iden_decor" },
+    { "type": "neoforge:mod_loaded", "modid": "electroenergetics" }
+  ],
+  "type": "minecraft:crafting_shapeless",
+  "category": "redstone",
+  "group": "electric_iden_switch",
+  "ingredients": [
+    { "item": "iden_decor:valve_switch" },
+    { "item": "electroenergetics:copper_wire_spool" }
+  ],
+  "result": {
+    "count": 1,
+    "id": "createinteroperable:electric_valve_switch"
+  }
+}

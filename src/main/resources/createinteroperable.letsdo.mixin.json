@@ -19,8 +19,14 @@
     "MiniFridgeNodeMixin",
     "MiniFridgeBlockMixin",
     "FancyCrafterNodeMixin",
-    "BibliocraftLanternLightMixin"
+    "BibliocraftLanternLightMixin",
+    "IdenLightDefaultModeMixin",
+    "IdenLampBlockMixin",
+    "IdenModBlocksMixin",
+    "IdenComputerNodeMixin"
   ],
-  "client": [],
+  "client": [
+    "IdenComputerRendererMixin"
+  ],
   "minVersion": "0.8"
 }

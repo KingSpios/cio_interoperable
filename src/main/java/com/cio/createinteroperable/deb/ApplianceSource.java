@@ -108,7 +108,7 @@ public interface ApplianceSource extends ApplianceNode {
         AABB bounds = new AABB(origin).inflate(range);
 
         net.minecraft.world.level.Level level = applianceLevel();
-        for (ApplianceNode node : searchApplianceNetwork(256, false, bounds)) {
+        for (ApplianceNode node : searchApplianceNetwork(256, false, bounds, true)) {
             if (node == this) {
                 continue;
             }

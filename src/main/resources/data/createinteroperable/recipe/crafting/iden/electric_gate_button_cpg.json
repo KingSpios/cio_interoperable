@@ -1,0 +1,17 @@
+{
+  "neoforge:conditions": [
+    { "type": "neoforge:mod_loaded", "modid": "iden_decor" },
+    { "type": "neoforge:mod_loaded", "modid": "powergrid" }
+  ],
+  "type": "minecraft:crafting_shapeless",
+  "category": "redstone",
+  "group": "electric_iden_switch",
+  "ingredients": [
+    { "item": "iden_decor:gate_button" },
+    { "item": "powergrid:wire" }
+  ],
+  "result": {
+    "count": 1,
+    "id": "createinteroperable:electric_gate_button"
+  }
+}

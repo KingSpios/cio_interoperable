@@ -1,5 +1,6 @@
 package com.cio.createinteroperable;
 
+import com.cio.createinteroperable.compat.PnwTerminalDevice;
 import com.cio.createinteroperable.compat.PowerGridCompat;
 import com.cio.createinteroperable.deb.DebCeeDevice;
 import com.cio.createinteroperable.deb.RedstoneSwitchCeeDevice;
@@ -56,6 +57,11 @@ public class CIODevices {
     public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<AirconCeeDevice>> AIRCON_MOTOR =
             DEVICES.register("aircon_motor", () -> new SimulatedDeviceType<>(CreateInteroperable.rl("aircon_motor"),
                     ((type, level, pos, sd) -> new AirconCeeDevice(level, pos, sd, type))));
+
+    /** Inert device for Pantographs &amp; Wires connectors; see {@link PnwTerminalDevice}. */
+    public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<PnwTerminalDevice>> PNW_TERMINAL =
+            DEVICES.register("pnw_terminal", () -> new SimulatedDeviceType<>(CreateInteroperable.rl("pnw_terminal"),
+                    ((type, level, pos, sd) -> new PnwTerminalDevice(level, pos, sd, type))));
 
     public static void register(IEventBus modEventBus) {
         DEVICES.register(modEventBus);

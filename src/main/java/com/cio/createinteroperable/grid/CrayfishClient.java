@@ -36,6 +36,10 @@ public final class CrayfishClient {
     public static void registerApplianceNodeRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerBlockEntityRenderer((BlockEntityType) CIOBlockEntities.LETSDO_LAMP.get(),
                 (BlockEntityRendererProvider) ElectricBlockEntityRenderer::new);
+        if (CIOBlockEntities.ELECTRIC_SWITCH != null) {
+            event.registerBlockEntityRenderer((BlockEntityType) CIOBlockEntities.ELECTRIC_SWITCH.get(),
+                    (BlockEntityRendererProvider) ElectricBlockEntityRenderer::new);
+        }
         registerForeignNodeRenderer(event, "beachparty:radio");
         registerForeignNodeRenderer(event, "beachparty:mini_fridge");
     }
@@ -46,6 +50,17 @@ public final class CrayfishClient {
         if (type != null) {
             event.registerBlockEntityRenderer((BlockEntityType) type,
                     (BlockEntityRendererProvider) ElectricBlockEntityRenderer::new);
+        }
+    }
+
+    /**
+     * As {@link #drawDebNodeOverlay}, for a foreign block entity whose own
+     * renderer displaces Crayfish's: a no-op unless its node adapter mixin
+     * actually merged (checked, not cast blindly).
+     */
+    public static void drawNodeOverlayIfNode(BlockEntity be) {
+        if ((Object) be instanceof IElectricityNode node) {
+            ElectricBlockEntityRenderer.drawNodeAndConnections(node);
         }
     }
 

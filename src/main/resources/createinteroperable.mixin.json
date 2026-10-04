@@ -6,6 +6,7 @@
   "mixins": [
     "ApplianceGridHolder",
     "FluidTankBlockEntityAccessor",
+    "BlockDescriptionIdAccessor",
     "BoilerDataMixin",
     "LampEmissiveMixin",
     "FluidNetworkSteamFlowMixin"

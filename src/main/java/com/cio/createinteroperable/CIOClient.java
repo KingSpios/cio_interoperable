@@ -93,6 +93,17 @@ public class CIOClient {
         if (CrayfishCompat.present()) {
             CrayfishClient.registerApplianceNodeRenderers(event);
         }
+        // Iden's Decor telephone (CIO's swapped-in block): tap nubs + node overlay.
+        if (CIOBlockEntities.IDEN_PG_TELEPHONE != null) {
+            com.cio.createinteroperable.iden.IdenTelephoneRenderer.init();
+            event.registerBlockEntityRenderer(CIOBlockEntities.IDEN_PG_TELEPHONE.get(),
+                    com.cio.createinteroperable.iden.IdenTelephoneRenderer::new);
+        }
+        if (CIOBlockEntities.IDEN_CEE_TELEPHONE != null) {
+            com.cio.createinteroperable.iden.IdenTelephoneRenderer.init();
+            event.registerBlockEntityRenderer(CIOBlockEntities.IDEN_CEE_TELEPHONE.get(),
+                    com.cio.createinteroperable.iden.IdenTelephoneRenderer::new);
+        }
         // Aircon — the top (fan) registers unconditionally now (see
         // CIOBlocks' own doc: it's electrical-backend-agnostic, sitting on
         // either the PG or CEE bottom variant, or neither), so its renderer

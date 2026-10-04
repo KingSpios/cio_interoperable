@@ -6,7 +6,9 @@
   "mixins": [
     "CeeDebSourceNodeMixin",
     "DebSourceNodeMixin",
+    "ElectricSwitchNodeMixin",
     "IFluidContainerBlockMixin",
+    "IdenTelephoneNodeMixin",
     "LetsDoLampNodeMixin",
     "RefurbishedFixtureTapMixin"
   ],
