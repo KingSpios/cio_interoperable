@@ -21,7 +21,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.AABB;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Coerce;
@@ -67,14 +66,14 @@ import java.util.Set;
 public abstract class VistaTvNodeMixin implements ApplianceNode, MeteredAppliance, ScalableAppliance {
 
     /**
-     * Shadowing the public accessor rather than the backing {@code
-     * connectedTvsAmount} field on purpose: a private field's exact name/type
-     * is far more likely to drift across Vista versions than its public API,
-     * and a {@code @Shadow} mismatch fails this whole mixin's application
-     * (unlike an {@code @Inject}, it has no {@code require = 0} tolerance) —
-     * see the vista-tv-power memory for the crash this caused once already.
+     * Vista's public {@code getConnectedCount()}, read reflectively rather than
+     * {@code @Shadow}ed: its return type has already changed once (an
+     * {@code int} wall side in older builds, a Moonlight {@code Vec2i}
+     * width &times; height from 5.5.x), and a {@code @Shadow} whose signature
+     * no longer matches silently drops this entire mixin, leaving TVs that
+     * need no power at all.
      */
-    @Shadow public abstract int getConnectedCount();
+    @Unique private static volatile java.lang.reflect.Method cioNode$countGetter;
 
     @Unique private final Set<GridConnection> cioNode$conns = new HashSet<>();
     @Unique private boolean cioNode$powered;
@@ -187,12 +186,35 @@ public abstract class VistaTvNodeMixin implements ApplianceNode, MeteredApplianc
         return this.cioNode$powered;
     }
 
-    // --- scaled load: n^2 for a grown N x N connected wall ---------------
+    // --- scaled load: one unit per screen tile of the connected wall ------
 
     @Override
     public double cio$loadScale() {
-        double n = Math.max(1, getConnectedCount());
-        return n * n;
+        return Math.max(1, cioNode$wallTiles());
+    }
+
+    /** Screen tiles in this TV's connected wall, from either shape of {@code getConnectedCount()}. */
+    @Unique
+    private double cioNode$wallTiles() {
+        try {
+            java.lang.reflect.Method getter = cioNode$countGetter;
+            if (getter == null) {
+                getter = cioNode$be().getClass().getMethod("getConnectedCount");
+                cioNode$countGetter = getter;
+            }
+            Object count = getter.invoke(this);
+            if (count instanceof Number side) {
+                return side.doubleValue() * side.doubleValue(); // older Vista: side of an N x N wall
+            }
+            if (count instanceof Record) {
+                int width = ((Number) count.getClass().getMethod("x").invoke(count)).intValue();
+                int height = ((Number) count.getClass().getMethod("y").invoke(count)).intValue();
+                return (double) width * height; // Vista 5.5.x: Vec2i(width, height)
+            }
+        } catch (ReflectiveOperationException | RuntimeException ignored) {
+            // Unknown future shape: bill a single screen rather than lose the mixin.
+        }
+        return 1;
     }
 
     // --- wall-wide propagation (only this tile has a node/BE) -----------

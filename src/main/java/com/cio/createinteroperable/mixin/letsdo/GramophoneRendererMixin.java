@@ -7,6 +7,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Coerce;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
@@ -21,6 +22,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  * wrench is held, so this is nearly free otherwise.
  *
  * <p>Client, name-targeted, non-required &mdash; a no-op without Let's Do Furniture.
+ * The BE parameter is {@code @Coerce}d: Let's Do's {@code GramophoneBlockEntity}
+ * is not on the compile classpath, and without {@code @Coerce} Mixin rejects the
+ * handler's descriptor and silently skips the whole mixin (it did, until 0.1.78).
  */
 @Mixin(targets = "com.berksire.furniture.client.render.block.GramophoneRenderer", remap = false)
 public abstract class GramophoneRendererMixin {
@@ -28,7 +32,7 @@ public abstract class GramophoneRendererMixin {
     @Inject(
             method = "render(Lcom/berksire/furniture/core/block/entity/GramophoneBlockEntity;FLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;II)V",
             at = @At("HEAD"), require = 0, remap = false)
-    private void cio$drawElectricNode(BlockEntity blockEntity, float partialTicks, PoseStack poseStack,
+    private void cio$drawElectricNode(@Coerce BlockEntity blockEntity, float partialTicks, PoseStack poseStack,
                                       MultiBufferSource bufferSource, int light, int overlay, CallbackInfo ci) {
         if (blockEntity instanceof IElectricityNode node) {
             ElectricBlockEntityRenderer.drawNodeAndConnections(node);
