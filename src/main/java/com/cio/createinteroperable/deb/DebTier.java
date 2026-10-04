@@ -50,6 +50,10 @@ public record DebTier(
                 double softCapWatts, double hardCapWatts,
                 double primaryInternalResistance,
                 boolean hvFeedLive) {
+            /** Slider label with the lightning-bolt glyph prefixed (e.g. bolt, space, "240 V") — value boxes, the tap picker and goggles use this; {@link #label} stays plain for the viewer plates. */
+            public String display() {
+                return com.cio.createinteroperable.CIOGlyphs.volts(label);
+            }
         }
     }
 
@@ -57,14 +61,27 @@ public record DebTier(
      * "Tier 2 &mdash; Power Kit" &mdash; a whole house. 12&nbsp;V side runs the
      * lights + electronics + a run of CPG LV fixtures off the Power Feed;
      * 120&nbsp;V side runs every kitchen appliance at once (&asymp;4.8&nbsp;kW)
-     * before shedding.
+     * before shedding. Two intake taps: <b>120&nbsp;V</b> (default, 4.8&nbsp;kW)
+     * and 240&nbsp;V (9.6&nbsp;kW &mdash; the same ~40&nbsp;A band, so the
+     * same conductors carry twice the power; the lossy 1.5&nbsp;&Omega; intake
+     * drops to 0.9&nbsp;&Omega;, ~15&nbsp;% loss at the soft cap instead of the
+     * 120&nbsp;V tap's ~50&nbsp;%). No HV feed, so on the 240&nbsp;V tap the
+     * whole 120&nbsp;V pool is behind the real 240&rarr;120 step-down (the kit is
+     * a transformer): its caps are metered on the secondary and scaled by the
+     * 90&nbsp;% step-down efficiency (8.64&nbsp;kW soft / 13.5&nbsp;kW hard), so
+     * the intake still tops out at the rated 9.6&nbsp;kW / 40&nbsp;A.
      */
     public static final DebTier TIER_2 = new DebTier(
             90.0, 160.0, 0.15,
-            4_800.0, 7_500.0, 1.5,
+            4_800.0, 7_500.0, 1.5,     // fallback MV caps + intake R (= default 120 V tap)
             40, 0.80, true,
-            300.0, 3_200.0, // overheat at 300 C; ~3.2 kW steady reaches it (a full house at rated MV sits just under)
-            null);
+            300.0, 3_200.0, // overheat at 300 C; ~3.2 kW steady reaches it (a full house at rated 120 V sits just under; 240 V transformer mode at its scaled soft cap ~2.4 kW)
+            new Substation(
+                    new Substation.Mode[] {
+                            new Substation.Mode("120 V", 120.0, 4_800.0, 7_500.0, 1.5, false),
+                            new Substation.Mode("240 V", 240.0, 9_600.0, 15_000.0, 0.9, false),
+                    },
+                    0.05));   // intake->120 regulated feed series R (a bare 1:1 strap at the 120 V tap)
 
     /**
      * "Tier 1 &mdash; Improvised" &mdash; a single room. 120&nbsp;V intake
@@ -81,21 +98,26 @@ public record DebTier(
 
     /**
      * "Tier 3 &mdash; Commercial" &mdash; 8 heavy CPG appliances on the Power
-     * Feeds + a full Crayfish house. Two intake taps: <b>240&nbsp;V</b>
-     * (default, 20&nbsp;kW soft cap, HV feed live) and 120&nbsp;V (12&nbsp;kW,
-     * HV feed off). Real thermal model on the temperature viewer.
+     * Feeds + a full Crayfish house. Three intake taps: <b>120&nbsp;V</b>
+     * (default, 12&nbsp;kW soft cap, HV feed off), 240&nbsp;V (20&nbsp;kW,
+     * HV feed live) and 480&nbsp;V (40&nbsp;kW &mdash; ~83&nbsp;A, the same
+     * current band as the 240&nbsp;V tap; intake R 1.0&nbsp;&Omega; for the same
+     * ~17&nbsp;% loss at the soft cap). Real thermal model on the temperature
+     * viewer; the budget is sized so the 480&nbsp;V tap at rated load needs the
+     * same relative fan help the 240&nbsp;V tap did before it (~1.4&times;).
      */
     public static final DebTier TIER_3 = new DebTier(
             300.0, 500.0, 0.06,        // 12 V pool caps; 12 V step-down R
-            20_000.0, 32_000.0, 0.50,  // fallback MV caps + intake R (= default mode)
+            12_000.0, 18_000.0, 0.13,  // fallback MV caps + intake R (= default 120 V mode)
             64, 0.80, true,
-            350.0, 4_000.0,            // overheat at 350 C; ~4 kW steady dissipation reaches it
+            350.0, 8_000.0,            // overheat at 350 C; ~8 kW steady dissipation reaches it
             new Substation(
                     new Substation.Mode[] {
-                            new Substation.Mode("240 V", 240.0, 20_000.0, 32_000.0, 0.50, true),
                             new Substation.Mode("120 V", 120.0, 12_000.0, 18_000.0, 0.13, false),
+                            new Substation.Mode("240 V", 240.0, 20_000.0, 32_000.0, 0.50, true),
+                            new Substation.Mode("480 V", 480.0, 40_000.0, 64_000.0, 1.00, true),
                     },
-                    0.03));   // 240->120 regulated feed series R
+                    0.03));   // intake->120 regulated feed series R
 
     /**
      * "Tier 4 &mdash; Industrial" &mdash; a substation proper. Three intake

@@ -107,6 +107,33 @@ final class PowerKitGeometry {
         };
     }
 
+    /**
+     * Carry a block-space point from the model's authored (FACING=NORTH) pose to the state's
+     * actual facing, including UP/DOWN — the same rotations {@code DebRectifierRenderer.applyFacing}
+     * and the blockstate JSON apply to the model (down: x=90, up: x=-90). {@link #angleFor}/
+     * {@link #rotateY} alone leave vertical facings unrotated, which is right for terminals
+     * (a known limitation) but leaves a slider box floating off the model.
+     */
+    static Vec3 orient(BlockState state, Vec3 v) {
+        net.minecraft.core.Direction f = state.hasProperty(BlockStateProperties.FACING)
+                ? state.getValue(BlockStateProperties.FACING) : net.minecraft.core.Direction.NORTH;
+        if (f.getAxis().isHorizontal()) {
+            return rotateY(v, angleFor(state));
+        }
+        double dy = v.y - 0.5;
+        double dz = v.z - 0.5;
+        // DOWN (x=90): (dy,dz) -> (dz,-dy).  UP (x=-90): (dy,dz) -> (-dz,dy).
+        return f == net.minecraft.core.Direction.DOWN
+                ? new Vec3(v.x, 0.5 + dz, 0.5 - dy)
+                : new Vec3(v.x, 0.5 - dz, 0.5 + dy);
+    }
+
+    /** The tier-3/4-style intake slider: authored on the front (+Z) face at the default facing. */
+    static com.cio.createinteroperable.CIOValueBox intakeSlot(net.minecraft.world.phys.Vec3 base) {
+        return new com.cio.createinteroperable.CIOValueBox(base, net.minecraft.core.Direction.SOUTH,
+                5 / 16f, PowerKitGeometry::orient);
+    }
+
     /** Rotate {@code v} about the block centre (0.5, y, 0.5) by {@code deg} around Y. */
     static Vec3 rotateY(Vec3 v, int deg) {
         if (deg == 0) {

@@ -74,7 +74,7 @@ public class CeePowerKitTier3BlockEntity extends CeeDebRectifierBlockEntity {
 
     private String modeLabelStr(int i) {
         DebTier.Substation.Mode[] modes = sub().modes();
-        return modes[Mth.clamp(i, 0, modes.length - 1)].label();
+        return modes[Mth.clamp(i, 0, modes.length - 1)].display();
     }
 
     @Override
@@ -82,7 +82,7 @@ public class CeePowerKitTier3BlockEntity extends CeeDebRectifierBlockEntity {
         IntFunction<String> labels = this::modeLabelStr;
         intakeMode = new IntakeModeScrollBehaviour(
                 Component.literal("Intake Tap"),
-                this, new ModeSlot(sliderSlotBase()), tapOptions())
+                this, PowerKitGeometry.intakeSlot(sliderSlotBase()), tapOptions())
                 .between(0, sub().modes().length - 1);
         intakeMode.withFormatter(labels::apply);
         super.addBehaviours(behaviours);
@@ -93,7 +93,7 @@ public class CeePowerKitTier3BlockEntity extends CeeDebRectifierBlockEntity {
         DebTier.Substation.Mode[] modes = sub().modes();
         INamedIconOptions[] opts = new INamedIconOptions[modes.length];
         for (int i = 0; i < modes.length; i++) {
-            String lbl = modes[i].label();
+            String lbl = modes[i].display();
             AllIcons icon = modes[i].volts() >= 1000.0 ? AllIcons.I_PRIORITY_VERY_HIGH
                     : modes[i].volts() >= 240.0 ? AllIcons.I_PRIORITY_HIGH
                     : AllIcons.I_PRIORITY_LOW;
@@ -133,29 +133,6 @@ public class CeePowerKitTier3BlockEntity extends CeeDebRectifierBlockEntity {
         return VecHelper.voxelSpace(8, 1.5, 7.6); // tier-3 model, front face ~z=7.5
     }
 
-    private static class ModeSlot extends ValueBoxTransform {
-        private final Vec3 base;
-
-        ModeSlot(Vec3 base) {
-            this.base = base;
-        }
-
-        @Override
-        public Vec3 getLocalOffset(LevelAccessor level, BlockPos pos, BlockState state) {
-            return PowerKitGeometry.rotateY(base, PowerKitGeometry.angleFor(state));
-        }
-
-        @Override
-        public void rotate(LevelAccessor level, BlockPos pos, BlockState state, PoseStack ms) {
-            TransformStack.of(ms).rotateYDegrees(180 + PowerKitGeometry.angleFor(state));
-        }
-
-        @Override
-        public float getScale() {
-            return 4 / 16f;
-        }
-    }
-
     /** Regulated 120 V feed EMF = 120 / tap volts x solved intake volts. */
     protected double mv120Emf() {
         return Math.max(0.0, intakeVolts() * (120.0 / primaryVolts()));
@@ -192,7 +169,7 @@ public class CeePowerKitTier3BlockEntity extends CeeDebRectifierBlockEntity {
 
     @Override
     protected double mvLinkedReflectionFactor() {
-        return primaryVolts() > 120.0 ? STEP_DOWN_EFFICIENCY : 1.0;
+        return mvFeedEfficiency();
     }
 
     @Override
@@ -213,7 +190,7 @@ public class CeePowerKitTier3BlockEntity extends CeeDebRectifierBlockEntity {
     @Override
     protected void meterFeeds() {
         double passCurrent = ceeDevice != null ? ceeDevice.getPassCurrent() : 0.0;
-        hvFeedWatts = (float) (mode().hvFeedLive() ? intakeVolts() * passCurrent : 0.0);
+        hvFeedWatts = (float) (hasHvFeed() && mode().hvFeedLive() ? intakeVolts() * passCurrent : 0.0);
 
         double mv120Current = ceeDevice != null ? ceeDevice.getMv120Current() : 0.0;
         mv120FeedWatts = (float) (mvRailVolts() * mv120Current);
@@ -231,14 +208,25 @@ public class CeePowerKitTier3BlockEntity extends CeeDebRectifierBlockEntity {
      */
     @Override
     protected void configureCeeFeeds(DebCeeDevice device) {
-        device.setPassthrough(mode().hvFeedLive(), 2, 3, FEED_PASSTHROUGH_R);
-        device.setMv120Feed(true, 4, 5, mv120Emf(), sub().mvStepDownResistance());
-        device.setLvFeed(6, 7, stepDownEmf(), tier().stepDownResistance());
+        int mvIdx = hasHvFeed() ? 4 : 2;
+        device.setPassthrough(hasHvFeed() && mode().hvFeedLive(), 2, 3, FEED_PASSTHROUGH_R);
+        device.setMv120Feed(true, mvIdx, mvIdx + 1, mv120Emf(), sub().mvStepDownResistance());
+        device.setLvFeed(mvIdx + 2, mvIdx + 3, stepDownEmf(), tier().stepDownResistance());
+    }
+
+    /** true &rarr; the model has the HV pass-through terminal pair (tiers 3/4); the tier-2 Domestic kit does not. */
+    protected boolean hasHvFeed() {
+        return true;
+    }
+
+    /** Efficiency of the regulated 120&nbsp;V feed at the current tap: real step-down above 120&nbsp;V, a lossless 1:1 strap at it. */
+    protected double mvFeedEfficiency() {
+        return primaryVolts() > 120.0 ? STEP_DOWN_EFFICIENCY : 1.0;
     }
 
     @Override
     protected double reflectedIdealFeedWatts() {
-        return super.reflectedIdealFeedWatts() + mv120FeedWatts / STEP_DOWN_EFFICIENCY;
+        return super.reflectedIdealFeedWatts() + mv120FeedWatts / mvFeedEfficiency();
     }
 
     // ---------------------------------------------------- thermal
@@ -246,7 +234,7 @@ public class CeePowerKitTier3BlockEntity extends CeeDebRectifierBlockEntity {
     @Override
     protected double thermalHeatWatts() {
         return super.thermalHeatWatts()
-                + (1.0 / STEP_DOWN_EFFICIENCY - 1.0) * mv120FeedWatts;
+                + (1.0 / mvFeedEfficiency() - 1.0) * mv120FeedWatts;
     }
 
     @Override

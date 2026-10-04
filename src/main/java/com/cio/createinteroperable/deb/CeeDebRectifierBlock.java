@@ -8,6 +8,7 @@ import com.simibubi.create.foundation.block.IBE;
 import net.createmod.catnip.math.VoxelShaper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
@@ -60,7 +61,7 @@ public class CeeDebRectifierBlock extends SimpleElectricalDeviceBlock<DebCeeDevi
     private static final Map<Integer, Vec3> TIER2_NODES = nodeMap(new double[][] {
             {9.5, 1.5, 0.5}, {6.5, 1.5, 0.5},
             {6.5, 15.5, 1.5}, {4.5, 15.5, 1.5},
-            {9.5, 15.5, 1.5}, {11.5, 15.5, 1.5},
+            {11.5, 15.5, 1.5}, {9.5, 15.5, 1.5},
     });
 
     private final VoxelShaper shaper;
@@ -80,6 +81,13 @@ public class CeeDebRectifierBlock extends SimpleElectricalDeviceBlock<DebCeeDevi
     /** NORTH-authored CEE node centres by id; tier subclasses override. */
     protected Map<Integer, Vec3> nodesNorth() {
         return TIER2_NODES;
+    }
+
+    private static final String[] TIER2_OUTLETS = {"120V", "12V"};
+
+    /** Outlet pairs from node id 2 on, in id order (see {@link PowerKitLabels#ceeNode}); tier subclasses override. */
+    protected String[] outletsNorth() {
+        return TIER2_OUTLETS;
     }
 
     // --- blockstate / placement / shape ------------------------------
@@ -130,6 +138,16 @@ public class CeeDebRectifierBlock extends SimpleElectricalDeviceBlock<DebCeeDevi
         Map<Integer, Vec3> out = new HashMap<>();
         nodesNorth().forEach((id, v) -> out.put(id, PowerKitGeometry.rotateY(v, angle)));
         return out;
+    }
+
+    /** Hover label for each CEE node; the intake one follows the kit's selected tap. */
+    @Override
+    public MutableComponent getNodeLabel(Level level, BlockPos pos, BlockState state, int id) {
+        String intake = null;
+        if (level != null && level.getBlockEntity(pos) instanceof CeeDebRectifierBlockEntity be) {
+            intake = PowerKitLabels.volts(be.primaryVolts());
+        }
+        return PowerKitLabels.ceeNode(id, intake, outletsNorth());
     }
 
     @Override

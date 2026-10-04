@@ -135,9 +135,9 @@ public class CIOBlockEntities {
     // the PG 4-terminal circuit and the Crayfish ISourceNode bookkeeping. The
     // CEE-wired tiers below are a fully separate BlockEntity family
     // (CeeDebRectifierBlockEntity) with no Power Grid type in its hierarchy.
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<DebRectifierBlockEntity>> DEB_RECTIFIER =
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<com.cio.createinteroperable.deb.PowerKitTier2BlockEntity>> DEB_RECTIFIER =
             PG ? BLOCK_ENTITIES.register("deb_rectifier", () -> BlockEntityType.Builder.of(
-                    (pos, state) -> new DebRectifierBlockEntity(CIOBlockEntities.DEB_RECTIFIER.get(), pos, state),
+                    (pos, state) -> new com.cio.createinteroperable.deb.PowerKitTier2BlockEntity(CIOBlockEntities.DEB_RECTIFIER.get(), pos, state),
                     CIOBlocks.DEB_RECTIFIER.get()).build(null)) : null;
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<PowerKitTier1BlockEntity>> DEB_RECTIFIER_TIER1 =
@@ -161,9 +161,9 @@ public class CIOBlockEntities {
                     CIOBlocks.REDSTONE_SWITCH.get()).build(null)) : null;
 
     // CEE-wired Power Kit tiers — own BlockEntity family, CEE-only.
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CeeDebRectifierBlockEntity>> CEE_DEB_RECTIFIER =
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<com.cio.createinteroperable.deb.CeePowerKitTier2BlockEntity>> CEE_DEB_RECTIFIER =
             CEE ? BLOCK_ENTITIES.register("cee_deb_rectifier", () -> BlockEntityType.Builder.of(
-                    (pos, state) -> new CeeDebRectifierBlockEntity(CIOBlockEntities.CEE_DEB_RECTIFIER.get(), pos, state),
+                    (pos, state) -> new com.cio.createinteroperable.deb.CeePowerKitTier2BlockEntity(CIOBlockEntities.CEE_DEB_RECTIFIER.get(), pos, state),
                     CIOBlocks.CEE_DEB_RECTIFIER.get()).build(null)) : null;
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CeePowerKitTier1BlockEntity>> CEE_DEB_RECTIFIER_TIER1 =

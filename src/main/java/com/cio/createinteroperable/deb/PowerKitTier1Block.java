@@ -1,7 +1,6 @@
 package com.cio.createinteroperable.deb;
 
 import com.cio.createinteroperable.CIOBlockEntities;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.patryk3211.powergrid.electricity.base.DirectionalElectricBlock;
@@ -27,13 +26,13 @@ public class PowerKitTier1Block extends DebRectifierBlock {
     // nothing bleeds below the cell); only the labels/roles changed in the
     // single-intake rewire — the bottom pair is now the 120 V grid feed.
     private static final TerminalBoundingBox[] TIER1_TERMINALS = {
-            new TerminalBoundingBox(Component.literal("120V +"), 9, 0, 2, 10, 1, 3, NUB_EXPAND)
+            new TerminalBoundingBox(PowerKitLabels.intake("120V", true), 9, 0, 2, 10, 1, 3, NUB_EXPAND)
                     .withColor(IDecoratedTerminal.RED),
-            new TerminalBoundingBox(Component.literal("120V −"), 6, 0, 2, 7, 1, 3, NUB_EXPAND)
+            new TerminalBoundingBox(PowerKitLabels.intake("120V", false), 6, 0, 2, 7, 1, 3, NUB_EXPAND)
                     .withColor(IDecoratedTerminal.BLUE),
-            new TerminalBoundingBox(Component.literal("12V Feed +"), 9, 13, 2, 10, 14, 3, NUB_EXPAND)
+            new TerminalBoundingBox(PowerKitLabels.outlet("12V", true), 9, 13, 2, 10, 14, 3, NUB_EXPAND)
                     .withColor(IDecoratedTerminal.RED),
-            new TerminalBoundingBox(Component.literal("12V Feed −"), 6, 13, 2, 7, 14, 3, NUB_EXPAND)
+            new TerminalBoundingBox(PowerKitLabels.outlet("12V", false), 6, 13, 2, 7, 14, 3, NUB_EXPAND)
                     .withColor(IDecoratedTerminal.BLUE),
     };
 

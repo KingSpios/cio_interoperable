@@ -38,6 +38,13 @@ public class CeePowerKitTier3Block extends CeeDebRectifierBlock {
         return NODES;
     }
 
+    private static final String[] OUTLETS = {"HV", "120V", "12V"};
+
+    @Override
+    protected String[] outletsNorth() {
+        return OUTLETS;
+    }
+
     @Override
     public BlockEntityType<? extends CeeDebRectifierBlockEntity> getBlockEntityType() {
         return CIOBlockEntities.CEE_DEB_RECTIFIER_TIER3.get();

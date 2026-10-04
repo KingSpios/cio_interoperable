@@ -15,6 +15,7 @@ import dev.engine_room.flywheel.lib.transform.TransformStack;
 import net.createmod.catnip.math.VecHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -138,7 +139,7 @@ public class InteroperableDoubleCouplerBlockEntity extends ElectricBlockEntity i
     public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
         super.addBehaviours(behaviours);
         mode = new FlowModeBehaviour(
-                Component.translatable("createinteroperable.coupler.direction"), this, new HingeTipSlot());
+                Component.translatable("createinteroperable.coupler.direction"), this, hingeTipSlot());
         // Default position = OFF. FlowModeBehaviour.read() keeps this for a
         // freshly placed coupler; already-placed ones restore from NBT.
         mode.value = MODE_OFF;
@@ -148,9 +149,9 @@ public class InteroperableDoubleCouplerBlockEntity extends ElectricBlockEntity i
     /** Plain-text label for the goggle overlay (the value-settings screen uses the enum's own icon+key). */
     private static String modeLabel(int m) {
         return switch (m) {
-            case MODE_OFF -> "OFF";
-            case MODE_CEE_TO_CPG -> "CEE → CPG";
-            default -> "CPG → CEE";
+            case MODE_OFF -> CIOGlyphs.off("OFF");
+            case MODE_CEE_TO_CPG -> CIOGlyphs.ceeToCpg();
+            default -> CIOGlyphs.cpgToCee();
         };
     }
 
@@ -323,25 +324,10 @@ public class InteroperableDoubleCouplerBlockEntity extends ElectricBlockEntity i
 
     private static final Vec3 SLOT_BASE = VecHelper.voxelSpace(16.1, 3.0, 8.0);
 
-    private static class HingeTipSlot extends ValueBoxTransform {
-        @Override
-        public Vec3 getLocalOffset(LevelAccessor level, BlockPos pos, BlockState state) {
-            return InteroperableSmallBlock.rotateY(SLOT_BASE, InteroperableSmallBlock.angleFor(state));
-        }
-
-        @Override
-        public void rotate(LevelAccessor level, BlockPos pos, BlockState state, PoseStack ms) {
-            int angle = InteroperableSmallBlock.angleFor(state);
-            // Face east (+X) at the default facing; carry the block's Y rotation.
-            TransformStack.of(ms).rotateYDegrees(-90 + angle);
-        }
-
-        @Override
-        public float getScale() {
-            // gauge_side's east face is only 3x3px; keep the decal / hit-sphere
-            // tight to it (hit radius = scale/2 = 0.125 block = 2px).
-            return 4 / 16f;
-        }
+    /** East-face slider on the hinge tip at the default facing, carried through the block's own facing (see {@link CIOValueBox}). */
+    private static CIOValueBox hingeTipSlot() {
+        return new CIOValueBox(SLOT_BASE, Direction.EAST, 5 / 16f,
+                (state, v) -> InteroperableSmallBlock.rotateY(v, InteroperableSmallBlock.angleFor(state)));
     }
 
     @Override

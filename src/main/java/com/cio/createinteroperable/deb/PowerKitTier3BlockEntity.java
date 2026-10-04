@@ -84,6 +84,19 @@ public class PowerKitTier3BlockEntity extends DebRectifierBlockEntity {
         return true;
     }
 
+    /** true &rarr; the model has the HV pass-through terminal pair (tiers 3/4); the tier-2 Domestic kit does not. Constant: read during construction. */
+    protected boolean hasHvFeed() {
+        return true;
+    }
+
+    /**
+     * Efficiency of the regulated 120&nbsp;V feed at the current tap: a real
+     * step-down above 120&nbsp;V, a lossless 1:1 strap at the 120&nbsp;V tap.
+     */
+    protected double mvFeedEfficiency() {
+        return primaryVolts() > 120.0 ? STEP_DOWN_EFFICIENCY : 1.0;
+    }
+
     // ------------------------------------------------------- mode switch
 
     private DebTier.Substation sub() {
@@ -105,7 +118,7 @@ public class PowerKitTier3BlockEntity extends DebRectifierBlockEntity {
 
     private String modeLabelStr(int i) {
         DebTier.Substation.Mode[] modes = sub().modes();
-        return modes[Mth.clamp(i, 0, modes.length - 1)].label();
+        return modes[Mth.clamp(i, 0, modes.length - 1)].display();
     }
 
     @Override
@@ -116,7 +129,7 @@ public class PowerKitTier3BlockEntity extends DebRectifierBlockEntity {
         IntFunction<String> labels = this::modeLabelStr;
         intakeMode = new IntakeModeScrollBehaviour(
                 Component.literal("Intake Tap"),
-                this, new ModeSlot(sliderSlotBase()), tapOptions())
+                this, PowerKitGeometry.intakeSlot(sliderSlotBase()), tapOptions())
                 .between(0, sub().modes().length - 1);
         intakeMode.withFormatter(labels::apply);
         super.addBehaviours(behaviours);
@@ -135,7 +148,7 @@ public class PowerKitTier3BlockEntity extends DebRectifierBlockEntity {
         DebTier.Substation.Mode[] modes = sub().modes();
         INamedIconOptions[] opts = new INamedIconOptions[modes.length];
         for (int i = 0; i < modes.length; i++) {
-            String lbl = modes[i].label();
+            String lbl = modes[i].display();
             AllIcons icon = modes[i].volts() >= 1000.0 ? AllIcons.I_PRIORITY_VERY_HIGH
                     : modes[i].volts() >= 240.0 ? AllIcons.I_PRIORITY_HIGH
                     : AllIcons.I_PRIORITY_LOW;
@@ -175,35 +188,15 @@ public class PowerKitTier3BlockEntity extends DebRectifierBlockEntity {
         return VecHelper.voxelSpace(8, 1.5, 7.6); // tier-3 model, front face ~z=7.5
     }
 
-    private static class ModeSlot extends ValueBoxTransform {
-        private final Vec3 base;
-
-        ModeSlot(Vec3 base) {
-            this.base = base;
-        }
-
-        @Override
-        public Vec3 getLocalOffset(LevelAccessor level, BlockPos pos, BlockState state) {
-            return PowerKitGeometry.rotateY(base, PowerKitGeometry.angleFor(state));
-        }
-
-        @Override
-        public void rotate(LevelAccessor level, BlockPos pos, BlockState state, PoseStack ms) {
-            TransformStack.of(ms).rotateYDegrees(180 + PowerKitGeometry.angleFor(state));
-        }
-
-        @Override
-        public float getScale() {
-            return 4 / 16f;
-        }
-    }
-
     // -------------------------------------------------------------- PG
 
     @Override
     public void buildCircuit(CircuitBuilder builder) {
-        // Substation layout: [0,1] intake, [2,3] HV feed, [4,5] 120 V feed, [6,7] 12 V feed.
-        builder.setTerminalCount(8);
+        // Substation layout: [0,1] intake, [2,3] HV feed (tiers 3/4 only),
+        // then the 120 V feed pair, then the 12 V feed pair.
+        boolean hv = hasHvFeed();
+        int mvIdx = hv ? 4 : 2;
+        builder.setTerminalCount(mvIdx + 4);
 
         intakePositive = builder.terminalNode(0);
         intakeNegative = builder.terminalNode(1);
@@ -211,22 +204,24 @@ public class PowerKitTier3BlockEntity extends DebRectifierBlockEntity {
 
         // HV Feed — switched pass-through straight off the intake. Real
         // parallel branch, so its draw is metered but NOT reflected.
-        FloatingNode hvPos = builder.terminalNode(2);
-        FloatingNode hvNeg = builder.terminalNode(3);
-        hvSwitch = builder.connectSwitch(FEED_PASSTHROUGH_R, intakePositive, hvPos, true);
-        builder.connect(FEED_PASSTHROUGH_R, intakeNegative, hvNeg);
+        if (hv) {
+            FloatingNode hvPos = builder.terminalNode(2);
+            FloatingNode hvNeg = builder.terminalNode(3);
+            hvSwitch = builder.connectSwitch(FEED_PASSTHROUGH_R, intakePositive, hvPos, true);
+            builder.connect(FEED_PASSTHROUGH_R, intakeNegative, hvNeg);
+        }
 
         // 120 V Feed — regulated step-down (ratio = 120 / tap volts). Ideal
         // source: electricalTick reflects its draw onto primaryLoad.
-        FloatingNode mv120Pos = builder.terminalNode(4);
-        FloatingNode mv120Neg = builder.terminalNode(5);
+        FloatingNode mv120Pos = builder.terminalNode(mvIdx);
+        FloatingNode mv120Neg = builder.terminalNode(mvIdx + 1);
         mv120Feed = builder.addInternalNode(ProvidedVoltageSourceCoupling.class,
                 mv120Pos, mv120Neg, (float) sub().mvStepDownResistance());
         mv120Feed.setVoltageProvider(this::mv120Emf);
 
         // 12 V Feed — regulated step-down against the live tap voltage.
-        FloatingNode lvPos = builder.terminalNode(6);
-        FloatingNode lvNeg = builder.terminalNode(7);
+        FloatingNode lvPos = builder.terminalNode(mvIdx + 2);
+        FloatingNode lvNeg = builder.terminalNode(mvIdx + 3);
         lvFeed = builder.addInternalNode(ProvidedVoltageSourceCoupling.class,
                 lvPos, lvNeg, (float) tier().stepDownResistance());
         lvFeed.setVoltageProvider(this::stepDownEmf);
@@ -276,7 +271,7 @@ public class PowerKitTier3BlockEntity extends DebRectifierBlockEntity {
     /** Above 120 V the linked appliances sit behind the real step-down (÷ efficiency); at the 120 V tap it's a 1:1 strap. */
     @Override
     protected double mvLinkedReflectionFactor() {
-        return primaryVolts() > 120.0 ? STEP_DOWN_EFFICIENCY : 1.0;
+        return mvFeedEfficiency();
     }
 
     /** The 120 V step-down is real hardware doing work only above the 120 V tap; at 120 V it's a bare strap (no hum). */
@@ -315,7 +310,7 @@ public class PowerKitTier3BlockEntity extends DebRectifierBlockEntity {
     protected double reflectedIdealFeedWatts() {
         // Base handles the 12 V side. Add the regulated 120 V feed (ideal
         // source). The HV pass-through is a real branch — not reflected.
-        return super.reflectedIdealFeedWatts() + mv120FeedWatts / STEP_DOWN_EFFICIENCY;
+        return super.reflectedIdealFeedWatts() + mv120FeedWatts / mvFeedEfficiency();
     }
 
     // ---------------------------------------------------- thermal
@@ -324,7 +319,7 @@ public class PowerKitTier3BlockEntity extends DebRectifierBlockEntity {
     @Override
     protected double thermalHeatWatts() {
         return super.thermalHeatWatts()
-                + (1.0 / STEP_DOWN_EFFICIENCY - 1.0) * mv120FeedWatts;
+                + (1.0 / mvFeedEfficiency() - 1.0) * mv120FeedWatts;
     }
 
     @Override

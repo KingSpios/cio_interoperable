@@ -12,6 +12,7 @@ import com.simibubi.create.foundation.blockEntity.behaviour.scrollValue.ScrollVa
 import dev.engine_room.flywheel.lib.transform.TransformStack;
 import net.createmod.catnip.math.VecHelper;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -68,9 +69,9 @@ public class InteroperableSmallBlockEntity extends ElectricBlockEntity {
     public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
         super.addBehaviours(behaviours);
         direction = new DirectionScrollValueBehaviour(
-                Component.translatable("createinteroperable.direction"), this, new DirectionSlot())
+                Component.translatable("createinteroperable.direction"), this, directionSlot())
                 .between(0, 1)
-                .withFormatter(i -> i == 0 ? "CPG -> CEE" : "CEE -> CPG");
+                .withFormatter(i -> i == 0 ? CIOGlyphs.cpgToCee() : CIOGlyphs.ceeToCpg());
         behaviours.add(direction);
     }
 
@@ -90,7 +91,7 @@ public class InteroperableSmallBlockEntity extends ElectricBlockEntity {
         @Override
         public ValueSettingsBoard createBoard(Player player, BlockHitResult hitResult) {
             return new ValueSettingsBoard(label, max, 10, ImmutableList.of(Component.literal("Mode")),
-                    new ValueSettingsFormatter(vs -> Component.literal(vs.value() == 0 ? "CPG -> CEE" : "CEE -> CPG")));
+                    new ValueSettingsFormatter(vs -> Component.literal(vs.value() == 0 ? CIOGlyphs.cpgToCee() : CIOGlyphs.ceeToCpg())));
         }
     }
 
@@ -184,29 +185,10 @@ public class InteroperableSmallBlockEntity extends ElectricBlockEntity {
      */
     private static final Vec3 SLIDER_SLOT_BASE = VecHelper.voxelSpace(0.9, 4, 8);
 
-    private static class DirectionSlot extends ValueBoxTransform {
-        @Override
-        public Vec3 getLocalOffset(LevelAccessor level, BlockPos pos, BlockState state) {
-            return InteroperableSmallBlock.rotateY(SLIDER_SLOT_BASE, InteroperableSmallBlock.angleFor(state));
-        }
-
-        @Override
-        public void rotate(LevelAccessor level, BlockPos pos, BlockState state, PoseStack ms) {
-            int angle = InteroperableSmallBlock.angleFor(state);
-            TransformStack.of(ms).rotateYDegrees(90 + angle);
-        }
-
-        /**
-         * Default is .5f (a 0.25-block hit radius / render size) — too
-         * coarse for this plate, which is only 6/16 wide by 4/16 tall.
-         * Matches the plate's larger dimension (z-span, 6/16 = 0.375) so
-         * the value box's hit-sphere and rendered decal roughly match its
-         * actual footprint instead of ballooning past its edges.
-         */
-        @Override
-        public float getScale() {
-            return 6 / 16f;
-        }
+    /** West-face slider plate at the default facing, carried through the block's own facing (see {@link CIOValueBox}). */
+    private static CIOValueBox directionSlot() {
+        return new CIOValueBox(SLIDER_SLOT_BASE, Direction.WEST, 6 / 16f,
+                (state, v) -> InteroperableSmallBlock.rotateY(v, InteroperableSmallBlock.angleFor(state)));
     }
 
     @Override

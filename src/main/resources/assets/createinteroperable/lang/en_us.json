@@ -2,8 +2,8 @@
   "itemGroup.createinteroperable": "Create: Interoperable",
   "createinteroperable.direction": "Flow Direction",
   "createinteroperable.coupler.direction": "Flow Direction",
-  "createinteroperable.coupler.mode.cpg_cee": "CPG ← CEE",
-  "createinteroperable.coupler.mode.off": "⎐ OFF",
+  "createinteroperable.coupler.mode.cpg_cee": "CEE ← CPG",
+  "createinteroperable.coupler.mode.off": "✖ OFF",
   "createinteroperable.coupler.mode.cee_cpg": "CEE → CPG",
 
   "block.createinteroperable.pg_keystone": "Power Grid Keystone",

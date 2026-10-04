@@ -1,7 +1,6 @@
 package com.cio.createinteroperable.deb;
 
 import com.cio.createinteroperable.CIOBlockEntities;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.patryk3211.powergrid.electricity.base.DirectionalElectricBlock;
@@ -28,21 +27,21 @@ public class PowerKitTier4Block extends DebRectifierBlock {
     //   4/5 120 V Feed +/- (lv_positive_120v_out / lv_negative_120v_out, top corners z4-5)
     //   6/7 12 V Feed +/-  (lv_positive_12v_out / lv_negative_12v_out, top corners z1-2)
     private static final TerminalBoundingBox[] TIER4_TERMINALS = {
-            new TerminalBoundingBox(Component.literal("Intake +"), 9, 0, 2, 11, 1, 4, NUB_EXPAND)
+            new TerminalBoundingBox(PowerKitLabels.intake(null, true), 9, 0, 2, 11, 1, 4, NUB_EXPAND)
                     .withColor(IDecoratedTerminal.RED),
-            new TerminalBoundingBox(Component.literal("Intake −"), 5, 0, 2, 7, 1, 4, NUB_EXPAND)
+            new TerminalBoundingBox(PowerKitLabels.intake(null, false), 5, 0, 2, 7, 1, 4, NUB_EXPAND)
                     .withColor(IDecoratedTerminal.BLUE),
-            new TerminalBoundingBox(Component.literal("HV Feed +"), 9, 17, 2, 11, 18, 4, NUB_EXPAND)
+            new TerminalBoundingBox(PowerKitLabels.outlet("HV", true), 9, 17, 2, 11, 18, 4, NUB_EXPAND)
                     .withColor(IDecoratedTerminal.RED),
-            new TerminalBoundingBox(Component.literal("HV Feed −"), 5, 17, 2, 7, 18, 4, NUB_EXPAND)
+            new TerminalBoundingBox(PowerKitLabels.outlet("HV", false), 5, 17, 2, 7, 18, 4, NUB_EXPAND)
                     .withColor(IDecoratedTerminal.BLUE),
-            new TerminalBoundingBox(Component.literal("120V Feed +"), 14, 17, 4, 15, 18, 5, NUB_EXPAND)
+            new TerminalBoundingBox(PowerKitLabels.outlet("120V", true), 14, 17, 4, 15, 18, 5, NUB_EXPAND)
                     .withColor(IDecoratedTerminal.RED),
-            new TerminalBoundingBox(Component.literal("120V Feed −"), 1, 17, 4, 2, 18, 5, NUB_EXPAND)
+            new TerminalBoundingBox(PowerKitLabels.outlet("120V", false), 1, 17, 4, 2, 18, 5, NUB_EXPAND)
                     .withColor(IDecoratedTerminal.BLUE),
-            new TerminalBoundingBox(Component.literal("12V Feed +"), 14, 17, 1, 15, 18, 2, NUB_EXPAND)
+            new TerminalBoundingBox(PowerKitLabels.outlet("12V", true), 14, 17, 1, 15, 18, 2, NUB_EXPAND)
                     .withColor(IDecoratedTerminal.RED),
-            new TerminalBoundingBox(Component.literal("12V Feed −"), 1, 17, 1, 2, 18, 2, NUB_EXPAND)
+            new TerminalBoundingBox(PowerKitLabels.outlet("12V", false), 1, 17, 1, 2, 18, 2, NUB_EXPAND)
                     .withColor(IDecoratedTerminal.BLUE),
     };
 

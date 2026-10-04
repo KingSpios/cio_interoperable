@@ -63,19 +63,23 @@ public class DebRectifierBlock extends DirectionalElectricBlock implements IBE<D
     // Index order MUST match DebRectifierBlockEntity.buildCircuit:
     //   0/1 = 120 V intake +/-        (mv_positive_120v / mv_negative_120v)
     //   2/3 = 120 V Power Feed +/-    (lv_positive_120v_out / lv_negative_120v_out)
-    //   4/5 = 12 V Power Feed +/-     (lv_positive_12v_out / lv_negative_12v_out)
+    //   4/5 = 12 V Power Feed +/-     (lv_positive_12v_out x11-12 / lv_negative_12v_out x9-10)
+    // Unlike the other pairs, the 12 V pair's positive is the HIGHER-X nub —
+    // check the model's element names, not the neighbouring pair's pattern.
+    // The intake label carries no voltage: it follows the tap slider, and PG
+    // names a terminal from the blockstate alone (see PowerKitLabels).
     private static final TerminalBoundingBox[] TERMINALS = {
-            new TerminalBoundingBox(Component.literal("120V +"), 9, 1, 0, 10, 2, 1, NUB_EXPAND)
+            new TerminalBoundingBox(PowerKitLabels.intake(null, true), 9, 1, 0, 10, 2, 1, NUB_EXPAND)
                     .withColor(IDecoratedTerminal.RED),
-            new TerminalBoundingBox(Component.literal("120V −"), 6, 1, 0, 7, 2, 1, NUB_EXPAND)
+            new TerminalBoundingBox(PowerKitLabels.intake(null, false), 6, 1, 0, 7, 2, 1, NUB_EXPAND)
                     .withColor(IDecoratedTerminal.BLUE),
-            new TerminalBoundingBox(Component.literal("120V Feed +"), 6, 15, 1, 7, 16, 2, NUB_EXPAND)
+            new TerminalBoundingBox(PowerKitLabels.outlet("120V", true), 6, 15, 1, 7, 16, 2, NUB_EXPAND)
                     .withColor(IDecoratedTerminal.RED),
-            new TerminalBoundingBox(Component.literal("120V Feed −"), 4, 15, 1, 5, 16, 2, NUB_EXPAND)
+            new TerminalBoundingBox(PowerKitLabels.outlet("120V", false), 4, 15, 1, 5, 16, 2, NUB_EXPAND)
                     .withColor(IDecoratedTerminal.BLUE),
-            new TerminalBoundingBox(Component.literal("12V Feed +"), 9, 15, 1, 10, 16, 2, NUB_EXPAND)
+            new TerminalBoundingBox(PowerKitLabels.outlet("12V", true), 11, 15, 1, 12, 16, 2, NUB_EXPAND)
                     .withColor(IDecoratedTerminal.RED),
-            new TerminalBoundingBox(Component.literal("12V Feed −"), 11, 15, 1, 12, 16, 2, NUB_EXPAND)
+            new TerminalBoundingBox(PowerKitLabels.outlet("12V", false), 9, 15, 1, 10, 16, 2, NUB_EXPAND)
                     .withColor(IDecoratedTerminal.BLUE),
     };
 
