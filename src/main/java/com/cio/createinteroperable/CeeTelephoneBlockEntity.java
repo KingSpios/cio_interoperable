@@ -4,22 +4,10 @@ import com.george_vi.electroenergetics.devices.device.DevicesSavedData;
 import com.george_vi.electroenergetics.foundation.nodes.InWorldNode;
 import com.george_vi.electroenergetics.foundation.nodes.InWorldNodeConnection;
 import com.george_vi.electroenergetics.simulation.infrastructure.InfrastructureSavedData;
-import com.google.common.collect.ImmutableList;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.api.equipment.goggles.IHaveHoveringInformation;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
-import com.simibubi.create.foundation.blockEntity.behaviour.BehaviourType;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
-import com.simibubi.create.foundation.blockEntity.behaviour.ValueBoxTransform;
-import com.simibubi.create.foundation.blockEntity.behaviour.ValueSettingsBoard;
-import com.simibubi.create.foundation.blockEntity.behaviour.ValueSettingsFormatter;
-import com.simibubi.create.foundation.blockEntity.behaviour.ValueSettingsFormatter.ScrollOptionSettingsFormatter;
-import com.simibubi.create.foundation.blockEntity.behaviour.scrollValue.INamedIconOptions;
-import com.simibubi.create.foundation.blockEntity.behaviour.scrollValue.ScrollValueBehaviour;
-import com.simibubi.create.foundation.gui.AllIcons;
-import dev.engine_room.flywheel.lib.transform.TransformStack;
-import net.createmod.catnip.math.VecHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -31,11 +19,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayDeque;
@@ -72,11 +57,21 @@ public class CeeTelephoneBlockEntity extends SmartBlockEntity implements IHaveHo
     @Nullable
     private TelephoneDevice ceeDevice;
 
-    private ScrollValueBehaviour autoAnswerValue;
-    private ScrollValueBehaviour areaCodeValue;
+    private TelephoneAutoAnswerBehaviour autoAnswerValue;
+    /** Own area code (0-999), set from the telephone settings screen. */
+    private int areaCode = 0;
+
+    /**
+     * "Pulse (3s)", a caller-side setting: calls placed FROM this phone make the
+     * answering phone's call outputs cycle on/off every {@link TelephoneNode#PULSE_TICKS}.
+     */
+    private boolean pulseMode = false;
+    /** Answering end only: this call came from a phone with Pulse on. */
+    private boolean pulsedCall = false;
+    /** Answering end only: ticks since the call was answered (drives the pulse phase). */
+    private int callTicks = 0;
 
     private String ownNumberText = "";
-    private int lastValidAreaCode = 0;
 
     private boolean powered = false;
     private boolean overheating = false;
@@ -98,105 +93,64 @@ public class CeeTelephoneBlockEntity extends SmartBlockEntity implements IHaveHo
 
     @Override
     public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
-        autoAnswerValue = new LabeledScrollValueBehaviour(Component.literal("Auto-Answer"), this,
-                new Slot(11.5, 10.5, 12.5, 90), AUTO_ANSWER_TYPE, "Auto", v -> v == 0 ? "OFF" : "ON",
-                AUTO_ANSWER_OPTIONS)
-                .between(0, 1).withFormatter(i -> i == 0 ? "OFF" : "ON");
+        autoAnswerValue = new TelephoneAutoAnswerBehaviour(this, slot(12.05, 10.5, 12.5, 270));
         behaviours.add(autoAnswerValue);
-
-        areaCodeValue = new LabeledScrollValueBehaviour(Component.literal("Set Area Code"), this,
-                new Slot(8, 8, 13.9, 180), AREA_CODE_TYPE, "Area Code", String::valueOf, null)
-                .between(0, 999).withFormatter(String::valueOf)
-                .withCallback(this::onAreaCodeScrolled);
-        behaviours.add(areaCodeValue);
     }
 
-    private static final INamedIconOptions[] AUTO_ANSWER_OPTIONS = {
-            iconOption(AllIcons.I_DISABLE, "OFF"),
-            iconOption(AllIcons.I_ACTIVE, "ON"),
-    };
-
-    private static INamedIconOptions iconOption(AllIcons icon, String label) {
-        return new INamedIconOptions() {
-            @Override
-            public AllIcons getIcon() {
-                return icon;
-            }
-
-            @Override
-            public String getTranslationKey() {
-                return label;
-            }
-        };
+    /** Slider box on the face a legacy {@code baseAngle} pointed at, carried through the block's own facing (see {@link CIOValueBox}). */
+    static CIOValueBox slot(double x, double y, double z, int baseAngle) {
+        return new CIOValueBox(x, y, z, CIOValueBox.faceForBaseAngle(baseAngle), 5 / 16f,
+                (state, v) -> CeeTelephoneBlock.rotateY(v, CeeTelephoneBlock.angleFor(state))).fromAnySide();
     }
 
-    private static class LabeledScrollValueBehaviour extends ScrollValueBehaviour {
-        private final BehaviourType<ScrollValueBehaviour> type;
-        private final String rowLabel;
-        private final java.util.function.IntFunction<String> boardFormatter;
-        private final INamedIconOptions[] iconOptions;
-
-        LabeledScrollValueBehaviour(Component label, SmartBlockEntity be, ValueBoxTransform slot,
-                                     BehaviourType<ScrollValueBehaviour> type,
-                                     String rowLabel, java.util.function.IntFunction<String> boardFormatter,
-                                     INamedIconOptions[] iconOptions) {
-            super(label, be, slot);
-            this.type = type;
-            this.rowLabel = rowLabel;
-            this.boardFormatter = boardFormatter;
-            this.iconOptions = iconOptions;
-        }
-
-        @Override
-        public BehaviourType<?> getType() {
-            return type;
-        }
-
-        @Override
-        public ValueSettingsBoard createBoard(Player player, BlockHitResult hitResult) {
-            if (iconOptions != null)
-                return new ValueSettingsBoard(label, max, 1, ImmutableList.of(Component.literal(rowLabel)),
-                        new ScrollOptionSettingsFormatter(iconOptions));
-            return new ValueSettingsBoard(label, max, 10, ImmutableList.of(Component.literal(rowLabel)),
-                    new ValueSettingsFormatter(vs -> Component.literal(boardFormatter.apply(vs.value()))));
-        }
+    @Override
+    public boolean isAutoAnswer() {
+        return autoAnswer();
     }
 
-    private static final BehaviourType<ScrollValueBehaviour> AUTO_ANSWER_TYPE = new BehaviourType<>();
-    private static final BehaviourType<ScrollValueBehaviour> AREA_CODE_TYPE = new BehaviourType<>();
+    @Override
+    public void setAutoAnswer(boolean autoAnswer) {
+        autoAnswerValue.setOn(autoAnswer);
+    }
 
-    private static class Slot extends ValueBoxTransform {
-        private final Vec3 base;
-        private final int baseAngle;
+    @Override
+    public String getDialingTarget() {
+        return dialingTarget;
+    }
 
-        Slot(double x, double y, double z, int baseAngle) {
-            this.base = VecHelper.voxelSpace(x, y, z);
-            this.baseAngle = baseAngle;
-        }
+    @Override
+    public boolean supportsPulse() {
+        return true;
+    }
 
-        @Override
-        public Vec3 getLocalOffset(LevelAccessor level, BlockPos pos, BlockState state) {
-            return CeeTelephoneBlock.rotateY(base, CeeTelephoneBlock.angleFor(state));
-        }
+    @Override
+    public boolean isPulse() {
+        return pulseMode;
+    }
 
-        @Override
-        public void rotate(LevelAccessor level, BlockPos pos, BlockState state, PoseStack ms) {
-            TransformStack.of(ms).rotateYDegrees(baseAngle + CeeTelephoneBlock.angleFor(state));
-        }
+    @Override
+    public void setPulse(boolean pulse) {
+        pulseMode = pulse;
+        setChanged();
+        notifyUpdate();
+    }
 
-        @Override
-        public float getScale() {
-            return 3 / 16f;
-        }
+    /**
+     * Whether this phone's call outputs (Call Breaker, Call Feed +/-, redstone)
+     * are on: only on the answering end of an answered call and, if the caller
+     * has Pulse on, only in the "on" half of each {@link TelephoneNode#PULSE_TICKS} cycle.
+     */
+    private boolean callOutputsClosed() {
+        return answered && receivingCall && (!pulsedCall || TelephoneNode.pulsePhaseOn(callTicks));
     }
 
     private boolean autoAnswer() {
-        return autoAnswerValue.getValue() == 1;
+        return autoAnswerValue.isOn();
     }
 
     @Override
     public String ownNumber() {
-        return TelephoneNumbers.formatNumber(areaCodeValue.getValue(), ownNumberText);
+        return TelephoneNumbers.formatNumber(areaCode, ownNumberText);
     }
 
     @Override
@@ -206,20 +160,10 @@ public class CeeTelephoneBlockEntity extends SmartBlockEntity implements IHaveHo
             return false;
         }
         ownNumberText = sanitized;
-        areaCodeValue.setValue(newAreaCode);
-        lastValidAreaCode = newAreaCode;
+        areaCode = newAreaCode;
         setChanged();
         notifyUpdate();
         return true;
-    }
-
-    private void onAreaCodeScrolled(int newAreaCode) {
-        if (TelephoneRegistry.isNumberTaken(this, newAreaCode, ownNumberText)) {
-            areaCodeValue.setValue(lastValidAreaCode);
-            denyFeedback();
-        } else {
-            lastValidAreaCode = newAreaCode;
-        }
     }
 
     @Override
@@ -235,7 +179,7 @@ public class CeeTelephoneBlockEntity extends SmartBlockEntity implements IHaveHo
 
     @Override
     public int getAreaCode() {
-        return areaCodeValue.getValue();
+        return areaCode;
     }
 
     @Override
@@ -299,6 +243,16 @@ public class CeeTelephoneBlockEntity extends SmartBlockEntity implements IHaveHo
         return busy;
     }
 
+    @Override
+    public boolean isCallAnswered() {
+        return busy && answered;
+    }
+
+    @Override
+    public BlockPos callPartnerPos() {
+        return callPartner;
+    }
+
     boolean isDialingOwnNumber() {
         return !dialingTarget.isEmpty() && dialingTarget.equals(ownNumber());
     }
@@ -330,6 +284,9 @@ public class CeeTelephoneBlockEntity extends SmartBlockEntity implements IHaveHo
         if (exploded) {
             return;
         }
+        if (answered && receivingCall && pulsedCall) {
+            callTicks++;
+        }
         if (ceeDevice == null || !ceeDevice.isValid()) {
             ceeDevice = DevicesSavedData.load(server).getDevice(worldPosition, TelephoneDevice.class);
         }
@@ -339,7 +296,7 @@ public class CeeTelephoneBlockEntity extends SmartBlockEntity implements IHaveHo
             // Only the receiving end of an answered call closes its
             // breakers — the phone that dialed out never does (receivingCall
             // is false for the whole call on that side, set in #dial()).
-            ceeDevice.setAnswered(answered && receivingCall);
+            ceeDevice.setAnswered(callOutputsClosed());
         }
         double voltage = ceeDevice != null ? Math.abs(ceeDevice.getLastVoltage()) : 0.0;
         boolean nowPowered = voltage >= POWERED_THRESHOLD;
@@ -383,7 +340,7 @@ public class CeeTelephoneBlockEntity extends SmartBlockEntity implements IHaveHo
         // ongoing call — the phone that dialled out never emits (matches the
         // ceeDevice.setAnswered(answered && receivingCall) gate above).
         TelephoneRedstone.sync(level, worldPosition, getBlockState(), CeeTelephoneBlock.FACING,
-                answered && receivingCall);
+                callOutputsClosed());
 
         if ((level.getGameTime() & 7L) == 0L) {
             notifyUpdate();
@@ -434,7 +391,8 @@ public class CeeTelephoneBlockEntity extends SmartBlockEntity implements IHaveHo
 
     InteractionResult onBackPlateUsed(Player player) {
         if (level.isClientSide) {
-            TelephoneClient.openNumberScreen(worldPosition, getAreaCode(), ownNumberText);
+            TelephoneClient.openSettings(worldPosition, getAreaCode(), ownNumberText, label, dialingTarget, autoAnswer(),
+                    true, pulseMode);
         }
         return InteractionResult.SUCCESS;
     }
@@ -489,6 +447,9 @@ public class CeeTelephoneBlockEntity extends SmartBlockEntity implements IHaveHo
 
     @Override
     public void receiveCall(BlockPos callerPos) {
+        TelephoneNode caller = TelephoneRegistry.get(level, callerPos);
+        pulsedCall = caller != null && caller.isPulse();
+        callTicks = 0;
         busy = true;
         ringing = true;
         ringingTicks = 0;
@@ -502,6 +463,7 @@ public class CeeTelephoneBlockEntity extends SmartBlockEntity implements IHaveHo
     private void answer() {
         ringing = false;
         answered = true;
+        callTicks = 0;
         setChanged();
         notifyUpdate();
         TelephoneNode partner = TelephoneRegistry.get(level, callPartner);
@@ -525,6 +487,8 @@ public class CeeTelephoneBlockEntity extends SmartBlockEntity implements IHaveHo
         answered = false;
         ringingTicks = 0;
         callPartner = null;
+        pulsedCall = false;
+        callTicks = 0;
         setChanged();
         notifyUpdate();
     }
@@ -585,6 +549,12 @@ public class CeeTelephoneBlockEntity extends SmartBlockEntity implements IHaveHo
 
         tooltip.add(Component.literal("Auto-Answer: " + (autoAnswer() ? "On" : "Off"))
                 .withStyle(autoAnswer() ? ChatFormatting.GREEN : ChatFormatting.GRAY));
+        if (pulseMode) {
+            tooltip.add(Component.literal("Pulse (3s): On for calls from here").withStyle(ChatFormatting.GRAY));
+        }
+        if (pulsedCall && receivingCall) {
+            tooltip.add(Component.literal("Caller is pulsing this line").withStyle(ChatFormatting.GOLD));
+        }
 
         if (overheating) {
             tooltip.add(Component.literal("Overheating").withStyle(ChatFormatting.RED, ChatFormatting.BOLD));
@@ -615,7 +585,11 @@ public class CeeTelephoneBlockEntity extends SmartBlockEntity implements IHaveHo
         label = tag.getString("Label");
         dialingTarget = tag.getString("DialingTarget");
         ownNumberText = TelephoneNumbers.sanitizeNumberText(tag.getString("OwnNumberText"));
-        lastValidAreaCode = areaCodeValue.getValue();
+        pulseMode = tag.getBoolean("PulseMode");
+        pulsedCall = tag.getBoolean("PulsedCall");
+        callTicks = tag.getInt("CallTicks");
+
+        areaCode = tag.contains("AreaCode") ? tag.getInt("AreaCode") : TelephoneAutoAnswerBehaviour.legacyAreaCode(tag);
         powered = tag.getBoolean("Powered");
         overheating = tag.getBoolean("Overheating");
         busy = tag.getBoolean("Busy");
@@ -632,6 +606,10 @@ public class CeeTelephoneBlockEntity extends SmartBlockEntity implements IHaveHo
         tag.putString("Label", label);
         tag.putString("DialingTarget", dialingTarget);
         tag.putString("OwnNumberText", ownNumberText);
+        tag.putBoolean("PulseMode", pulseMode);
+        tag.putBoolean("PulsedCall", pulsedCall);
+        tag.putInt("CallTicks", callTicks);
+        tag.putInt("AreaCode", areaCode);
         tag.putBoolean("Powered", powered);
         tag.putBoolean("Overheating", overheating);
         tag.putBoolean("Busy", busy);

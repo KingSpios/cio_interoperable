@@ -27,15 +27,18 @@ import net.minecraft.world.entity.player.Player;
  */
 public class TelephoneClient {
     public static void openDialScreen(BlockPos pos, String currentTarget) {
-        Minecraft.getInstance().setScreen(new TelephoneDialScreen(pos, currentTarget));
+        Minecraft.getInstance().setScreen(TelephoneSettingsScreen.dial(pos, currentTarget));
     }
 
     public static void openLabelScreen(BlockPos pos, String currentLabel) {
         Minecraft.getInstance().setScreen(new TelephoneLabelScreen(pos, currentLabel));
     }
 
-    public static void openNumberScreen(BlockPos pos, int areaCode, String number) {
-        Minecraft.getInstance().setScreen(new TelephoneNumberScreen(pos, areaCode, number));
+    /** Full settings (own number, area code, label, number to call, Auto-Answer) — any telephone type. */
+    public static void openSettings(BlockPos pos, int areaCode, String number, String label, String dialTarget,
+                                    boolean autoAnswer, boolean pulseSupported, boolean pulse) {
+        Minecraft.getInstance().setScreen(TelephoneSettingsScreen.settings(pos, areaCode, number, label, dialTarget, autoAnswer,
+                pulseSupported, pulse));
     }
 
     /** Declared return type is the plain {@code Player} ElectricPropertiesUtils.modify actually wants — see class doc. */

@@ -122,16 +122,16 @@ public class CpgTelephoneBlock extends ElectricBlock implements IBE<CpgTelephone
             new TerminalBoundingBox(IDecoratedTerminal.CONNECTOR, 7, 2, 13.9, 9, 14, 15.9, NUB_EXPAND);
 
     private static final TerminalBoundingBox POSITIVE_BASE =
-            new TerminalBoundingBox(IDecoratedTerminal.POSITIVE, 5.5, 13.9, 12.5, 6.5, 14.9, 13.5, NUB_EXPAND)
+            new TerminalBoundingBox(TelephoneLabels.positive(), 5.5, 13.9, 12.5, 6.5, 14.9, 13.5, NUB_EXPAND)
                     .withColor(IDecoratedTerminal.RED);
     private static final TerminalBoundingBox NEGATIVE_BASE =
-            new TerminalBoundingBox(IDecoratedTerminal.NEGATIVE, 9.5, 13.9, 12.6, 10.5, 14.9, 13.6, NUB_EXPAND)
+            new TerminalBoundingBox(TelephoneLabels.negative(), 9.5, 13.9, 12.6, 10.5, 14.9, 13.6, NUB_EXPAND)
                     .withColor(IDecoratedTerminal.BLUE);
     private static final TerminalBoundingBox TAP_BASE =
-            new TerminalBoundingBox(IDecoratedTerminal.TAP, 7.5, 13.9, 12.6, 8.5, 14.9, 13.6, NUB_EXPAND);
+            new TerminalBoundingBox(TelephoneLabels.tap(), 7.5, 13.9, 12.6, 8.5, 14.9, 13.6, NUB_EXPAND);
     /** No longer a voltage source — a breaker that only completes an externally-wired circuit while a call is answered. */
     private static final TerminalBoundingBox LISTENER_BASE =
-            new TerminalBoundingBox(Component.literal("Call Breaker"), 7.5, 0.9, 12.6, 8.5, 1.9, 13.6, NUB_EXPAND);
+            new TerminalBoundingBox(TelephoneLabels.callBreaker(), 7.5, 0.9, 12.6, 8.5, 1.9, 13.6, NUB_EXPAND);
 
     /**
      * The model's bottom {@code outlet_positive}/{@code outlet_negative} nubs
@@ -143,10 +143,10 @@ public class CpgTelephoneBlock extends ElectricBlock implements IBE<CpgTelephone
      * is powered.
      */
     private static final TerminalBoundingBox OUTLET_POSITIVE_BASE =
-            new TerminalBoundingBox(Component.literal("Call Feed +"), 6, 1, 12, 7, 2, 13, NUB_EXPAND)
+            new TerminalBoundingBox(TelephoneLabels.callFeedPositive(), 6, 1, 12, 7, 2, 13, NUB_EXPAND)
                     .withColor(IDecoratedTerminal.RED);
     private static final TerminalBoundingBox OUTLET_NEGATIVE_BASE =
-            new TerminalBoundingBox(Component.literal("Call Feed −"), 9, 1, 12, 10, 2, 13, NUB_EXPAND)
+            new TerminalBoundingBox(TelephoneLabels.callFeedNegative(), 9, 1, 12, 10, 2, 13, NUB_EXPAND)
                     .withColor(IDecoratedTerminal.BLUE);
 
     private static final TerminalBoundingBox DIAL_RING_HITBOX =

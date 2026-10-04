@@ -33,11 +33,56 @@ public interface TelephoneNode {
 
     String getOwnNumberText();
 
+    /** True while this phone is on an answered, ongoing call (ringing / dialling doesn't count) — what call audio relaying keys off. */
+    default boolean isCallAnswered() {
+        return false;
+    }
+
+    /** The other end of this phone's current call, or {@code null} when there isn't one. */
+    @org.jetbrains.annotations.Nullable
+    default BlockPos callPartnerPos() {
+        return null;
+    }
+
     String getLabel();
 
     boolean isPowered();
 
     void setDialingTarget(String target);
+
+    /** The number this phone calls (formatted {@code AAA-NNNNNN}), or empty. */
+    String getDialingTarget();
+
+    boolean isAutoAnswer();
+
+    void setAutoAnswer(boolean autoAnswer);
+
+    /** Half-period of a "Pulse (3s)" call, in ticks: the answering phone's call outputs are on this long, then off this long. */
+    int PULSE_TICKS = 60;
+
+    /** Pulse phase for an answered call {@code ticksSinceAnswered} old: on for the first {@link #PULSE_TICKS}, off for the next, and so on. */
+    static boolean pulsePhaseOn(int ticksSinceAnswered) {
+        return (ticksSinceAnswered / PULSE_TICKS) % 2 == 0;
+    }
+
+    /** Whether this phone offers the Pulse (3s) setting (CIO's three telephones; not Iden's). */
+    default boolean supportsPulse() {
+        return false;
+    }
+
+    /**
+     * "Pulse (3s)", a caller-side setting: while a call placed FROM this phone is
+     * answered, the answering phone's call outputs (Call Breaker, Call Feed +/-,
+     * redstone) cycle on/off every {@link #PULSE_TICKS} instead of staying on.
+     * Its own power input and tap line are unaffected. Read by the answering
+     * phone in {@link #receiveCall}.
+     */
+    default boolean isPulse() {
+        return false;
+    }
+
+    default void setPulse(boolean pulse) {
+    }
 
     void setLabel(String label);
 

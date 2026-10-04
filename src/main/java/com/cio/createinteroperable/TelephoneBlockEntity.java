@@ -4,21 +4,9 @@ import com.george_vi.electroenergetics.devices.device.DevicesSavedData;
 import com.george_vi.electroenergetics.foundation.nodes.InWorldNode;
 import com.george_vi.electroenergetics.foundation.nodes.InWorldNodeConnection;
 import com.george_vi.electroenergetics.simulation.infrastructure.InfrastructureSavedData;
-import com.google.common.collect.ImmutableList;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllSoundEvents;
-import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
-import com.simibubi.create.foundation.blockEntity.behaviour.BehaviourType;
+import com.simibubi.create.api.equipment.goggles.IHaveHoveringInformation;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
-import com.simibubi.create.foundation.blockEntity.behaviour.ValueBoxTransform;
-import com.simibubi.create.foundation.blockEntity.behaviour.ValueSettingsBoard;
-import com.simibubi.create.foundation.blockEntity.behaviour.ValueSettingsFormatter;
-import com.simibubi.create.foundation.blockEntity.behaviour.ValueSettingsFormatter.ScrollOptionSettingsFormatter;
-import com.simibubi.create.foundation.blockEntity.behaviour.scrollValue.INamedIconOptions;
-import com.simibubi.create.foundation.blockEntity.behaviour.scrollValue.ScrollValueBehaviour;
-import com.simibubi.create.foundation.gui.AllIcons;
-import dev.engine_room.flywheel.lib.transform.TransformStack;
-import net.createmod.catnip.math.VecHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -27,17 +15,14 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.Vec3;
-import com.simibubi.create.api.equipment.goggles.IHaveHoveringInformation;
+import org.jetbrains.annotations.Nullable;
 import org.patryk3211.powergrid.electricity.base.ElectricBlockEntity;
 import org.patryk3211.powergrid.electricity.sim.ElectricalNetwork;
 import org.patryk3211.powergrid.electricity.sim.SwitchedWire;
 import org.patryk3211.powergrid.electricity.sim.node.IElectricNode;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -104,19 +89,23 @@ public class TelephoneBlockEntity extends ElectricBlockEntity implements IHaveHo
     @Nullable
     private TelephoneDevice ceeDevice;
 
-    private ScrollValueBehaviour autoAnswerValue;
-    private ScrollValueBehaviour areaCodeValue;
+    private TelephoneAutoAnswerBehaviour autoAnswerValue;
+    /** Own area code (0-999), set from the telephone settings screen. */
+    private int areaCode = 0;
+
+    /**
+     * "Pulse (3s)", a caller-side setting: calls placed FROM this phone make the
+     * answering phone's call outputs cycle on/off every {@link TelephoneNode#PULSE_TICKS}.
+     */
+    private boolean pulseMode = false;
+    /** Answering end only: this call came from a phone with Pulse on. */
+    private boolean pulsedCall = false;
+    /** Answering end only: ticks since the call was answered (drives the pulse phase). */
+    private int callTicks = 0;
 
     /** Up to 6 characters — digits, #, and * (see TelephoneNumbers#sanitizeNumberText). Empty until set. */
     private String ownNumberText = "";
 
-    /**
-     * Mirrors areaCodeValue's last successfully-applied value, so a rejected
-     * in-world scroll (see #onAreaCodeScrolled) has something concrete to
-     * revert to. Kept in sync in read() (after super.read() loads the real
-     * persisted value) and in setOwnNumber().
-     */
-    private int lastValidAreaCode = 0;
 
     private boolean powered = false;
 
@@ -146,146 +135,75 @@ public class TelephoneBlockEntity extends ElectricBlockEntity implements IHaveHo
     public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
         super.addBehaviours(behaviours);
 
-        // Own Number is still set via TelephoneNumberScreen (right-click
-        // back_plate) — the in-world attempt for it was abandoned earlier
-        // for repeatedly landing on overlapping model geometry. Area Code
-        // is different: it lives on back_plate's own real, unobstructed
-        // surface with nothing else nearby, so it's safe as a real in-world
-        // slider — same mechanism as auto_lever.
-        autoAnswerValue = new LabeledScrollValueBehaviour(Component.literal("Auto-Answer"), this,
-                new Slot(11.5, 10.5, 12.5, 90), AUTO_ANSWER_TYPE, "Auto", v -> v == 0 ? "OFF" : "ON",
-                AUTO_ANSWER_OPTIONS)
-                .between(0, 1).withFormatter(i -> i == 0 ? "OFF" : "ON");
+        // Only Auto-Answer is an in-world slider (on auto_lever); own number,
+        // area code, label and the number to call are all set from the
+        // back_plate settings screen (see TelephoneAutoAnswerBehaviour for why
+        // the old Area Code slider went).
+        autoAnswerValue = new TelephoneAutoAnswerBehaviour(this, slot(12.05, 10.5, 12.5, 270));
         behaviours.add(autoAnswerValue);
-
-        areaCodeValue = new LabeledScrollValueBehaviour(Component.literal("Set Area Code"), this,
-                new Slot(8, 8, 13.9, 180), AREA_CODE_TYPE, "Area Code", String::valueOf, null)
-                .between(0, 999).withFormatter(String::valueOf)
-                .withCallback(this::onAreaCodeScrolled);
-        behaviours.add(areaCodeValue);
     }
 
-    /** Two-state toggle -> icon-mode board (auto-sized panel, one scroll step per state). */
-    private static final INamedIconOptions[] AUTO_ANSWER_OPTIONS = {
-            iconOption(AllIcons.I_DISABLE, "OFF"),
-            iconOption(AllIcons.I_ACTIVE, "ON"),
-    };
+    /** Slider box on the face a legacy {@code baseAngle} pointed at, carried through the block's own facing (see {@link CIOValueBox}). */
+    static CIOValueBox slot(double x, double y, double z, int baseAngle) {
+        return new CIOValueBox(x, y, z, CIOValueBox.faceForBaseAngle(baseAngle), 5 / 16f,
+                (state, v) -> TelephoneBlock.rotateY(v, TelephoneBlock.angleFor(state))).fromAnySide();
+    }
 
-    private static INamedIconOptions iconOption(AllIcons icon, String label) {
-        return new INamedIconOptions() {
-            @Override
-            public AllIcons getIcon() {
-                return icon;
-            }
+    @Override
+    public boolean isAutoAnswer() {
+        return autoAnswer();
+    }
 
-            @Override
-            public String getTranslationKey() {
-                return label; // rendered verbatim by MC when not a registered key
-            }
-        };
+    @Override
+    public void setAutoAnswer(boolean autoAnswer) {
+        autoAnswerValue.setOn(autoAnswer);
+    }
+
+    @Override
+    public String getDialingTarget() {
+        return dialingTarget;
+    }
+
+    @Override
+    public boolean supportsPulse() {
+        return true;
+    }
+
+    @Override
+    public boolean isPulse() {
+        return pulseMode;
+    }
+
+    @Override
+    public void setPulse(boolean pulse) {
+        pulseMode = pulse;
+        setChanged();
+        notifyUpdate();
     }
 
     /**
-     * Create's own ScrollValueBehaviour#createBoard hardcodes the on-screen
-     * row label to the literal string "Value" and ignores whatever
-     * .withFormatter(...) was set (confirmed by reading its real source —
-     * same fix InteroperableSmallBlockEntity's own DirectionScrollValueBehaviour
-     * already needed once). Overriding createBoard() is the only way to
-     * change either the row label or the displayed value text.
-     * <p>
-     * getType() is ALSO overridden here, each with its OWN distinct
-     * BehaviourType — SmartBlockEntity stores behaviours in a
-     * {@code Map<BehaviourType<?>, BlockEntityBehaviour>} keyed by
-     * {@code getType()} (confirmed by reading its real constructor), and
-     * ScrollValueBehaviour's own TYPE field is a single static shared by the
-     * whole class. Two instances sharing that same TYPE — Auto-Answer and
-     * Area Code — meant the second one silently evicted the first from that
-     * map the moment both were added, even though both were passed to
-     * addBehaviours()'s list: not a rendering glitch or a position conflict,
-     * Auto-Answer was never actually gone from the world, it just stopped
-     * being tracked by the block entity at all. A fresh BehaviourType per
-     * distinct slider avoids the collision.
+     * Whether this phone's call outputs (Call Breaker, Call Feed +/-, redstone)
+     * are on: only on the answering end of an answered call and, if the caller
+     * has Pulse on, only in the "on" half of each {@link TelephoneNode#PULSE_TICKS} cycle.
      */
-    static class LabeledScrollValueBehaviour extends ScrollValueBehaviour {
-        private final BehaviourType<ScrollValueBehaviour> type;
-        private final String rowLabel;
-        private final java.util.function.IntFunction<String> boardFormatter;
-        /** Non-null => discrete icon-mode board (auto-sized labels, 1 scroll step/option). */
-        private final INamedIconOptions[] iconOptions;
-
-        LabeledScrollValueBehaviour(Component label, SmartBlockEntity be, ValueBoxTransform slot,
-                                     BehaviourType<ScrollValueBehaviour> type,
-                                     String rowLabel, java.util.function.IntFunction<String> boardFormatter,
-                                     INamedIconOptions[] iconOptions) {
-            super(label, be, slot);
-            this.type = type;
-            this.rowLabel = rowLabel;
-            this.boardFormatter = boardFormatter;
-            this.iconOptions = iconOptions;
-        }
-
-        @Override
-        public BehaviourType<?> getType() {
-            return type;
-        }
-
-        @Override
-        public ValueSettingsBoard createBoard(net.minecraft.world.entity.player.Player player, net.minecraft.world.phys.BlockHitResult hitResult) {
-            if (iconOptions != null)
-                return new ValueSettingsBoard(label, max, 1, ImmutableList.of(Component.literal(rowLabel)),
-                        new ScrollOptionSettingsFormatter(iconOptions));
-            return new ValueSettingsBoard(label, max, 10, ImmutableList.of(Component.literal(rowLabel)),
-                    new ValueSettingsFormatter(vs -> Component.literal(boardFormatter.apply(vs.value()))));
-        }
-    }
-
-    private static final BehaviourType<ScrollValueBehaviour> AUTO_ANSWER_TYPE = new BehaviourType<>();
-    private static final BehaviourType<ScrollValueBehaviour> AREA_CODE_TYPE = new BehaviourType<>();
-
-    static class Slot extends ValueBoxTransform {
-        private final Vec3 base;
-        private final int baseAngle;
-
-        Slot(double x, double y, double z, int baseAngle) {
-            this.base = VecHelper.voxelSpace(x, y, z);
-            this.baseAngle = baseAngle;
-        }
-
-        @Override
-        public Vec3 getLocalOffset(LevelAccessor level, BlockPos pos, BlockState state) {
-            return TelephoneBlock.rotateY(base, TelephoneBlock.angleFor(state));
-        }
-
-        @Override
-        public void rotate(LevelAccessor level, BlockPos pos, BlockState state, PoseStack ms) {
-            TransformStack.of(ms).rotateYDegrees(baseAngle + TelephoneBlock.angleFor(state));
-        }
-
-        @Override
-        public float getScale() {
-            return 3 / 16f;
-        }
+    private boolean callOutputsClosed() {
+        return answered && receivingCall && (!pulsedCall || TelephoneNode.pulsePhaseOn(callTicks));
     }
 
     private boolean autoAnswer() {
-        return autoAnswerValue.getValue() == 1;
+        return autoAnswerValue.isOn();
     }
 
     @Override
     public String ownNumber() {
-        return TelephoneNumbers.formatNumber(areaCodeValue.getValue(), ownNumberText);
+        return TelephoneNumbers.formatNumber(areaCode, ownNumberText);
     }
 
     /**
-     * The Number screen (back_plate) sets both fields together now — Area
-     * Code can still also be scrolled directly via its own in-world slider
-     * (areaCodeValue), both paths converge on the same underlying value.
-     * Rejects the change outright — nothing applied, returns false — if
-     * that exact Area Code + Number combo already belongs to another loaded
-     * phone. The number is sanitized and applied BEFORE the area code slider
-     * is touched, so if onAreaCodeScrolled's own redundant check also fires
-     * from the setValue() call below, it sees the real new number, not the
-     * stale one. Caller (TelephoneNumberPacket) handles the deny feedback.
+     * Set from the back_plate settings screen. Rejects the change outright
+     * (nothing applied, returns false) if that exact Area Code + Number combo
+     * already belongs to another loaded phone; the caller
+     * (TelephoneSettingsPacket) handles the deny feedback.
      */
     @Override
     public boolean setOwnNumber(int newAreaCode, String newNumber) {
@@ -294,30 +212,10 @@ public class TelephoneBlockEntity extends ElectricBlockEntity implements IHaveHo
             return false;
         }
         ownNumberText = sanitized;
-        areaCodeValue.setValue(newAreaCode);
-        lastValidAreaCode = newAreaCode;
+        areaCode = newAreaCode;
         setChanged();
         notifyUpdate();
         return true;
-    }
-
-    /**
-     * The in-world Area Code slider has no vetoable pre-change hook — only
-     * this after-the-fact callback (Create's ScrollValueBehaviour already
-     * applied the new value by the time it fires) — so a conflicting scroll
-     * is reverted straight back to lastValidAreaCode instead of prevented
-     * upfront. That revert calls setValue() again, re-invoking this same
-     * callback with lastValidAreaCode itself; since that value can't
-     * conflict with itself, it just re-confirms and returns — no infinite
-     * loop, just one harmless extra reentrant call.
-     */
-    private void onAreaCodeScrolled(int newAreaCode) {
-        if (TelephoneRegistry.isNumberTaken(this, newAreaCode, ownNumberText)) {
-            areaCodeValue.setValue(lastValidAreaCode);
-            denyFeedback();
-        } else {
-            lastValidAreaCode = newAreaCode;
-        }
     }
 
     /**
@@ -340,7 +238,7 @@ public class TelephoneBlockEntity extends ElectricBlockEntity implements IHaveHo
 
     @Override
     public int getAreaCode() {
-        return areaCodeValue.getValue();
+        return areaCode;
     }
 
     @Override
@@ -358,9 +256,15 @@ public class TelephoneBlockEntity extends ElectricBlockEntity implements IHaveHo
         return worldPosition;
     }
 
+    /** A live PG wire actually attached to the tap terminal (index 2); a cut wire must not leave a stale network match. */
+    private boolean isTapWired() {
+        return electricBehaviour != null && electricBehaviour.getConnections()
+                .containsKey(new org.patryk3211.powergrid.electricity.wire.BlockWireEndpoint(worldPosition, 2));
+    }
+
     @Override
     public Object pgTapNetwork() {
-        return tapNode == null ? null : tapNode.getNetwork();
+        return tapNode == null || !isTapWired() ? null : tapNode.getNetwork();
     }
 
     /**
@@ -409,6 +313,16 @@ public class TelephoneBlockEntity extends ElectricBlockEntity implements IHaveHo
     @Override
     public boolean isBusy() {
         return busy;
+    }
+
+    @Override
+    public boolean isCallAnswered() {
+        return busy && answered;
+    }
+
+    @Override
+    public BlockPos callPartnerPos() {
+        return callPartner;
     }
 
     /** Whether the number currently typed into the dial screen is this phone's own — used to deny self-dialing. */
@@ -479,7 +393,7 @@ public class TelephoneBlockEntity extends ElectricBlockEntity implements IHaveHo
      * for the whole call, set in {@link #dial()}). Open otherwise.
      */
     private void updateCallBreakers() {
-        boolean closed = answered && receivingCall;
+        boolean closed = callOutputsClosed();
         if (listenerBreaker != null) {
             listenerBreaker.setState(closed);
         }
@@ -500,6 +414,14 @@ public class TelephoneBlockEntity extends ElectricBlockEntity implements IHaveHo
     public void electricalTick() {
         super.electricalTick();
         applyPower(null);
+        if (answered && receivingCall && pulsedCall) {
+            boolean wasClosed = callOutputsClosed();
+            callTicks++;
+            if (callOutputsClosed() != wasClosed) {
+                updateCallBreakers();
+                setChanged();
+            }
+        }
 
         updateWireLock();
         boolean ceeActive = getBlockState().getValue(TelephoneBlock.WIRE_LOCK) == TelephoneBlock.WireLock.CEE;
@@ -547,7 +469,7 @@ public class TelephoneBlockEntity extends ElectricBlockEntity implements IHaveHo
         // ongoing call — the phone that dialled out never emits (same
         // condition as #updateCallBreakers).
         TelephoneRedstone.sync(level, worldPosition, getBlockState(), TelephoneBlock.FACING,
-                answered && receivingCall);
+                callOutputsClosed());
     }
 
     /**
@@ -675,10 +597,11 @@ public class TelephoneBlockEntity extends ElectricBlockEntity implements IHaveHo
         return net.minecraft.world.InteractionResult.SUCCESS;
     }
 
-    /** back_plate — open the Number screen (Area Code + Number, same layout as the dial screen). */
+    /** back_plate — open the full settings screen (own number, area code, label, number to call, Auto-Answer). */
     net.minecraft.world.InteractionResult onBackPlateUsed(net.minecraft.world.entity.player.Player player) {
         if (level.isClientSide) {
-            TelephoneClient.openNumberScreen(worldPosition, getAreaCode(), ownNumberText);
+            TelephoneClient.openSettings(worldPosition, getAreaCode(), ownNumberText, label, dialingTarget, autoAnswer(),
+                    true, pulseMode);
         }
         return net.minecraft.world.InteractionResult.SUCCESS;
     }
@@ -738,6 +661,9 @@ public class TelephoneBlockEntity extends ElectricBlockEntity implements IHaveHo
 
     @Override
     public void receiveCall(BlockPos callerPos) {
+        TelephoneNode caller = TelephoneRegistry.get(level, callerPos);
+        pulsedCall = caller != null && caller.isPulse();
+        callTicks = 0;
         busy = true;
         ringing = true;
         ringingTicks = 0;
@@ -751,6 +677,7 @@ public class TelephoneBlockEntity extends ElectricBlockEntity implements IHaveHo
     private void answer() {
         ringing = false;
         answered = true;
+        callTicks = 0;
         updateCallBreakers();
         setChanged();
         notifyUpdate();
@@ -782,6 +709,8 @@ public class TelephoneBlockEntity extends ElectricBlockEntity implements IHaveHo
         answered = false;
         ringingTicks = 0;
         callPartner = null;
+        pulsedCall = false;
+        callTicks = 0;
         updateCallBreakers();
         setChanged();
         notifyUpdate();
@@ -853,6 +782,12 @@ public class TelephoneBlockEntity extends ElectricBlockEntity implements IHaveHo
 
         tooltip.add(Component.literal("Auto-Answer: " + (autoAnswer() ? "On" : "Off"))
                 .withStyle(autoAnswer() ? ChatFormatting.GREEN : ChatFormatting.GRAY));
+        if (pulseMode) {
+            tooltip.add(Component.literal("Pulse (3s): On for calls from here").withStyle(ChatFormatting.GRAY));
+        }
+        if (pulsedCall && receivingCall) {
+            tooltip.add(Component.literal("Caller is pulsing this line").withStyle(ChatFormatting.GOLD));
+        }
 
         if (overheating) {
             tooltip.add(Component.literal("Overheating").withStyle(ChatFormatting.RED, ChatFormatting.BOLD));
@@ -890,10 +825,10 @@ public class TelephoneBlockEntity extends ElectricBlockEntity implements IHaveHo
         label = tag.getString("Label");
         dialingTarget = tag.getString("DialingTarget");
         ownNumberText = TelephoneNumbers.sanitizeNumberText(tag.getString("OwnNumberText"));
-        // areaCodeValue is already loaded by super.read() above (behaviours
-        // read their own NBT there) — mirror it so a later rejected scroll
-        // has the real persisted value to revert to, not the field default.
-        lastValidAreaCode = areaCodeValue.getValue();
+        pulseMode = tag.getBoolean("PulseMode");
+        pulsedCall = tag.getBoolean("PulsedCall");
+        callTicks = tag.getInt("CallTicks");
+        areaCode = tag.contains("AreaCode") ? tag.getInt("AreaCode") : TelephoneAutoAnswerBehaviour.legacyAreaCode(tag);
         powered = tag.getBoolean("Powered");
         overheating = tag.getBoolean("Overheating");
         busy = tag.getBoolean("Busy");
@@ -910,6 +845,10 @@ public class TelephoneBlockEntity extends ElectricBlockEntity implements IHaveHo
         tag.putString("Label", label);
         tag.putString("DialingTarget", dialingTarget);
         tag.putString("OwnNumberText", ownNumberText);
+        tag.putBoolean("PulseMode", pulseMode);
+        tag.putBoolean("PulsedCall", pulsedCall);
+        tag.putInt("CallTicks", callTicks);
+        tag.putInt("AreaCode", areaCode);
         tag.putBoolean("Powered", powered);
         tag.putBoolean("Overheating", overheating);
         tag.putBoolean("Busy", busy);

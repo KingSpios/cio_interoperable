@@ -12,7 +12,7 @@ public class CIONetworking {
         PayloadRegistrar registrar = event.registrar(CreateInteroperable.ID);
         registrar.playToServer(TelephoneDialPacket.TYPE, TelephoneDialPacket.STREAM_CODEC, TelephoneDialPacket::handle);
         registrar.playToServer(TelephoneLabelPacket.TYPE, TelephoneLabelPacket.STREAM_CODEC, TelephoneLabelPacket::handle);
-        registrar.playToServer(TelephoneNumberPacket.TYPE, TelephoneNumberPacket.STREAM_CODEC, TelephoneNumberPacket::handle);
+        registrar.playToServer(TelephoneSettingsPacket.TYPE, TelephoneSettingsPacket.STREAM_CODEC, TelephoneSettingsPacket::handle);
         // Native appliance grid linking (S2C link-arm state; a no-op with Refurbished Furniture installed).
         registrar.playToClient(MsgApplianceLinkState.TYPE, MsgApplianceLinkState.STREAM_CODEC, MsgApplianceLinkState::handle);
     }

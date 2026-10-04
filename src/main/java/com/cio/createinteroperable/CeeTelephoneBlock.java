@@ -293,6 +293,12 @@ public class CeeTelephoneBlock extends SimpleElectricalDeviceBlock<TelephoneDevi
         return CIODevices.TELEPHONE.get();
     }
 
+    /** Hover label for each CEE node &mdash; what that nub does (see TelephoneLabels). */
+    @Override
+    public net.minecraft.network.chat.MutableComponent getNodeLabel(Level level, BlockPos pos, BlockState state, int id) {
+        return TelephoneLabels.ceeNode(id);
+    }
+
     @Override
     public Map<Integer, Vec3> getNodePositions(Level level, BlockPos pos, BlockState state) {
         int angle = angleFor(state);

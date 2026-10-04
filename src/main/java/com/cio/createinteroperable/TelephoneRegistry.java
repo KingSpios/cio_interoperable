@@ -23,18 +23,33 @@ import java.util.Set;
 public class TelephoneRegistry {
     private static final Set<TelephoneNode> LOADED = Collections.newSetFromMap(new java.util.IdentityHashMap<>());
 
-    static void add(TelephoneNode be) {
+    public static void add(TelephoneNode be) {
         LOADED.add(be);
     }
 
-    static void remove(TelephoneNode be) {
+    /**
+     * Every loaded phone that lives on a server level. Server thread only (LOADED is
+     * unsynchronised); singleplayer's client copies are filtered out.
+     */
+    public static java.util.List<TelephoneNode> serverPhones() {
+        java.util.List<TelephoneNode> out = new java.util.ArrayList<>();
+        for (TelephoneNode node : LOADED) {
+            if (node instanceof net.minecraft.world.level.block.entity.BlockEntity be
+                    && be.getLevel() instanceof net.minecraft.server.level.ServerLevel) {
+                out.add(node);
+            }
+        }
+        return out;
+    }
+
+    public static void remove(TelephoneNode be) {
         LOADED.remove(be);
     }
 
     @Nullable
-    static TelephoneNode findByNumber(TelephoneNode caller, String number) {
+    public static TelephoneNode findByNumber(TelephoneNode caller, String number) {
         for (TelephoneNode be : LOADED) {
-            if (!be.isBusy() && caller.canReach(be) && number.equals(be.ownNumber())) {
+            if (sameSide(caller, be) && !be.isBusy() && caller.canReach(be) && number.equals(be.ownNumber())) {
                 return be;
             }
         }
@@ -43,9 +58,9 @@ public class TelephoneRegistry {
 
     /** Same lookup as {@link #findByNumber}, but without the busy filter — for display purposes (e.g. hover tooltips), not actual dialing. */
     @Nullable
-    static TelephoneNode findAnyByNumber(TelephoneNode caller, String number) {
+    public static TelephoneNode findAnyByNumber(TelephoneNode caller, String number) {
         for (TelephoneNode be : LOADED) {
-            if (caller.canReach(be) && number.equals(be.ownNumber())) {
+            if (sameSide(caller, be) && caller.canReach(be) && number.equals(be.ownNumber())) {
                 return be;
             }
         }
@@ -59,20 +74,36 @@ public class TelephoneRegistry {
      * really "in use" yet), so freshly-placed phones can coexist before
      * anyone sets a real number.
      */
-    static boolean isNumberTaken(TelephoneNode self, int areaCode, String numberText) {
+    public static boolean isNumberTaken(TelephoneNode self, int areaCode, String numberText) {
         if (numberText.isEmpty()) {
             return false;
         }
         for (TelephoneNode be : LOADED) {
-            if (be != self && areaCode == be.getAreaCode() && numberText.equals(be.getOwnNumberText())) {
+            if (be != self && sameSide(self, be) && areaCode == be.getAreaCode() && numberText.equals(be.getOwnNumberText())) {
                 return true;
             }
         }
         return false;
     }
 
+    /**
+     * In singleplayer the client and the integrated server share this one static
+     * set, so every phone is in it twice (its client and its server block
+     * entity). Without this, a server-side lookup could resolve to the client
+     * copy &mdash; and {@link #isNumberTaken} would see a phone's own client copy
+     * as a clash, refusing to re-save an unchanged number.
+     */
+    private static boolean sameSide(TelephoneNode a, TelephoneNode b) {
+        if (a instanceof net.minecraft.world.level.block.entity.BlockEntity ba
+                && b instanceof net.minecraft.world.level.block.entity.BlockEntity bb
+                && ba.getLevel() != null && bb.getLevel() != null) {
+            return ba.getLevel().isClientSide == bb.getLevel().isClientSide;
+        }
+        return true;
+    }
+
     @Nullable
-    static TelephoneNode get(@Nullable Level level, @Nullable BlockPos pos) {
+    public static TelephoneNode get(@Nullable Level level, @Nullable BlockPos pos) {
         if (level == null || pos == null) {
             return null;
         }

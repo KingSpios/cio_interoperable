@@ -82,11 +82,11 @@ import java.util.Map;
  * The remaining 2 interactions (own Area Code/Number, label) have no
  * dedicated model geometry and attach to whole-region/whole-face checks
  * instead: the label screen on the top face (a plain hitFace check), and the
- * own Area Code/Number screen on back_plate specifically (its own hitbox) —
- * opened via TelephoneNumberScreen, a pair of Create ScrollInput widgets,
- * since in-world ScrollValueBehaviours placed on body_box's faces kept
- * landing inside overlapping model geometry (phone_part/hook) and were
- * unreliable to click.
+ * full settings screen (TelephoneSettingsScreen: own Area Code/Number,
+ * label, number to call, Auto-Answer) on back_plate specifically (its own
+ * hitbox), since in-world ScrollValueBehaviours placed on body_box's faces
+ * kept landing inside overlapping model geometry (phone_part/hook) and were
+ * unreliable to click. The dial ring opens the same screen in dial-only mode.
  * <p>
  * FACING follows the same convention as BrassHeaterBlock/SteamOutletBlock's
  * blockstate ("north"=0, "east"=90, "south"=180, "west"=270 model rotation) —
@@ -200,14 +200,14 @@ public class TelephoneBlock extends ElectricBlock
             new TerminalBoundingBox(IDecoratedTerminal.CONNECTOR, 7, 2, 13.9, 9, 14, 15.9, NUB_EXPAND);
 
     private static final TerminalBoundingBox POSITIVE_BASE =
-            new TerminalBoundingBox(IDecoratedTerminal.POSITIVE, 5.5, 13.9, 12.5, 6.5, 14.9, 13.5, NUB_EXPAND)
+            new TerminalBoundingBox(TelephoneLabels.positive(), 5.5, 13.9, 12.5, 6.5, 14.9, 13.5, NUB_EXPAND)
                     .withColor(IDecoratedTerminal.RED);
     private static final TerminalBoundingBox NEGATIVE_BASE =
-            new TerminalBoundingBox(IDecoratedTerminal.NEGATIVE, 9.5, 13.9, 12.6, 10.5, 14.9, 13.6, NUB_EXPAND)
+            new TerminalBoundingBox(TelephoneLabels.negative(), 9.5, 13.9, 12.6, 10.5, 14.9, 13.6, NUB_EXPAND)
                     .withColor(IDecoratedTerminal.BLUE);
     /** The top "pulse_sender_tap" nub (both json elements share that name now — see MODEL_BOXES comment). */
     private static final TerminalBoundingBox TAP_BASE =
-            new TerminalBoundingBox(IDecoratedTerminal.TAP, 7.5, 13.9, 12.6, 8.5, 14.9, 13.6, NUB_EXPAND);
+            new TerminalBoundingBox(TelephoneLabels.tap(), 7.5, 13.9, 12.6, 8.5, 14.9, 13.6, NUB_EXPAND);
     /**
      * The bottom "pulse_sender_tap" nub — this is the LISTENER terminal. No
      * longer a voltage source — a breaker that only completes an externally-
@@ -215,7 +215,7 @@ public class TelephoneBlock extends ElectricBlock
      * TelephoneBlockEntity#updateCallBreakers).
      */
     private static final TerminalBoundingBox LISTENER_BASE =
-            new TerminalBoundingBox(Component.literal("Call Breaker"), 7.5, 0.9, 12.6, 8.5, 1.9, 13.6, NUB_EXPAND);
+            new TerminalBoundingBox(TelephoneLabels.callBreaker(), 7.5, 0.9, 12.6, 8.5, 1.9, 13.6, NUB_EXPAND);
 
     /**
      * The model's bottom {@code outlet_positive}/{@code outlet_negative} nubs
@@ -228,10 +228,10 @@ public class TelephoneBlock extends ElectricBlock
      * negative nubs WIRE_LOCK actually arbitrates.
      */
     private static final TerminalBoundingBox OUTLET_POSITIVE_BASE =
-            new TerminalBoundingBox(Component.literal("Call Feed +"), 6, 1, 12, 7, 2, 13, NUB_EXPAND)
+            new TerminalBoundingBox(TelephoneLabels.callFeedPositive(), 6, 1, 12, 7, 2, 13, NUB_EXPAND)
                     .withColor(IDecoratedTerminal.RED);
     private static final TerminalBoundingBox OUTLET_NEGATIVE_BASE =
-            new TerminalBoundingBox(Component.literal("Call Feed −"), 9, 1, 12, 10, 2, 13, NUB_EXPAND)
+            new TerminalBoundingBox(TelephoneLabels.callFeedNegative(), 9, 1, 12, 10, 2, 13, NUB_EXPAND)
                     .withColor(IDecoratedTerminal.BLUE);
 
     /**
@@ -626,6 +626,12 @@ public class TelephoneBlock extends ElectricBlock
     @Override
     public SimulatedDeviceType<TelephoneDevice> getDevice() {
         return CIODevices.TELEPHONE.get();
+    }
+
+    /** Hover label for each CEE node &mdash; what that nub does (see TelephoneLabels). */
+    @Override
+    public net.minecraft.network.chat.MutableComponent getNodeLabel(Level level, BlockPos pos, BlockState state, int id) {
+        return TelephoneLabels.ceeNode(id);
     }
 
     @Override
