@@ -27,9 +27,9 @@ import org.spongepowered.asm.mixin.injection.Coerce;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -39,18 +39,18 @@ import java.util.Set;
  *
  * <p>Unlike a Create Train Navigator board, only the TV's bottom-left /
  * {@code SINGLE} tile ever gets a real {@code TVBlockEntity} &mdash; a grown
- * N&times;N connected wall has exactly one node for the whole wall, which
- * already tracks its own side length ({@code connectedTvsAmount}). So instead
- * of every tile reaching its own verdict from a shared cluster (CRN's
- * approach), this one node reaches the verdict and then floods it onto every
- * physical tile's own {@code powered} blockstate itself ({@link
- * #cio$propagate}), since those other tiles have no node of their own to
- * self-heal from.</p>
+ * width &times; height connected wall has exactly one node for the whole wall,
+ * which already tracks the wall's size ({@code getConnectedCount()}). So
+ * instead of every tile reaching its own verdict from a shared cluster (CRN's
+ * approach), this one node reads redstone across the whole wall, reaches the
+ * verdict, and writes it onto every physical tile's own {@code powered}
+ * blockstate itself ({@code cioNode$propagate}), since those other tiles have
+ * no node of their own to self-heal from.</p>
  *
  * <p>The verdict ({@link #reconcileAppliancePower()}) inverts Vista's own
  * redstone semantics on request: with no live DEB rail the TV is always off,
  * full stop; once a rail reaches it, it defaults ON with <em>no</em> redstone
- * needed, and a redstone signal at this exact (node-bearing) tile becomes a
+ * needed, and a redstone signal on any tile of the wall becomes a
  * manual kill switch instead &mdash; forcing the screen off without cutting
  * power. Billed only while actually on (see {@link #cio$isConsuming()}), and
  * scaled by wall size (see {@link #cio$loadScale()}).</p>
@@ -159,7 +159,7 @@ public abstract class VistaTvNodeMixin implements ApplianceNode, MeteredApplianc
      * {@code consume_energy}) option is on. CIO's Crayfish adapter overrides
      * Vista's {@code setNodePowered}, which was that flag's only writer, so
      * mirror CIO's verdict into it; otherwise those options would leave the
-     * screen dark forever. Reflective, like {@link #cioNode$wallTiles()}, and a
+     * screen dark forever. Reflective, like {@link #cioNode$wallSize()}, and a
      * no-op on Vista builds without it.
      */
     @Unique
@@ -192,24 +192,40 @@ public abstract class VistaTvNodeMixin implements ApplianceNode, MeteredApplianc
     }
 
     /**
-     * Fold the DEB feed and the local redstone kill switch into one verdict:
-     * no feed = always off; a feed with no redstone here = on; a feed with
-     * redstone here = forced off (the kill switch). Runs every tick under
-     * both backends, so a redstone change is picked up with no separate
-     * {@code neighborChanged} hook &mdash; a transient one-tick mismatch from a
-     * stray vanilla redstone write self-heals on the very next tick, same as
-     * CRN's board-wide verdict.
+     * Fold the DEB feed and the redstone kill switch into one verdict: no feed
+     * = always off; a feed with no redstone on the wall = on; a feed with
+     * redstone reaching <em>any</em> tile of the connected wall = forced off
+     * (the kill switch). The wall is one multiblock, like a Create Train
+     * Navigator board, so a lever on any of its screens counts, not only on
+     * the bottom-left tile that carries the block entity. Runs every tick
+     * under both backends, so a redstone change is picked up with no
+     * {@code neighborChanged} hook. Every second the verdict is also
+     * re-written onto the wall's tiles, since Vista rewrites their
+     * {@code powered} state itself whenever the wall grows or shrinks.
      */
     @Override
     public void reconcileAppliancePower() {
         boolean receiving = applianceReceivingPower();
         BlockEntity be = cioNode$be();
         Level level = be.getLevel();
-        boolean kill = receiving && level != null && level.hasNeighborSignal(be.getBlockPos());
+        boolean kill = receiving && level != null && cioNode$wallHasSignal(level, be.getBlockPos());
         boolean powered = receiving && !kill;
         if (this.cioNode$powered != powered) {
             setAppliancePowered(powered);
+        } else if (level != null && !level.isClientSide && level.getGameTime() % 20L == 0L) {
+            cioNode$propagate(level, be.getBlockPos(), powered);
         }
+    }
+
+    /** Whether redstone reaches any tile of this TV's connected wall. */
+    @Unique
+    private boolean cioNode$wallHasSignal(Level level, BlockPos master) {
+        for (BlockPos pos : cioNode$wallPositions(level, master)) {
+            if (level.hasNeighborSignal(pos)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     // --- metered load: only while the screen is actually on -------------
@@ -226,9 +242,16 @@ public abstract class VistaTvNodeMixin implements ApplianceNode, MeteredApplianc
         return Math.max(1, cioNode$wallTiles());
     }
 
-    /** Screen tiles in this TV's connected wall, from either shape of {@code getConnectedCount()}. */
+    /** Screen tiles in this TV's connected wall. */
     @Unique
     private double cioNode$wallTiles() {
+        int[] size = cioNode$wallSize();
+        return (double) size[0] * size[1];
+    }
+
+    /** {width, height} of this TV's connected wall, from either shape of {@code getConnectedCount()}; {1, 1} if unreadable. */
+    @Unique
+    private int[] cioNode$wallSize() {
         try {
             java.lang.reflect.Method getter = cioNode$countGetter;
             if (getter == null) {
@@ -237,67 +260,74 @@ public abstract class VistaTvNodeMixin implements ApplianceNode, MeteredApplianc
             }
             Object count = getter.invoke(this);
             if (count instanceof Number side) {
-                return side.doubleValue() * side.doubleValue(); // older Vista: side of an N x N wall
+                return new int[] {side.intValue(), side.intValue()}; // older Vista: side of an N x N wall
             }
             if (count instanceof Record) {
                 int width = ((Number) count.getClass().getMethod("x").invoke(count)).intValue();
                 int height = ((Number) count.getClass().getMethod("y").invoke(count)).intValue();
-                return (double) width * height; // Vista 5.5.x: Vec2i(width, height)
+                return new int[] {width, height}; // Vista 5.5.x: Vec2i(width, height)
             }
         } catch (ReflectiveOperationException | RuntimeException ignored) {
-            // Unknown future shape: bill a single screen rather than lose the mixin.
+            // Unknown future shape: treat it as a single screen rather than lose the mixin.
         }
-        return 1;
+        return new int[] {1, 1};
     }
 
     // --- wall-wide propagation (only this tile has a node/BE) -----------
 
+    /** Wall sides beyond this are treated as corrupt data, not a real TV wall. */
+    @Unique private static final int CIO_MAX_WALL_SIDE = 64;
+
     /**
-     * Breadth-first flood over every physical tile of this TV's connected
-     * wall (same block, same {@code FACING}, face-adjacent through up/down and
-     * the two in-plane horizontals), setting each one's {@code powered}
-     * blockstate directly &mdash; bounded generously above Vista's own maximum
-     * board area so a legitimately large wall is never cut short.
+     * Every physical tile of this TV's connected wall. The block entity sits
+     * on the wall's bottom-left tile (Vista's {@code findMasterBlockEntity}
+     * walks down, then toward {@code FACING}'s clockwise side, to reach it),
+     * so the wall spans {@code getConnectedCount()}'s width toward the
+     * counter-clockwise side and its height upward. Uses Vista's own wall
+     * rectangle rather than a flood fill, so an unrelated wall that merely
+     * touches this one is never included. Positions that aren't this TV block
+     * at the same facing are skipped.
      */
     @Unique
-    private static void cioNode$propagate(Level level, BlockPos start, boolean on) {
-        BlockState startState = level.getBlockState(start);
-        if (!startState.hasProperty(HorizontalDirectionalBlock.FACING)) {
-            return;
+    private List<BlockPos> cioNode$wallPositions(Level level, BlockPos master) {
+        List<BlockPos> out = new ArrayList<>();
+        BlockState masterState = level.getBlockState(master);
+        if (!masterState.hasProperty(HorizontalDirectionalBlock.FACING)) {
+            out.add(master);
+            return out;
         }
-        Block block = startState.getBlock();
-        Direction facing = startState.getValue(HorizontalDirectionalBlock.FACING);
-        Property<?> powerProp = block.getStateDefinition().getProperty("powered");
+        Block block = masterState.getBlock();
+        Direction facing = masterState.getValue(HorizontalDirectionalBlock.FACING);
+        Direction right = facing.getCounterClockWise();
+        int[] size = cioNode$wallSize();
+        int width = Math.max(1, Math.min(size[0], CIO_MAX_WALL_SIDE));
+        int height = Math.max(1, Math.min(size[1], CIO_MAX_WALL_SIDE));
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                BlockPos pos = master.relative(right, x).above(y);
+                BlockState state = level.getBlockState(pos);
+                if (state.is(block) && state.hasProperty(HorizontalDirectionalBlock.FACING)
+                        && state.getValue(HorizontalDirectionalBlock.FACING) == facing) {
+                    out.add(pos);
+                }
+            }
+        }
+        return out;
+    }
+
+    /** Write the verdict onto every tile's {@code powered} blockstate (only tiles that differ are touched). */
+    @Unique
+    private void cioNode$propagate(Level level, BlockPos master, boolean on) {
+        Property<?> powerProp = level.getBlockState(master).getBlock().getStateDefinition().getProperty("powered");
         if (powerProp == null) {
             return;
         }
-        Direction horizontal = facing.getClockWise();
-        Direction[] dirs = {Direction.UP, Direction.DOWN, horizontal, horizontal.getOpposite()};
         String value = on ? "direct" : "off";
-
-        Set<BlockPos> seen = new HashSet<>();
-        Deque<BlockPos> queue = new ArrayDeque<>();
-        seen.add(start);
-        queue.add(start);
-        while (!queue.isEmpty() && seen.size() <= 1024) {
-            BlockPos pos = queue.poll();
+        for (BlockPos pos : cioNode$wallPositions(level, master)) {
             BlockState state = level.getBlockState(pos);
             BlockState updated = VistaTvSupport.withEnumByName(state, powerProp, value);
             if (updated != state) {
                 level.setBlock(pos, updated, Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
-            }
-            for (Direction d : dirs) {
-                BlockPos next = pos.relative(d);
-                if (seen.contains(next)) {
-                    continue;
-                }
-                BlockState ns = level.getBlockState(next);
-                if (!ns.is(block) || !ns.hasProperty(HorizontalDirectionalBlock.FACING)
-                        || ns.getValue(HorizontalDirectionalBlock.FACING) != facing) {
-                    continue;
-                }
-                seen.add(next);
-                queue.add(next);
             }
         }
     }

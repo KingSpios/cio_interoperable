@@ -38,7 +38,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
  * AnotherFurnitureLampBlockMixin}: cancel the foreign block's own redstone
  * handling outright once this integration is active, so CIO's reconcile loop
  * is the <em>only</em> writer of {@code powered} — never rely on "did our
- * verdict change" when something else can also write the same property.</p>
+ * verdict change" when something else can also write the same property.
+ * The cancelled method's other job, speaker detection, is replayed through
+ * {@link VistaTvSupport#forwardSpeakerCheck}. Redstone itself is read by the
+ * node every tick, on every tile of the wall (the kill switch).</p>
  */
 @Mixin(targets = "net.mehvahdjukaar.vista.common.tv.TVBlock")
 public abstract class VistaTvBlockMixin {
@@ -62,8 +65,13 @@ public abstract class VistaTvBlockMixin {
     @Inject(method = "neighborChanged", at = @At("HEAD"), cancellable = true, require = 0)
     private void cio$suppressRedstonePower(BlockState state, Level level, BlockPos pos, Block neighborBlock,
                                            BlockPos neighborPos, boolean movedByPiston, CallbackInfo ci) {
-        if (CIOConfig.VISTA_TVS_REQUIRE_POWER.get()) {
-            ci.cancel();
+        if (!CIOConfig.VISTA_TVS_REQUIRE_POWER.get()) {
+            return;
+        }
+        ci.cancel();
+        // Vista's method also detects adjacent speakers; keep that part.
+        if (neighborBlock != state.getBlock()) {
+            VistaTvSupport.forwardSpeakerCheck(this, level, pos, state, neighborPos);
         }
     }
 }

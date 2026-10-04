@@ -1,6 +1,9 @@
 package com.cio.createinteroperable.vista;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 
@@ -18,7 +21,46 @@ import net.minecraft.world.level.block.state.properties.Property;
  */
 public final class VistaTvSupport {
 
+    private static volatile java.lang.reflect.Method findMaster;
+    private static volatile java.lang.reflect.Method onNeighborChanged;
+    private static volatile boolean speakerHookMissing;
+
     private VistaTvSupport() {
+    }
+
+    /**
+     * The non-redstone half of Vista's {@code TVBlock#neighborChanged}: hand
+     * the change to the wall's master {@code TVBlockEntity#onNeighborChanged},
+     * which notices a speaker placed or removed next to the TV. CIO cancels
+     * that whole method to take over the TV's {@code powered} state, so this
+     * part is replayed here. Reflective (no compile dependency on Vista); a
+     * no-op on Vista builds without either method.
+     */
+    public static void forwardSpeakerCheck(Object tvBlock, Level level, BlockPos pos, BlockState state, BlockPos neighborPos) {
+        if (speakerHookMissing) {
+            return;
+        }
+        try {
+            java.lang.reflect.Method find = findMaster;
+            if (find == null) {
+                find = tvBlock.getClass().getMethod("findMasterBlockEntity", LevelAccessor.class, BlockPos.class, BlockState.class);
+                findMaster = find;
+            }
+            Object master = find.invoke(tvBlock, level, pos, state);
+            if (master == null) {
+                return;
+            }
+            java.lang.reflect.Method changed = onNeighborChanged;
+            if (changed == null) {
+                changed = master.getClass().getMethod("onNeighborChanged", BlockPos.class);
+                onNeighborChanged = changed;
+            }
+            changed.invoke(master, neighborPos);
+        } catch (NoSuchMethodException e) {
+            speakerHookMissing = true;
+        } catch (ReflectiveOperationException | RuntimeException ignored) {
+            // Speaker detection is cosmetic; never let it break the TV.
+        }
     }
 
     /**
