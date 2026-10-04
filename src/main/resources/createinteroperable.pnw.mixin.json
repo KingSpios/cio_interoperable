@@ -2,11 +2,19 @@
   "required": false,
   "package": "com.cio.createinteroperable.mixin.pnw",
   "compatibilityLevel": "JAVA_21",
-  "plugin": "PnwMixinPlugin",
+  "plugin": "com.cio.createinteroperable.mixin.pnw.PnwMixinPlugin",
   "mixins": [
     "PnwWireGraphMixin",
-    "PnwConnectorBlockMixin"
+    "PnwConnectorBlockMixin",
+    "PnwPantographBlockMixin",
+    "PnwPantographStateMixin"
   ],
-  "client": [],
+  "client": [
+    "PnwWireRendererMixin",
+    "PnwNodePickMixin",
+    "PnwWireApplyingMixin",
+    "PnwPantographArmMixin",
+    "PnwPantographCeeLinesMixin"
+  ],
   "minVersion": "0.8"
 }

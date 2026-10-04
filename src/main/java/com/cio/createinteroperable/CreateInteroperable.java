@@ -75,6 +75,12 @@ public class CreateInteroperable {
             // The bridge itself avoids PnW link-time types; its mixins are
             // separately guarded, so this remains a complete no-op otherwise.
             net.neoforged.neoforge.common.NeoForge.EVENT_BUS.register(PnwCeeWireBridge.class);
+            com.cio.createinteroperable.compat.PnwCeeWireTypes.register(modEventBus);
+            com.cio.createinteroperable.compat.PnwCeePantographTypes.register(modEventBus);
+            if (net.neoforged.fml.loading.FMLEnvironment.dist.isClient()) {
+                // Client-only class (touches Minecraft/WireRenderer): never load it on a dedicated server.
+                net.neoforged.neoforge.common.NeoForge.EVENT_BUS.register(com.cio.createinteroperable.compat.PnwHiddenWires.class);
+            }
         }
     }
 

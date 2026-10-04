@@ -95,6 +95,7 @@
 
   "message.createinteroperable.fixture.no_supply": "No water supply connected to this fixture.",
   "message.createinteroperable.fixture.dry": "The connected supply has no water.",
+  "message.createinteroperable.pnw_wire_not_mirrored": "This wire will not conduct: a different Electro Energetics cable already links these two connectors.",
   "block.createinteroperable.electric_heavy_button": "Electric Heavy Button",
   "block.createinteroperable.redstone_heavy_button": "Redstone Heavy Button",
   "block.createinteroperable.electric_gate_button": "Electric Gate Button",
