@@ -7,9 +7,7 @@ import com.cio.createinteroperable.deb.CeeDebRectifierBlockEntity;
 import com.cio.createinteroperable.deb.CeePowerKitTier1BlockEntity;
 import com.cio.createinteroperable.deb.CeePowerKitTier3BlockEntity;
 import com.cio.createinteroperable.deb.CeePowerKitTier4BlockEntity;
-import com.cio.createinteroperable.deb.CeeRedstoneSwitchBlockEntity;
 import com.cio.createinteroperable.deb.DebRectifierBlockEntity;
-import com.cio.createinteroperable.deb.RedstoneSwitchBlockEntity;
 import com.cio.createinteroperable.deb.PowerKitTier1BlockEntity;
 import com.cio.createinteroperable.deb.PowerKitTier3BlockEntity;
 import com.cio.createinteroperable.deb.PowerKitTier4BlockEntity;
@@ -160,11 +158,6 @@ public class CIOBlockEntities {
                     (pos, state) -> new PowerKitTier4BlockEntity(CIOBlockEntities.DEB_RECTIFIER_TIER4.get(), pos, state),
                     CIOBlocks.DEB_RECTIFIER_TIER4.get()).build(null)) : null;
 
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<RedstoneSwitchBlockEntity>> REDSTONE_SWITCH =
-            PG ? BLOCK_ENTITIES.register("redstone_switch", () -> BlockEntityType.Builder.of(
-                    (pos, state) -> new RedstoneSwitchBlockEntity(CIOBlockEntities.REDSTONE_SWITCH.get(), pos, state),
-                    CIOBlocks.REDSTONE_SWITCH.get()).build(null)) : null;
-
     // CEE-wired Power Kit tiers — own BlockEntity family, CEE-only.
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<com.cio.createinteroperable.deb.CeePowerKitTier2BlockEntity>> CEE_DEB_RECTIFIER =
             CEE ? BLOCK_ENTITIES.register("cee_deb_rectifier", () -> BlockEntityType.Builder.of(
@@ -185,11 +178,6 @@ public class CIOBlockEntities {
             CEE ? BLOCK_ENTITIES.register("cee_deb_rectifier_tier4", () -> BlockEntityType.Builder.of(
                     (pos, state) -> new CeePowerKitTier4BlockEntity(CIOBlockEntities.CEE_DEB_RECTIFIER_TIER4.get(), pos, state),
                     CIOBlocks.CEE_DEB_RECTIFIER_TIER4.get()).build(null)) : null;
-
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CeeRedstoneSwitchBlockEntity>> CEE_REDSTONE_SWITCH =
-            CEE ? BLOCK_ENTITIES.register("cee_redstone_switch", () -> BlockEntityType.Builder.of(
-                    (pos, state) -> new CeeRedstoneSwitchBlockEntity(CIOBlockEntities.CEE_REDSTONE_SWITCH.get(), pos, state),
-                    CIOBlocks.CEE_REDSTONE_SWITCH.get()).build(null)) : null;
 
     // Attached (via com.cio.createinteroperable.mixin.letsdo.FarmAndCharmSinkBlockMixin)
     // to every registered Let's Do kitchen sink so Create's pipe system will look

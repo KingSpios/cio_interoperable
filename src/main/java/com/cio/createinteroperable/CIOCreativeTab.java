@@ -30,9 +30,10 @@ import net.neoforged.neoforge.registries.DeferredRegister;
  * extras" family is disabled (see CIOBlocks.BRIDGE_EXTRAS): real, current
  * content is the Steam Outlet + Radiator end caps (grid-independent, always
  * shown), the Grid (Double) Coupler, the three Telephone variants, and the
- * DEB/Power Kit family. Brass Heater and both Redstone Switches (CPG + CEE) are real,
- * registered content (still reachable via /give) but deliberately left out
- * of this list — not ready to surface to players yet.
+ * DEB/Power Kit family. The Brass Heater is real, registered content (still
+ * reachable via /give) but deliberately left out of this list — not ready to
+ * surface to players yet. The CPG / CEE Redstone Switches live on the
+ * experimental branch only, and stay off this list there too.
  */
 public class CIOCreativeTab {
     private static final DeferredRegister<CreativeModeTab> REGISTER =

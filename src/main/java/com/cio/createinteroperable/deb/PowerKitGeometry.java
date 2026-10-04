@@ -70,25 +70,6 @@ final class PowerKitGeometry {
             Block.box(5, 0, 2, 11, 1, 4));        // intake nub strip
 
     /**
-     * NORTH-authored outline for {@code redstone_switch.json}'s own elements.
-     * The moving contact's full vertical travel (y 6&ndash;10) is covered so it
-     * stays clickable in either the OFF (up) or ON (dropped) position.
-     */
-    static final VoxelShape REDSTONE_SWITCH_SHAPE = Shapes.or(
-            Block.box(2, 2, 0, 14, 14, 1),      // back_plate
-            Block.box(2, 2, 1, 14, 14, 4),      // body_box
-            Block.box(3, 14, 1, 13, 15, 3),     // top_rail
-            Block.box(0, 8, 0, 16, 9, 1.1),     // back band
-            Block.box(6, 10, 4, 10, 13, 4.5),   // viewer_usageW (top / wattage)
-            Block.box(6, 8, 4, 10, 11, 4.5),    // viewer_lever (contact housing)
-            Block.box(6, 3, 4, 10, 6, 4.5),     // viewer_voltage (bottom)
-            Block.box(6, 6, 2.5, 7, 10, 4.5),   // rail_left
-            Block.box(9, 6, 2.5, 10, 10, 4.5),  // rail_right
-            Block.box(7, 6, 3.5, 9, 10, 4.5),   // moving contact travel zone
-            Block.box(6, 1, 0, 10, 2, 1),       // bottom (input) nub strip
-            Block.box(6, 15, 1, 10, 16, 2));    // top (output) nub strip
-
-    /**
      * Y-rotation (deg) the blockstate JSON applies for this facing; 0 for the
      * vertical facings. {@code BlockStateProperties.FACING} is literally the
      * same property object PG's {@code DirectionalElectricBlock.FACING} and

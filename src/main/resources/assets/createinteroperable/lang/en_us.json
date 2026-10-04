@@ -68,18 +68,6 @@
   "block.createinteroperable.cee_deb_rectifier_tier4": "CEE Industrial Power Kit",
   "block.createinteroperable.power_kit.serves": "Serves Mr. Crayfish's Appliances and others.",
 
-  "block.createinteroperable.redstone_switch": "Redstone Switch",
-  "block.createinteroperable.cee_redstone_switch": "CEE Redstone Switch",
-
-  "createinteroperable.goggle.redstone_switch.state": "Contacts: %s",
-  "createinteroperable.goggle.redstone_switch.open": "OPEN",
-  "createinteroperable.goggle.redstone_switch.closed": "CLOSED",
-  "createinteroperable.goggle.redstone_switch.override": "Manual hold (until redstone changes)",
-  "createinteroperable.goggle.redstone_switch.throughput": "Throughput: %1$s / %2$s",
-  "createinteroperable.goggle.redstone_switch.voltage": "Voltage: %s V",
-  "createinteroperable.goggle.redstone_switch.fault": "Overload fuse: %s to failure",
-  "createinteroperable.goggle.redstone_switch.temperature": "Contact temp: %1$s / %2$s",
-
   "createinteroperable.goggle.power_kit.title": "Power Kit",
   "createinteroperable.goggle.power_kit.intake": "Intake: %s V",
   "createinteroperable.goggle.power_kit.wiring": "Wiring: %s",

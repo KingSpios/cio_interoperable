@@ -4,7 +4,6 @@ import com.cio.createinteroperable.compat.ElectroEnergeticsCompat;
 import com.cio.createinteroperable.compat.PowerGridCompat;
 import com.cio.createinteroperable.deb.CeeDebRectifierRenderer;
 import com.cio.createinteroperable.deb.DebRectifierRenderer;
-import com.cio.createinteroperable.deb.RedstoneSwitchRenderer;
 import com.cio.createinteroperable.grid.CrayfishCompat;
 import com.cio.createinteroperable.grid.CrayfishClient;
 import dev.engine_room.flywheel.lib.visualization.SimpleBlockEntityVisualizer;
@@ -74,8 +73,6 @@ public class CIOClient {
             event.registerBlockEntityRenderer(CIOBlockEntities.DEB_RECTIFIER_TIER1.get(), DebRectifierRenderer::new);
             event.registerBlockEntityRenderer(CIOBlockEntities.DEB_RECTIFIER_TIER3.get(), DebRectifierRenderer::new);
             event.registerBlockEntityRenderer(CIOBlockEntities.DEB_RECTIFIER_TIER4.get(), DebRectifierRenderer::new);
-            RedstoneSwitchRenderer.init();
-            event.registerBlockEntityRenderer(CIOBlockEntities.REDSTONE_SWITCH.get(), RedstoneSwitchRenderer::new);
         }
         if (ElectroEnergeticsCompat.present()) {
             CeeDebRectifierRenderer.init();
@@ -83,8 +80,6 @@ public class CIOClient {
             event.registerBlockEntityRenderer(CIOBlockEntities.CEE_DEB_RECTIFIER_TIER1.get(), CeeDebRectifierRenderer::new);
             event.registerBlockEntityRenderer(CIOBlockEntities.CEE_DEB_RECTIFIER_TIER3.get(), CeeDebRectifierRenderer::new);
             event.registerBlockEntityRenderer(CIOBlockEntities.CEE_DEB_RECTIFIER_TIER4.get(), CeeDebRectifierRenderer::new);
-            RedstoneSwitchRenderer.init();
-            event.registerBlockEntityRenderer(CIOBlockEntities.CEE_REDSTONE_SWITCH.get(), RedstoneSwitchRenderer::new);
         }
         // With Crayfish installed, hang its own node-box + wire renderer on the
         // CIO Let's Do lamp type and on Beachparty's radio / mini-fridge types.

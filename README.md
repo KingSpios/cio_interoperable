@@ -98,7 +98,7 @@ Furniture's fuel-burning generator.
   overdriven; goggle readouts; a shared load budget across everything a kit feeds.
 - Higher tiers add capacity and a scrollable intake-voltage selector.
 - A **Redstone Switch** that cuts or enables the appliance network a kit feeds exists in
-  both grid flavours, but is held back from the creative menu for now (`/give` only).
+  both grid flavours, but only on the `experimental` branch (see [Branches](#branches)).
 - Two boards accidentally sharing one electrical network refuse power instead of silently
   double-billing it.
 - **Two full families, one per grid standard** — a Power Grid set and an Electro Energetics
@@ -297,10 +297,15 @@ Simple Voice Chat nothing changes.
 ## Branches
 
 - **`main`** — the alpha line everything in *Working now* above ships from.
-- **`experimental`** — `main` plus integrations that are real but not yet trusted:
-  the Pantographs & Wires bridge and the Immersive Vehicles integration. It is rebased onto
-  (or merges in) `main` as `main` moves; an experimental feature graduates by landing on
+- **`experimental`** — `main` plus content that is real but not yet trusted: the CPG / CEE
+  Redstone Switch, the Pantographs & Wires bridge and the Immersive Vehicles integration. It
+  is rebased onto `main` as `main` moves; an experimental feature graduates by landing on
   `main`.
+
+The two branches build separate jars: `main` builds `createinteroperable-<version>.jar`, and
+`experimental` builds `createinteroperable-<version>-experimental.jar` (its mod version
+carries the same `-experimental` suffix, so the game shows which one is loaded). Both use the
+same mod id, so install one or the other, never both.
 
 ## Building
 

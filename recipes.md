@@ -140,8 +140,8 @@ identical — each with four tiers: **Improvised → Domestic → Commercial →
 | Double Connector | Double Connector | Double Connector |
 
 > The **Redstone Switch** / **CEE Redstone Switch** (cuts or enables a Power Kit's
-> appliance network) is already in the game and functional, but has **no crafting recipe
-> yet** — for now it's creative-menu / `/give` only.
+> appliance network) exists on the `experimental` branch only, with **no crafting recipe
+> yet** — `/give` only there.
 
 ---
 
