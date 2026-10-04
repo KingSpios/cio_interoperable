@@ -19,6 +19,7 @@ import com.cio.createinteroperable.letsdo.LetsDoLampBlockEntity;
 import com.cio.createinteroperable.letsdo.LetsDoLampStates;
 import com.cio.createinteroperable.letsdo.SinkBlockEntity;
 import com.cio.createinteroperable.letsdo.SinkStates;
+import com.cio.createinteroperable.mts.MtsAaPowerNodeBlockEntity;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -252,6 +253,11 @@ public class CIOBlockEntities {
             IdenDecorCompat.present() && CEE && !PG ? BLOCK_ENTITIES.register("iden_cee_telephone", () -> BlockEntityType.Builder.of(
                     (pos, state) -> new IdenCeeTelephoneBlockEntity(CIOBlockEntities.IDEN_CEE_TELEPHONE.get(), pos, state),
                     IdenTelephones.block()).build(null)) : null;
+
+    // Immersive Vehicles AA Base Plate power terminal (see com.cio.createinteroperable.mts).
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<MtsAaPowerNodeBlockEntity>> MTS_AA_POWER_NODE =
+            CIOBlocks.MTS_AA_POWER_NODE != null ? BLOCK_ENTITIES.register("mts_aa_power_node", () -> BlockEntityType.Builder.of(
+                    MtsAaPowerNodeBlockEntity::new, CIOBlocks.MTS_AA_POWER_NODE.get()).build(null)) : null;
 
     public static void register(IEventBus modEventBus) {
         BLOCK_ENTITIES.register(modEventBus);

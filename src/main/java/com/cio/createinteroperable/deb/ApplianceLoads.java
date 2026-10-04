@@ -1,5 +1,6 @@
 package com.cio.createinteroperable.deb;
 
+import com.cio.createinteroperable.mts.MtsAaPowerNodeBlockEntity;
 import com.mrcrayfish.furniture.refurbished.blockentity.IHomeControlDevice;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -130,6 +131,20 @@ public final class ApplianceLoads {
         // (com.cio.createinteroperable.iden) — one BE type. A relay, like the
         // Crayfish lightswitch above; billed only while closed (MeteredAppliance).
         put("createinteroperable", "electric_switch", Pool.LV, 0.5);
+        // Immersive Vehicles (MTS Official Content Pack) — the AA Base Plate's
+        // power terminal (com.cio.createinteroperable.mts). The Spotlight on it
+        // is a searchlight arc lamp: 6 kW on the 120 V rail while the beam is
+        // lit, plus a 5 % traverse-servo share while auto-rotating
+        // (MeteredAppliance + ScalableAppliance). Far past a Tier 1/2 kit's
+        // 120 V budget on purpose: a searchlight wants its own heavy supply.
+        put("createinteroperable", "mts_aa_power_node", Pool.MV, MtsAaPowerNodeBlockEntity.BEAM_WATTS);
+        // Immersive Vehicles pole blocks + Signal Controller — one IV block entity
+        // type (mts:builder_base) behind every IV tile, made a node only for poles
+        // and controllers by com.cio.createinteroperable.mixin.mts.IvTileNodeMixin.
+        // Billed per instance: this 1 W base is scaled (ScalableAppliance) to the
+        // pole's real lamp load — 100 W per street light, 25 W per traffic signal
+        // (IvPoleLights) — and a bare pole or a controller bills nothing.
+        put("mts", "builder_base", Pool.MV, 1.0);
 
         // WaterFrames displays — STOP-GAP integration, only meaningful when the
         // third-party `waterframes_refurbished_compat` jar is installed. That jar

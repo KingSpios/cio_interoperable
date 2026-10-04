@@ -71,6 +71,18 @@ public class CreateInteroperable {
         if (com.cio.createinteroperable.compat.SimpleVoiceChatCompat.present()) {
             net.neoforged.neoforge.common.NeoForge.EVENT_BUS.register(com.cio.createinteroperable.voice.VoiceCallTracker.class);
         }
+        if (com.cio.createinteroperable.compat.ImmersiveVehiclesCompat.present()) {
+            LOGGER.warn("Immersive Vehicles detected: CIO's Immersive Vehicles integration is purely " +
+                    "experimental (untested in real play); disable it with the mtsAaSpotlight / " +
+                    "mtsPoleLights config toggles if it misbehaves.");
+        }
+        // Immersive Vehicles AA Spotlight: everything server-side rides on the
+        // mixin.mts mixins; this is only the client look-at "Missing power" label.
+        if (com.cio.createinteroperable.compat.ImmersiveVehiclesCompat.present()
+                && net.neoforged.fml.loading.FMLEnvironment.dist.isClient()) {
+            // Client-only class (touches Minecraft + IV types): never load it on a dedicated server.
+            net.neoforged.neoforge.common.NeoForge.EVENT_BUS.register(com.cio.createinteroperable.mts.MtsAaClient.class);
+        }
         if (cee && PantographsAndWiresCompat.present()) {
             // The bridge itself avoids PnW link-time types; its mixins are
             // separately guarded, so this remains a complete no-op otherwise.

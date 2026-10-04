@@ -159,6 +159,25 @@ public final class CIOConfig {
     public static final ModConfigSpec.BooleanValue IDEN_COMPUTER_REQUIRE_POWER;
 
     /**
+     * <b>Purely experimental</b> (experimental branch only; patches Immersive
+     * Vehicles internals and is untested in real play). Master switch for the
+     * Immersive Vehicles AA Spotlight integration, <b>on by default</b>. A ground-placed MTS Official Content Pack AA Base Plate
+     * gets a wireable power terminal on its corner; the Spotlight mounted on it
+     * lights its beam, auto-rotates and traverses only while a live rail from a
+     * Domestic Electrical Board reaches the plate (6 kW, 120 V while lit).
+     */
+    public static final ModConfigSpec.BooleanValue MTS_AA_SPOTLIGHT_REQUIRES_POWER;
+
+    /**
+     * <b>Purely experimental</b> (see {@link #MTS_AA_SPOTLIGHT_REQUIRES_POWER}).
+     * Master switch for the Immersive Vehicles pole-light integration, <b>on by
+     * default</b>. Every IV pole block and Signal Controller becomes a wireable
+     * grid node; street lights and traffic signals mounted on a pole light only
+     * while a live rail reaches that pole.
+     */
+    public static final ModConfigSpec.BooleanValue MTS_POLE_LIGHTS_REQUIRE_POWER;
+
+    /**
      * Create: Pipes n Physics only. How hard the Aircon Motor pumps, in Create RPM
      * (Pipes n Physics' own pump scale; 256 is the maximum a Mechanical Pump can turn).
      * 0 turns the feature off.
@@ -291,6 +310,38 @@ public final class CIOConfig {
                         "while a live rail reaches it (15 W, 12 V, billed only while a disk is in).",
                         "Disks still insert and eject unpowered. A no-op unless Iden's Decor is",
                         "installed. Set false to hand the computer straight back to Iden's Decor.")
+                .define("requirePower", true);
+        b.pop();
+
+        b.push("mtsAaSpotlight");
+        MTS_AA_SPOTLIGHT_REQUIRES_POWER = b
+                .comment("PURELY EXPERIMENTAL: patches Immersive Vehicles internals, untested in real",
+                        "play, and may break on any Immersive Vehicles update.",
+                        "ON by default. An Immersive Vehicles (MTS Official Content Pack) AA Base",
+                        "Plate placed on the ground gets a power terminal on one corner, wireable to",
+                        "a Domestic Electrical Board like any appliance. The AA Spotlight mounted on",
+                        "it only lights its beam, auto-rotates or traverses while a live rail reaches",
+                        "the plate: 6 kW on the 120 V rail while lit (+5% while auto-rotating), so",
+                        "it needs a heavy supply. Unpowered, it stays dark and still and shows",
+                        "\"Missing power\". Spotlights on vehicles, and the AA guns, are untouched. A",
+                        "no-op unless Immersive Vehicles is installed. Set false to hand the",
+                        "Spotlight straight back to Immersive Vehicles (no power needed).")
+                .define("requirePower", true);
+        b.pop();
+
+        b.push("mtsPoleLights");
+        MTS_POLE_LIGHTS_REQUIRE_POWER = b
+                .comment("PURELY EXPERIMENTAL: patches Immersive Vehicles internals, untested in real",
+                        "play, and may break on any Immersive Vehicles update.",
+                        "ON by default. Every Immersive Vehicles pole block and Signal Controller",
+                        "becomes a wireable Domestic Electrical Board node (a bare pole is a free wire",
+                        "junction; the Signal Controller draws nothing for now). Street lights,",
+                        "flashing signals, traffic and crossing signals mounted on a pole only light",
+                        "while a live rail reaches that pole block: unpowered, every lamp on them is",
+                        "dark and street lights stop lighting the world. 100 W per street-light-type",
+                        "component, 25 W per traffic-signal-type component, on the 120 V rail. Signs",
+                        "are untouched. A no-op unless Immersive Vehicles is installed. Set false to",
+                        "hand every pole light straight back to Immersive Vehicles (no power needed).")
                 .define("requirePower", true);
         b.pop();
 

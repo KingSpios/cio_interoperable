@@ -2,6 +2,7 @@ package com.cio.createinteroperable;
 
 import com.cio.createinteroperable.compat.ElectroEnergeticsCompat;
 import com.cio.createinteroperable.compat.IdenDecorCompat;
+import com.cio.createinteroperable.compat.ImmersiveVehiclesCompat;
 import com.cio.createinteroperable.compat.PowerGridCompat;
 import com.cio.createinteroperable.deb.CeeDebRectifierBlock;
 import com.cio.createinteroperable.deb.CeePowerKitTier1Block;
@@ -15,6 +16,7 @@ import com.cio.createinteroperable.iden.ElectricButtonBlock;
 import com.cio.createinteroperable.iden.ElectricControlPanelBlock;
 import com.cio.createinteroperable.iden.ElectricHeavyLeverBlock;
 import com.cio.createinteroperable.iden.ElectricLeverBlock;
+import com.cio.createinteroperable.mts.MtsAaPowerNodeBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
@@ -360,6 +362,21 @@ public class CIOBlocks {
             () -> new ElectricControlPanelBlock(true, idenPanelProperties())) : null;
     public static final DeferredBlock<ElectricControlPanelBlock> ELECTRIC_CORE_LEVER_CONTROL_PANEL = IDEN ? BLOCKS.register("electric_core_lever_control_panel",
             () -> new ElectricControlPanelBlock(false, idenPanelProperties())) : null;
+
+    // --- Immersive Vehicles: the invisible power terminal CIO drops under a
+    // ground-placed AA Base Plate's corner (see com.cio.createinteroperable.mts).
+    // No item, no loot, no collision/outline; placed and removed only by code.
+    // Only with Immersive Vehicles installed. ---
+
+    public static final DeferredBlock<MtsAaPowerNodeBlock> MTS_AA_POWER_NODE = ImmersiveVehiclesCompat.present()
+            ? BLOCKS.register("mts_aa_power_node", () -> new MtsAaPowerNodeBlock(BlockBehaviour.Properties.of()
+                    .noCollission()
+                    .noOcclusion()
+                    .noLootTable()
+                    .replaceable()
+                    .strength(-1.0f, 3_600_000.0f)
+                    .pushReaction(PushReaction.DESTROY)))
+            : null;
 
     private static BlockBehaviour.Properties idenButtonProperties() {
         return BlockBehaviour.Properties.of().pushReaction(PushReaction.DESTROY).noCollission().strength(0.5f).noOcclusion();

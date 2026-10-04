@@ -1,0 +1,11 @@
+{
+  "required": false,
+  "package": "com.cio.createinteroperable.mixin.mts",
+  "compatibilityLevel": "JAVA_21",
+  "plugin": "com.cio.createinteroperable.mixin.mts.MtsCrayfishMixinPlugin",
+  "mixins": [
+    "IvTileNodeCrayfishMixin"
+  ],
+  "client": [],
+  "minVersion": "0.8"
+}

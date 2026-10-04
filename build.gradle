@@ -162,6 +162,15 @@ dependencies {
     // only class that touches it, and Simple Voice Chat only instantiates that class
     // when it is installed.
     compileOnly "de.maxhenkel.voicechat:voicechat-api:${voicechat_api_version}"
+
+    // --- Immersive Vehicles (formerly MTS) -----------------------------
+    // PURELY EXPERIMENTAL integration, experimental branch only.
+    // Mod id "mts". Soft (optional) dependency: compileOnly, pulled from
+    // Modrinth's maven (repository above) at the exact jar installed for
+    // testing. Only com.cio.createinteroperable.mts.MtsAaSearchlights and the
+    // mixin.mts package touch its classes, and both only ever load with it
+    // present (MtsMixinPlugin / ImmersiveVehiclesCompat gates).
+    compileOnly "maven.modrinth:immersive-vehicles:${immersive_vehicles_version}"
 }
 
 var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {

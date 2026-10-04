@@ -115,5 +115,7 @@
   "block.createinteroperable.electric_core_button_control_panel": "Electric Core Button Control Panel",
   "block.createinteroperable.redstone_core_button_control_panel": "Redstone Core Button Control Panel",
   "block.createinteroperable.electric_core_lever_control_panel": "Electric Core Lever Control Panel",
-  "block.createinteroperable.redstone_core_lever_control_panel": "Redstone Core Lever Control Panel"
+  "block.createinteroperable.redstone_core_lever_control_panel": "Redstone Core Lever Control Panel",
+  "block.createinteroperable.mts_aa_power_node": "AA Base Plate Power Terminal",
+  "createinteroperable.mts.aa_spotlight.no_power": "Missing power"
 }

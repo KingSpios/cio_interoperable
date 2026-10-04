@@ -117,6 +117,23 @@ license="${mod_license}"
 [[mixins]]
     config="createinteroperable.vista.crayfish.mixin.json"
 
+# PURELY EXPERIMENTAL (experimental branch only, untested in real play)
+# Optional Immersive Vehicles (formerly MTS) integration: a ground-placed MTS
+# Official Content Pack AA Base Plate gets a wireable power terminal, and the
+# AA Spotlight mounted on it needs a live Domestic Electrical Board rail to light
+# its beam, auto-rotate or traverse at all. IV pole blocks and the Signal
+# Controller become wireable nodes too, and street lights / traffic signals on a
+# pole light only while that pole is powered. Guarded by MtsMixinPlugin — a
+# complete no-op without Immersive Vehicles (see com.cio.createinteroperable.mts).
+[[mixins]]
+    config="createinteroperable.mts.mixin.json"
+
+# The Crayfish-dependent slice of the Immersive Vehicles integration: IV's pole
+# and Signal Controller block entities also become Crayfish electricity nodes.
+# Guarded by MtsCrayfishMixinPlugin — a no-op without both mods.
+[[mixins]]
+    config="createinteroperable.mts.crayfish.mixin.json"
+
 [[dependencies.${mod_id}]]
     modId="neoforge"
     type="required"

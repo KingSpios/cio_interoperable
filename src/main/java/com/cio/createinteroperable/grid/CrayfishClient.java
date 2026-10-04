@@ -3,6 +3,9 @@ package com.cio.createinteroperable.grid;
 import com.cio.createinteroperable.CIOBlockEntities;
 import com.mrcrayfish.furniture.refurbished.client.renderer.blockentity.ElectricBlockEntityRenderer;
 import com.mrcrayfish.furniture.refurbished.electricity.IElectricityNode;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -40,6 +43,13 @@ public final class CrayfishClient {
             event.registerBlockEntityRenderer((BlockEntityType) CIOBlockEntities.ELECTRIC_SWITCH.get(),
                     (BlockEntityRendererProvider) ElectricBlockEntityRenderer::new);
         }
+        if (CIOBlockEntities.MTS_AA_POWER_NODE != null) {
+            event.registerBlockEntityRenderer((BlockEntityType) CIOBlockEntities.MTS_AA_POWER_NODE.get(),
+                    (BlockEntityRendererProvider) ElectricBlockEntityRenderer::new);
+        }
+        // Immersive Vehicles' shared tile type: only poles / Signal Controllers are
+        // nodes (IvTileNodeMixin), so draw just those — never a road or pump.
+        registerFilteredNodeRenderer(event, "mts:builder_base");
         registerForeignNodeRenderer(event, "beachparty:radio");
         registerForeignNodeRenderer(event, "beachparty:mini_fridge");
     }
@@ -50,6 +60,30 @@ public final class CrayfishClient {
         if (type != null) {
             event.registerBlockEntityRenderer((BlockEntityType) type,
                     (BlockEntityRendererProvider) ElectricBlockEntityRenderer::new);
+        }
+    }
+
+    /**
+     * Crayfish's node box + wires on a foreign block entity type that is only
+     * sometimes a node (IV's one tile type behind poles, roads, pumps...): drawn
+     * only for instances that currently have link slots. For a type with no
+     * renderer of its own.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private static void registerFilteredNodeRenderer(EntityRenderersEvent.RegisterRenderers event, String beTypeId) {
+        BlockEntityType<?> type = BuiltInRegistries.BLOCK_ENTITY_TYPE.get(ResourceLocation.parse(beTypeId));
+        if (type != null) {
+            event.registerBlockEntityRenderer((BlockEntityType) type,
+                    (BlockEntityRendererProvider) context -> new FilteredNodeRenderer());
+        }
+    }
+
+    private static final class FilteredNodeRenderer implements BlockEntityRenderer<BlockEntity> {
+        @Override
+        public void render(BlockEntity be, float partialTick, PoseStack pose, MultiBufferSource buffers, int light, int overlay) {
+            if (be instanceof ApplianceNode node && node.applianceConnectionLimit() > 0) {
+                drawNodeOverlayIfNode(be);
+            }
         }
     }
 
