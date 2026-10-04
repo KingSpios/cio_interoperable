@@ -44,8 +44,17 @@ import java.util.Set;
  * given class instance, this adapter must never assume the other one
  * succeeded — degrade to "no CIO power info for this TV" instead of crashing
  * the whole level tick.</p>
+ *
+ * <p><b>Vista 5.5.x ships its own {@code IModuleNode} on the same class</b>
+ * ({@code CompatRefurbishedFurnitureSelfTvBlockEntityMixin}), gated on Vista's
+ * {@code television.use_furniture_electricity} config: with that off (the
+ * default), its {@code getNodeMaximumConnections()} returns 0, so a TV read
+ * 0/0 links and could never be wired. Two mixins adding the same method
+ * resolve by priority (an equal-priority later one is skipped), hence the
+ * raised {@code priority} here, and every {@code IModuleNode} method Vista
+ * defines is overridden below so none of Vista's copies survive.</p>
  */
-@Mixin(targets = "net.mehvahdjukaar.vista.common.tv.TVBlockEntity")
+@Mixin(targets = "net.mehvahdjukaar.vista.common.tv.TVBlockEntity", priority = 1100)
 @Implements(@Interface(iface = IModuleNode.class, prefix = "imn$"))
 public abstract class VistaTvBlockEntityMixin {
 
@@ -118,6 +127,20 @@ public abstract class VistaTvBlockEntityMixin {
     public boolean imn$isNodeInPowerableNetwork() {
         ApplianceNode node = cioCf$node();
         return !this.cioCf$sources.isEmpty() || (node != null && node.appliancePowered());
+    }
+
+    /** CIO's own link budget; Vista's copy returns 0 while its own electricity option is off. */
+    public int imn$getNodeMaximumConnections() {
+        ApplianceNode node = cioCf$node();
+        return node != null ? node.applianceConnectionLimit() : 0;
+    }
+
+    /** Vista's copy is a no-op while its own electricity option is off; fold into CIO's verdict instead. */
+    public void imn$updateNodePoweredState() {
+        ApplianceNode node = cioCf$node();
+        if (node != null) {
+            node.reconcileAppliancePower();
+        }
     }
 
     public void imn$setNodePowered(boolean powered) {

@@ -75,6 +75,10 @@ public abstract class VistaTvNodeMixin implements ApplianceNode, MeteredApplianc
      */
     @Unique private static volatile java.lang.reflect.Method cioNode$countGetter;
 
+    /** Vista 5.5.x's public {@code setHasEnergy(boolean)}, if present (see {@link #cioNode$syncVistaEnergy}). */
+    @Unique private static volatile java.lang.reflect.Method cioNode$energySetter;
+    @Unique private static volatile boolean cioNode$energySetterMissing;
+
     @Unique private final Set<GridConnection> cioNode$conns = new HashSet<>();
     @Unique private boolean cioNode$powered;
     @Unique private boolean cioNode$receiving;
@@ -145,6 +149,35 @@ public abstract class VistaTvNodeMixin implements ApplianceNode, MeteredApplianc
         Level level = be.getLevel();
         if (level != null && !level.isClientSide) {
             cioNode$propagate(level, be.getBlockPos(), powered);
+            cioNode$syncVistaEnergy(powered);
+        }
+    }
+
+    /**
+     * Vista 5.5.x keeps its own {@code hasEnergy} flag, which its screen
+     * requires when Vista's own {@code use_furniture_electricity} (or
+     * {@code consume_energy}) option is on. CIO's Crayfish adapter overrides
+     * Vista's {@code setNodePowered}, which was that flag's only writer, so
+     * mirror CIO's verdict into it; otherwise those options would leave the
+     * screen dark forever. Reflective, like {@link #cioNode$wallTiles()}, and a
+     * no-op on Vista builds without it.
+     */
+    @Unique
+    private void cioNode$syncVistaEnergy(boolean powered) {
+        if (cioNode$energySetterMissing) {
+            return;
+        }
+        try {
+            java.lang.reflect.Method setter = cioNode$energySetter;
+            if (setter == null) {
+                setter = cioNode$be().getClass().getMethod("setHasEnergy", boolean.class);
+                cioNode$energySetter = setter;
+            }
+            setter.invoke(this, powered);
+        } catch (NoSuchMethodException e) {
+            cioNode$energySetterMissing = true;
+        } catch (ReflectiveOperationException | RuntimeException ignored) {
+            // Never let Vista's own bookkeeping break CIO's verdict.
         }
     }
 
