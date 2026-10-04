@@ -1,0 +1,15 @@
+{
+  "neoforge:conditions": [
+    { "type": "neoforge:mod_loaded", "modid": "iden_decor" }
+  ],
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [ { "condition": "minecraft:survives_explosion" } ],
+      "entries": [ { "type": "minecraft:item", "name": "createinteroperable:electric_light_switch" } ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "createinteroperable:blocks/electric_light_switch"
+}

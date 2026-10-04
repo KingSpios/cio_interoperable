@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "createinteroperable:multi_radiator_north"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "createinteroperable:blocks/multi_radiator_north"
+}

@@ -57,19 +57,19 @@ public class CIOBlocks {
             () -> new InteroperablePgKeystoneBlock(BlockBehaviour.Properties.of()
                     .mapColor(MapColor.METAL)
                     .strength(2.0f, 6.0f)
-                    .requiresCorrectToolForDrops())) : null;
+                    )) : null;
 
     public static final DeferredBlock<InteroperableCeeKeystoneBlock> CEE_KEYSTONE = BRIDGE_EXTRAS && BOTH ? BLOCKS.register("cee_keystone",
             () -> new InteroperableCeeKeystoneBlock(BlockBehaviour.Properties.of()
                     .mapColor(MapColor.METAL)
                     .strength(2.0f, 6.0f)
-                    .requiresCorrectToolForDrops())) : null;
+                    )) : null;
 
     public static final DeferredBlock<InteroperableFillerBlock> FILLER = BRIDGE_EXTRAS && BOTH ? BLOCKS.register("filler",
             () -> new InteroperableFillerBlock(BlockBehaviour.Properties.of()
                     .mapColor(MapColor.METAL)
                     .strength(2.0f, 6.0f)
-                    .requiresCorrectToolForDrops())) : null;
+                    )) : null;
 
     // --- Assembled result (never placed directly, no items registered) ---
 
@@ -77,21 +77,18 @@ public class CIOBlocks {
             () -> new InteroperablePgAssembledBlock(BlockBehaviour.Properties.of()
                     .mapColor(MapColor.METAL)
                     .strength(2.0f, 6.0f)
-                    .requiresCorrectToolForDrops()
                     .noLootTable())) : null;
 
     public static final DeferredBlock<InteroperableCeeAssembledBlock> CEE_ASSEMBLED = BRIDGE_EXTRAS && BOTH ? BLOCKS.register("cee_assembled",
             () -> new InteroperableCeeAssembledBlock(BlockBehaviour.Properties.of()
                     .mapColor(MapColor.METAL)
                     .strength(2.0f, 6.0f)
-                    .requiresCorrectToolForDrops()
                     .noLootTable())) : null;
 
     public static final DeferredBlock<InteroperableCoreAssembledBlock> CORE_ASSEMBLED = BRIDGE_EXTRAS && BOTH ? BLOCKS.register("core_assembled",
             () -> new InteroperableCoreAssembledBlock(BlockBehaviour.Properties.of()
                     .mapColor(MapColor.METAL)
                     .strength(2.0f, 6.0f)
-                    .requiresCorrectToolForDrops()
                     .noLootTable())) : null;
 
     // --- Interim 1x1 bridge (clone of Power Grid's Small Transformer
@@ -101,7 +98,7 @@ public class CIOBlocks {
             () -> new InteroperableCoreBlock(BlockBehaviour.Properties.of()
                     .mapColor(MapColor.METAL)
                     .strength(2.0f, 6.0f)
-                    .requiresCorrectToolForDrops())) : null;
+                    )) : null;
 
     // Never placed directly — produced by InteroperableCoreBlock#onWrenched, no item registered.
     // Needs both mods (bridge block, see cio-context) — InteroperableCoreBlock's
@@ -111,7 +108,6 @@ public class CIOBlocks {
             () -> new InteroperableSmallBlock(BlockBehaviour.Properties.of()
                     .mapColor(MapColor.METAL)
                     .strength(2.0f, 6.0f)
-                    .requiresCorrectToolForDrops()
                     .noLootTable())) : null;
 
     // --- Interoperable Coupler (standalone one-way CPG<->CEE bridge with a
@@ -121,7 +117,6 @@ public class CIOBlocks {
             () -> new InteroperableCouplerBlock(BlockBehaviour.Properties.of()
                     .mapColor(MapColor.METAL)
                     .strength(2.0f, 6.0f)
-                    .requiresCorrectToolForDrops()
                     .noOcclusion())) : null;
 
     // Double Coupler — the real current-carrying bridge: a two-terminal winding
@@ -132,7 +127,6 @@ public class CIOBlocks {
             () -> new InteroperableDoubleCouplerBlock(BlockBehaviour.Properties.of()
                     .mapColor(MapColor.METAL)
                     .strength(2.0f, 6.0f)
-                    .requiresCorrectToolForDrops()
                     .noOcclusion())) : null;
 
     // --- Steam heating loop (Create Boiler -> Steam Outlet -> pipes -> Brass Heater -> Cold Sweat) ---
@@ -141,13 +135,13 @@ public class CIOBlocks {
             () -> new SteamOutletBlock(BlockBehaviour.Properties.of()
                     .mapColor(MapColor.METAL)
                     .strength(2.0f, 6.0f)
-                    .requiresCorrectToolForDrops()));
+                    ));
 
     public static final DeferredBlock<BrassHeaterBlock> BRASS_HEATER = BLOCKS.register("brass_heater",
             () -> new BrassHeaterBlock(BlockBehaviour.Properties.of()
                     .mapColor(MapColor.METAL)
                     .strength(2.0f, 6.0f)
-                    .requiresCorrectToolForDrops()));
+                    ));
 
     // --- Multi Radiator — extendable steam->water multiblock (scaffold, see
     // RadiatorAssembly). North/South are player-placed end caps; middle is
@@ -158,21 +152,18 @@ public class CIOBlocks {
             () -> new RadiatorValveNorthBlock(BlockBehaviour.Properties.of()
                     .mapColor(MapColor.METAL)
                     .strength(2.0f, 6.0f)
-                    .requiresCorrectToolForDrops()
                     .emissiveRendering((state, level, pos) -> isGlowingTier(state.getValue(RadiatorValveNorthBlock.HEAT_LEVEL)))));
 
     public static final DeferredBlock<RadiatorValveSouthBlock> RADIATOR_VALVE_SOUTH = BLOCKS.register("multi_radiator_south",
             () -> new RadiatorValveSouthBlock(BlockBehaviour.Properties.of()
                     .mapColor(MapColor.METAL)
                     .strength(2.0f, 6.0f)
-                    .requiresCorrectToolForDrops()
                     .emissiveRendering((state, level, pos) -> isGlowingTier(state.getValue(RadiatorValveSouthBlock.HEAT_LEVEL)))));
 
     public static final DeferredBlock<RadiatorMiddleBlock> RADIATOR_MIDDLE = BLOCKS.register("multi_radiator_middle",
             () -> new RadiatorMiddleBlock(BlockBehaviour.Properties.of()
                     .mapColor(MapColor.METAL)
                     .strength(2.0f, 6.0f)
-                    .requiresCorrectToolForDrops()
                     .noLootTable()
                     .emissiveRendering((state, level, pos) -> isGlowingTier(state.getValue(RadiatorMiddleBlock.HEAT_LEVEL)))));
 
@@ -200,19 +191,19 @@ public class CIOBlocks {
             () -> new TelephoneBlock(BlockBehaviour.Properties.of()
                     .mapColor(MapColor.METAL)
                     .strength(2.0f, 6.0f)
-                    .requiresCorrectToolForDrops())) : null;
+                    )) : null;
 
     public static final DeferredBlock<CpgTelephoneBlock> CPG_TELEPHONE = PG ? BLOCKS.register("cpg_telephone",
             () -> new CpgTelephoneBlock(BlockBehaviour.Properties.of()
                     .mapColor(MapColor.METAL)
                     .strength(2.0f, 6.0f)
-                    .requiresCorrectToolForDrops())) : null;
+                    )) : null;
 
     public static final DeferredBlock<CeeTelephoneBlock> CEE_TELEPHONE = CEE ? BLOCKS.register("cee_telephone",
             () -> new CeeTelephoneBlock(BlockBehaviour.Properties.of()
                     .mapColor(MapColor.METAL)
                     .strength(2.0f, 6.0f)
-                    .requiresCorrectToolForDrops())) : null;
+                    )) : null;
 
     // --- Aesthetic PG connector reskins (see CIOConnectorBlock/CIOConnectorGlassBlock docs) ---
     // Not interoperable — plain PG-only, equivalent in specs to PG's own
@@ -222,13 +213,13 @@ public class CIOBlocks {
             () -> new CIOConnectorBlock(BlockBehaviour.Properties.of()
                     .mapColor(MapColor.METAL)
                     .strength(2.0f, 6.0f)
-                    .requiresCorrectToolForDrops())) : null;
+                    )) : null;
 
     public static final DeferredBlock<CIOConnectorGlassBlock> CIO_CONNECTOR_GLASS = BRIDGE_EXTRAS && PG ? BLOCKS.register("cio_connector_glass",
             () -> new CIOConnectorGlassBlock(BlockBehaviour.Properties.of()
                     .mapColor(MapColor.METAL)
                     .strength(2.0f, 6.0f)
-                    .requiresCorrectToolForDrops())) : null;
+                    )) : null;
 
     // Double Connector — two independent, unconnected terminal points in one
     // block (see CIODoubleConnectorBlock docs). Real, active content, unlike
@@ -237,7 +228,7 @@ public class CIOBlocks {
             () -> new CIODoubleConnectorBlock(BlockBehaviour.Properties.of()
                     .mapColor(MapColor.METAL)
                     .strength(2.0f, 6.0f)
-                    .requiresCorrectToolForDrops())) : null;
+                    )) : null;
 
     // --- Aircon — gas-mechanics phase. Motor bottom needs real electrical
     // terminals, so it's split into a Power Grid variant (AIRCON_MOTOR_BOTTOM,
@@ -252,37 +243,37 @@ public class CIOBlocks {
             () -> new AirconMotorBottomBlock(BlockBehaviour.Properties.of()
                     .mapColor(MapColor.METAL)
                     .strength(2.0f, 6.0f)
-                    .requiresCorrectToolForDrops())) : null;
+                    )) : null;
 
     public static final DeferredBlock<CeeAirconMotorBottomBlock> CEE_AIRCON_MOTOR_BOTTOM = CEE ? BLOCKS.register("cee_aircon_motor_bottom",
             () -> new CeeAirconMotorBottomBlock(BlockBehaviour.Properties.of()
                     .mapColor(MapColor.METAL)
                     .strength(2.0f, 6.0f)
-                    .requiresCorrectToolForDrops())) : null;
+                    )) : null;
 
     public static final DeferredBlock<AirconMotorBottom240Block> AIRCON_MOTOR_BOTTOM_240 = PG ? BLOCKS.register("aircon_motor_bottom_240",
             () -> new AirconMotorBottom240Block(BlockBehaviour.Properties.of()
                     .mapColor(MapColor.METAL)
                     .strength(2.0f, 6.0f)
-                    .requiresCorrectToolForDrops())) : null;
+                    )) : null;
 
     public static final DeferredBlock<CeeAirconMotorBottom240Block> CEE_AIRCON_MOTOR_BOTTOM_240 = CEE ? BLOCKS.register("cee_aircon_motor_bottom_240",
             () -> new CeeAirconMotorBottom240Block(BlockBehaviour.Properties.of()
                     .mapColor(MapColor.METAL)
                     .strength(2.0f, 6.0f)
-                    .requiresCorrectToolForDrops())) : null;
+                    )) : null;
 
     public static final DeferredBlock<AirconMotorTopBlock> AIRCON_MOTOR_TOP = BLOCKS.register("aircon_motor_top",
             () -> new AirconMotorTopBlock(BlockBehaviour.Properties.of()
                     .mapColor(MapColor.METAL)
                     .strength(2.0f, 6.0f)
-                    .requiresCorrectToolForDrops()));
+                    ));
 
     public static final DeferredBlock<AirconVenterBlock> AIRCON_VENTER = BLOCKS.register("aircon_venter",
             () -> new AirconVenterBlock(BlockBehaviour.Properties.of()
                     .mapColor(MapColor.METAL)
                     .strength(2.0f, 6.0f)
-                    .requiresCorrectToolForDrops()));
+                    ));
 
     // --- Domestic Electrical Board (Power Grid-fed replacement for
     // Crayfish Refurbished Furniture's Electricity Generator) — PG-only. ---
@@ -291,7 +282,6 @@ public class CIOBlocks {
             () -> new DebRectifierBlock(BlockBehaviour.Properties.of()
                     .mapColor(MapColor.METAL)
                     .strength(2.0f, 6.0f)
-                    .requiresCorrectToolForDrops()
                     .noOcclusion())) : null;
 
     // Tier 1 ("Improvised") — 12 V only + Power Feed, physical needle gauge.
@@ -299,7 +289,6 @@ public class CIOBlocks {
             () -> new PowerKitTier1Block(BlockBehaviour.Properties.of()
                     .mapColor(MapColor.METAL)
                     .strength(2.0f, 6.0f)
-                    .requiresCorrectToolForDrops()
                     .noOcclusion())) : null;
 
     // Tier 3 ("Commercial") — 240 V / 120 V mode-switch, HV + 120 V + 12 V feeds, thermal.
@@ -307,7 +296,6 @@ public class CIOBlocks {
             () -> new PowerKitTier3Block(BlockBehaviour.Properties.of()
                     .mapColor(MapColor.METAL)
                     .strength(2.5f, 8.0f)
-                    .requiresCorrectToolForDrops()
                     .noOcclusion())) : null;
 
     // Tier 4 ("Industrial") — 120 V / 240 V / 1 kV three-tap substation, HV + 120 V + 12 V feeds, thermal.
@@ -315,7 +303,6 @@ public class CIOBlocks {
             () -> new PowerKitTier4Block(BlockBehaviour.Properties.of()
                     .mapColor(MapColor.METAL)
                     .strength(3.0f, 10.0f)
-                    .requiresCorrectToolForDrops()
                     .noOcclusion())) : null;
 
     // Redstone Switch — a redstone-gated two-pole inline break. Throughput caps
@@ -324,7 +311,6 @@ public class CIOBlocks {
             () -> new RedstoneSwitchBlock(BlockBehaviour.Properties.of()
                     .mapColor(MapColor.METAL)
                     .strength(2.0f, 6.0f)
-                    .requiresCorrectToolForDrops()
                     .noOcclusion())) : null;
 
     // --- CEE-wired Power Kits — same models as the CPG kits above, but their
@@ -336,35 +322,30 @@ public class CIOBlocks {
             () -> new CeeDebRectifierBlock(BlockBehaviour.Properties.of()
                     .mapColor(MapColor.METAL)
                     .strength(2.0f, 6.0f)
-                    .requiresCorrectToolForDrops()
                     .noOcclusion())) : null;
 
     public static final DeferredBlock<CeePowerKitTier1Block> CEE_DEB_RECTIFIER_TIER1 = CEE ? BLOCKS.register("cee_deb_rectifier_tier1",
             () -> new CeePowerKitTier1Block(BlockBehaviour.Properties.of()
                     .mapColor(MapColor.METAL)
                     .strength(2.0f, 6.0f)
-                    .requiresCorrectToolForDrops()
                     .noOcclusion())) : null;
 
     public static final DeferredBlock<CeePowerKitTier3Block> CEE_DEB_RECTIFIER_TIER3 = CEE ? BLOCKS.register("cee_deb_rectifier_tier3",
             () -> new CeePowerKitTier3Block(BlockBehaviour.Properties.of()
                     .mapColor(MapColor.METAL)
                     .strength(2.5f, 8.0f)
-                    .requiresCorrectToolForDrops()
                     .noOcclusion())) : null;
 
     public static final DeferredBlock<CeePowerKitTier4Block> CEE_DEB_RECTIFIER_TIER4 = CEE ? BLOCKS.register("cee_deb_rectifier_tier4",
             () -> new CeePowerKitTier4Block(BlockBehaviour.Properties.of()
                     .mapColor(MapColor.METAL)
                     .strength(3.0f, 10.0f)
-                    .requiresCorrectToolForDrops()
                     .noOcclusion())) : null;
 
     public static final DeferredBlock<CeeRedstoneSwitchBlock> CEE_REDSTONE_SWITCH = CEE ? BLOCKS.register("cee_redstone_switch",
             () -> new CeeRedstoneSwitchBlock(BlockBehaviour.Properties.of()
                     .mapColor(MapColor.METAL)
                     .strength(2.0f, 6.0f)
-                    .requiresCorrectToolForDrops()
                     .noOcclusion())) : null;
 
     // --- Iden's Decor "Electric" buttons & switches — appliance-grid switch
