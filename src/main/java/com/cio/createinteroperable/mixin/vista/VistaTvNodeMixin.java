@@ -334,12 +334,24 @@ public abstract class VistaTvNodeMixin implements ApplianceNode, MeteredApplianc
 
     // --- native registration ---------------------------------------------
 
-    @Inject(method = "onTick", at = @At("HEAD"), require = 0)
+    /**
+     * Registers the node, or retires a stale block entity: one left on a tile
+     * that is no longer its wall's bottom-left corner ({@code hasBlockEntity()}
+     * is false for every other tile, via Moonlight's {@code
+     * IOptionalEntityBlock}). See {@link VistaTvSupport#retireGhost}.
+     */
+    @Inject(method = "onTick", at = @At("HEAD"), cancellable = true, require = 0)
     private static void cioNode$registerOnTick(Level level, BlockPos pos, BlockState state,
                                                 @Coerce BlockEntity tv, CallbackInfo ci) {
-        if (tv instanceof ApplianceNode node) {
-            cioNode$ensureRegistered(level, node);
+        if (!(tv instanceof ApplianceNode node)) {
+            return;
         }
+        if (CIOConfig.VISTA_TVS_REQUIRE_POWER.get() && !state.hasBlockEntity()) {
+            VistaTvSupport.retireGhost(level, pos, state, tv);
+            ci.cancel();
+            return;
+        }
+        cioNode$ensureRegistered(level, node);
     }
 
     // --- teardown ----------------------------------------------------
