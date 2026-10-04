@@ -16,6 +16,13 @@ package com.cio.createinteroperable.deb;
  * fan can cool (PG's {@code AirCurrent} mixin cools any {@code ThermalBehaviour}
  * in a fan's path), and past the overheat point the board detonates.</p>
  *
+ * <p><b>12&nbsp;V pools were scaled 10&times; on 2026-10-04</b> (caps &times;10,
+ * step-down resistance &divide;10 so the feed sags the same volts and loses
+ * the same fraction at its new rated current). That 12&nbsp;V power still
+ * comes through the intake, so each {@link #thermalMaxPowerWatts} grew by
+ * the extra heat at rated load (intake I&sup2;R + 12&nbsp;V conversion loss,
+ * worst intake tap), keeping every tier's old thermal headroom.</p>
+ *
  * <p>Capacity model, per pool: <b>soft cap</b> = every appliance on it stays
  * powered at or below; above it the pool faults and sheds, arming the
  * {@link DebRectifierBlockEntity#FAULT_GRACE_TICKS} fuse. <b>hard cap</b> =
@@ -72,10 +79,10 @@ public record DebTier(
      * the intake still tops out at the rated 9.6&nbsp;kW / 40&nbsp;A.
      */
     public static final DebTier TIER_2 = new DebTier(
-            90.0, 160.0, 0.15,
+            900.0, 1_600.0, 0.015,     // 12 V pool caps; 12 V step-down R
             4_800.0, 7_500.0, 1.5,     // fallback MV caps + intake R (= default 120 V tap)
             40, 0.80, true,
-            300.0, 3_200.0, // overheat at 300 C; ~3.2 kW steady reaches it (a full house at rated 120 V sits just under; 240 V transformer mode at its scaled soft cap ~2.4 kW)
+            300.0, 4_300.0, // overheat at 300 C; ~4.3 kW steady reaches it (both pools at rated load on the 120 V tap, ~3.6 kW, sit just under; the 240 V tap at its scaled soft caps ~1.9 kW)
             new Substation(
                     new Substation.Mode[] {
                             new Substation.Mode("120 V", 120.0, 4_800.0, 7_500.0, 1.5, false),
@@ -90,10 +97,10 @@ public record DebTier(
      * pass-through. Short range, lossy step-down, high primary loss.
      */
     public static final DebTier TIER_1 = new DebTier(
-            40.0, 70.0, 0.40,
+            400.0, 700.0, 0.040,       // 12 V pool caps; 12 V step-down R
             600.0, 1_500.0, 2.0,
             16, 0.80, false,
-            200.0, 120.0, // cheap parts: overheat at 200 C; ~120 W steady reaches it (rated load ~65 W, so a fan is real headroom, overload cooks it)
+            200.0, 260.0, // cheap parts: overheat at 200 C; ~260 W steady reaches it (both pools at rated load ~200 W, so a fan is real headroom, overload cooks it)
             null);
 
     /**
@@ -107,10 +114,10 @@ public record DebTier(
      * same relative fan help the 240&nbsp;V tap did before it (~1.4&times;).
      */
     public static final DebTier TIER_3 = new DebTier(
-            300.0, 500.0, 0.06,        // 12 V pool caps; 12 V step-down R
+            3_000.0, 5_000.0, 0.006,   // 12 V pool caps; 12 V step-down R
             12_000.0, 18_000.0, 0.13,  // fallback MV caps + intake R (= default 120 V mode)
             64, 0.80, true,
-            350.0, 8_000.0,            // overheat at 350 C; ~8 kW steady dissipation reaches it
+            350.0, 9_600.0,            // overheat at 350 C; ~9.6 kW steady dissipation reaches it
             new Substation(
                     new Substation.Mode[] {
                             new Substation.Mode("120 V", 120.0, 12_000.0, 18_000.0, 0.13, false),
@@ -129,10 +136,10 @@ public record DebTier(
      * headroom is real. Bigger thermal budget to match.
      */
     public static final DebTier TIER_4 = new DebTier(
-            400.0, 700.0, 0.05,        // 12 V pool caps; 12 V step-down R
+            4_000.0, 7_000.0, 0.005,   // 12 V pool caps; 12 V step-down R
             28_000.0, 44_000.0, 0.35,  // fallback MV caps + intake R (= 240 V tap)
             96, 0.80, true,
-            420.0, 20_000.0,           // overheat at 420 C; ~20 kW steady dissipation reaches it
+            420.0, 22_100.0,           // overheat at 420 C; ~22.1 kW steady dissipation reaches it
             new Substation(
                     new Substation.Mode[] {
                             new Substation.Mode("120 V",  120.0,  16_000.0,  24_000.0, 0.13, false),
