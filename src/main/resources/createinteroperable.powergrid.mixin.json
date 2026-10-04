@@ -3,7 +3,8 @@
   "package": "com.cio.createinteroperable.mixin.powergrid",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "ThermalBehaviourMixin"
+    "ThermalBehaviourMixin",
+    "ThermometerBlockEntityMixin"
   ],
   "client": [],
   "minVersion": "0.8"

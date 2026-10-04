@@ -1,0 +1,10 @@
+{
+  "required": false,
+  "package": "com.cio.createinteroperable.mixin.cee",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "ElectricalDeviceHeatMixin"
+  ],
+  "client": [],
+  "minVersion": "0.8"
+}

@@ -26,6 +26,13 @@ license="${mod_license}"
 [[mixins]]
     config="createinteroperable.powergrid.mixin.json"
 
+# Optional Electro Energetics <-> Cold Sweat: CEE component overheating (its
+# static ElectricalDevice#handleTemp) is shifted by Cold Sweat's temperature at
+# the device's own coordinate, like the PG baseline above (see
+# com.cio.createinteroperable.mixin.cee). Non-required, no-op without both.
+[[mixins]]
+    config="createinteroperable.cee.mixin.json"
+
 # Electro Energetics' Electric Pump under Create: Pipes n Physics: stops PnP's
 # AUTO pump/turbine dial from resolving it to a turbine (see
 # com.cio.createinteroperable.mixin.pnp). Guarded by PnpCeePumpMixinPlugin, so
