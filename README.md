@@ -29,8 +29,9 @@ In practice, two things get wired together:
   [Blockbench](https://www.blockbench.net/) by the author. You are free to use them in anyway you see fit.
 - **Code** — the large majority of the Java was written by **Anthropic's Claude Code
   (Sonnet 5, High reasoning)**, from the author's direction. I (the author) am a programmer, but not nearly proficient enough in Java to make this from scratch. Help and assistive PRs are welcome.
-  `.claude/skills/cio-context/` is the engineer-facing context file the assistant works
-  from; this README is the plain-language overview.
+  `.claude/skills/` holds the engineer-facing context the assistant works from — a
+  lightweight `cio-context` entry point plus specialized skills per API/feature area;
+  this README is the plain-language overview.
 - **Status** — a personal project, shared openly, in **alpha**. It builds and runs, but
   none of it is "done-done", and no part is more settled than another. Suggestions are
   folded in as collaborators raise them.
@@ -46,12 +47,16 @@ CIO is compatibility code. It only does anything because of the mods it builds o
 | **Create: Electro Energetics** | george_vi | The other grid standard CIO speaks, a first-class equal to Power Grid. Its `SimulatedDevice` circuit API backs the Electro Energetics side of every CIO device. |
 | **MrCrayfish's Furniture Mod: Refurbished** | MrCrayfish | Its appliance-electricity system is what the Domestic Electrical Board feeds. CIO's powered appliances register as nodes on Crayfish's own network — wrench-linking, wire rendering and the "missing power" overlay all come with it. Also its water fixtures. |
 | **Create Train Navigator** | MrJulsen | Its Advanced Displays are retrofitted so a freestanding display only shows text while powered. |
+| **Cold Sweat** | momosoftworks | Its temperature simulation is what the Steam Hearth warms and the Aircon cools — and CIO makes it keep running on Peaceful difficulty instead of silently switching off. |
+| **Create: Pipes n Physics** | StaticFX | CIO's steam fluid declares itself a real, buoyant, low-viscosity gas so PnP's pipe network moves real throughput instead of a flat, capped rate — an optional integration. |
 
 CIO also retrofits a power requirement onto furniture and utility blocks from **Let's Do
-Furniture & Beachparty**, **Another Furniture**, **Alpine Whispers** and **Bibliocraft**
-(the 1.21.1 fork), and reads **Cold Sweat** for the Brass Heater's temperature output. Each
-of those is an optional integration that switches itself off cleanly when the mod isn't
-installed.
+Furniture & Beachparty**, **Another Furniture**, **Alpine Whispers**, **Bibliocraft** (the
+1.21.1 fork), **Vista** (cameramod)'s TV, **Iden's Decor** and **WaterFrames**' video screens
+(the last one needs WaterFrames' own `waterframes_refurbished_compat` bridge jar too). Each of
+those is an optional integration that switches itself off cleanly when the mod isn't installed.
+A purely experimental **Immersive Vehicles** integration lives on the `experimental` branch
+only — see [Branches](#branches).
 
 CIO is an unofficial fan project and is not affiliated with or endorsed by any of these.
 
@@ -68,8 +73,11 @@ CIO is an unofficial fan project and is not affiliated with or endorsed by any o
   without it, CIO's own built-in appliance grid stands in so the same features keep
   working.
 - **Let's Do / Another Furniture / Alpine Whispers / Bibliocraft / Create Train Navigator
-  / Cold Sweat** — every retrofit no-ops if its mod is absent, and each has a config
-  toggle (all default on).
+  / Vista / WaterFrames / Cold Sweat** — every retrofit no-ops if its mod is absent, and
+  each has a config toggle (all default on).
+- **Create: Pipes n Physics** — with it, CIO's steam fluid gets real pipe-network
+  throughput instead of a flat rate; without it, steam still vents to atmosphere at an
+  open pipe end for free, just without PnP's physics.
 
 ---
 
@@ -89,7 +97,10 @@ Furniture's fuel-burning generator.
 - Wall-, floor- and ceiling-mountable; a thermal model that can overheat and explode if
   overdriven; goggle readouts; a shared load budget across everything a kit feeds.
 - Higher tiers add capacity and a scrollable intake-voltage selector.
-- A **Redstone Switch** cuts or enables the appliance network a kit feeds.
+- A **Redstone Switch** that cuts or enables the appliance network a kit feeds exists in
+  both grid flavours, but is held back from the creative menu for now (`/give` only).
+- Two boards accidentally sharing one electrical network refuse power instead of silently
+  double-billing it.
 - **Two full families, one per grid standard** — a Power Grid set and an Electro Energetics
   set, equal in every way. They share one block-entity implementation; a per-block check
   picks which grid's API to read, so the thermal model, load pools, goggles, rendering and
@@ -122,10 +133,31 @@ Rules shared across all of them:
 | Bibliocraft **Fancy Crafter** | Won't auto-craft; the grid drives its `POWERED` state instead of redstone |
 | Bibliocraft **Fancy Lamp** | Stays dark, through the shared lamp machinery |
 | Create Train Navigator **Advanced Displays** | Freestanding displays go blank; contraption displays untouched. Wire any one block of a multi-block board and the whole board lights. |
+| Vista (cameramod) **TV** | Off — with power it defaults *on*, and redstone becomes a manual kill switch instead of an on-switch. A grown, connected wall of TVs is billed n² the single-TV rate. |
+| WaterFrames **video screens** | Stop rendering text (needs WaterFrames' own `waterframes_refurbished_compat` bridge jar, not just WaterFrames alone) |
+| Iden's Decor **Computer** | Shows no floppy-disk text (disks still insert/eject). 15 W, billed only while a disk is in. |
 | Bibliocraft **Fancy Lantern** | *(not a power feature)* light level capped to a Soul Lantern's, matching Bibliocraft's own dim variants |
 
-Two things already work with no CIO code: Bibliocraft's alarm clock emits a normal redstone
-pulse, and Cold Sweat temperature responds to the Brass Heater once it's fed steam.
+**Iden's Decor** is supported two ways. Its lights (already Crayfish devices on Iden's side, in their
+`refurbished_energy` pliers mode, which new lights now place in by default) are billed 3 W each on the 12 V rail; its Wall Lamp, Flood Lamp, Floodlight and Fluorescent Light Block become 3 W grid lamps too (dark when unpowered). Its buttons, levers and
+switches (Heavy / Gate Button, Heavy / Emergency / Blast Lever, Light / Power / Valve Switch,
+Core Button / Lever Control Panel) get **Electric** twins: same models, no redstone, and instead a
+wire-in-wire-out grid switch like Crayfish's light switch, closed while the lever is on or the
+button is held. Craft one from the original plus a CEE Copper Wire Spool or a CPG Copper Wire.
+Iden's originals are renamed **Redstone …** in game so the two read apart.
+
+Iden's **telephone** becomes a working CIO-compatible phone (CIO swaps its block class in at
+Iden's own registration, keeping Iden's model, handset and loot). Sneak + right-click with an
+empty hand sets its number, area code, label, the number it calls, and Auto-Answer. It needs
+appliance-grid power (2 W, billed only on a call) and a tap wire: a CPG and/or CEE tap nub on the
+back of the base, on the same tap line as any other phone, CIO or Iden. Lifting the handset (or a
+redstone pulse while idle) calls the set number (a redstone-placed call is withdrawn if the signal
+drops before it's answered); a called phone rings, answering is lifting the
+handset (or automatic), and putting it back hangs up. The answering end emits redstone during the
+call, like CIO's phones. Goggles show its number, status, power and tap wiring.
+
+One thing already works with no CIO code: Bibliocraft's alarm clock emits a normal redstone
+pulse.
 
 ### Plumbed water fixtures
 
@@ -139,9 +171,14 @@ for both:
 
 ### Telephone
 
-A working in-world telephone — dial, label and per-number screens, a number registry with
-routing, dyeable. Three craftable variants (one that needs both grids, one for each grid on
-its own) share a protocol-neutral core so neither grid mod forces the other to load.
+A working in-world telephone — a number registry with routing, dyeable. Three craftable
+variants (one that needs both grids, one for each grid on its own) share a protocol-neutral
+core so neither grid mod forces the other to load. Right-click the back plate for its settings
+(own area code and number, label, the number it calls, Auto-Answer — the same screen Iden's
+phone uses, plus a **Pulse (3s)** option: calls placed from that phone make the answering phone's Call
+Breaker, Call Feeds and redstone output switch on and off every 3 seconds instead of staying on); right-click the dial
+for a dial-only version. Every wire nub is labelled with what
+it does (Telephone Positive/Negative 12 V in, Telephone Tap, Call Breaker, Call Feed ±).
 
 ### Grid Coupler
 
@@ -158,32 +195,58 @@ voltage — placed directly, wrench-rotated, on the creative menu.
   direction is selected.
 - Changing direction eases an animated gauge needle across and cuts transfer for the
   ~3 seconds it's moving.
-- On the creative menu, no recipe yet, one texture still missing.
+- A fresh device stays fully passive until it's confirmed its real configured role for the
+  session, closing a startup window where it could briefly act as a live source into a
+  circuit that already had its own power.
+- Craftable, on the creative menu, needs both grid mods.
+
+### CPG Double Connector
+
+A Power Grid–only block for splitting a wire run: two independent terminals, each its own
+zero-resistance connection point, in one block — no coupling or logic between them, just
+two connectors where one used to be. Craftable, needs only Power Grid.
+
+### Aircon (cooling)
+
+A three-part air conditioner that carries `hot_air` / `cold_air` through Create's pipe
+network and cools a room's real Cold Sweat ambient temperature — the cooling mirror of the
+Steam Hearth below. These gasses are work in progress.
+
+- **Aircon Motor** (bottom unit) — needs real electrical terminals, so it comes in a Power
+  Grid variant and an Electro Energetics variant.
+- **Aircon Fan** (top) and **Aircon Venter** (ducting) are electrical-backend-agnostic and
+  register regardless of which grid mod(s) are installed, so either motor variant — or
+  neither, on a Create-only install — pairs with the same top half.
+- The venter also melts nearby snow and ice when it's running warm, and freezes standing
+  water near it when running cold.
+- All four pieces are craftable; see `recipes.md` for the exact grids.
+
+### Steam Hearth (heating)
+
+A Create-only heating loop, built in the world rather than placed as one block: a **Steam
+Outlet** sits on a Create Fluid Tank and reads the boiler's real heat and water level into a
+"steam" fluid that flows through Create pipes (with real throughput when Create: Pipes n
+Physics is installed). Feed that steam to a **Steam Hearth Inlet** / **Water Outlet** pair
+with 0–3 plain Copper Blocks between them, wrench either end, and the copper blocks convert
+into linked **Steam Hearth Radiator** segments.
+
+- Warms the room like a Cold Sweat Hearth — a real, unconditional temperature change for
+  nearby players, not just a status icon — and melts nearby snow/ice the hotter it runs.
+- A **Brass Heater** (dead-end kinetic shaft block, reads the same steam loop) reports a
+  0–100% throttle to Cold Sweat too; in the game but not yet craftable.
+- Vanilla cats will seek out and lie on an assembled, sufficiently warm Steam Hearth, the
+  same way they do a lit furnace or a bed.
+- The whole loop is craftable except the Brass Heater; see `recipes.md`.
 
 ---
 
 ## In development — not yet available / rough drafts and ideas
 
-These exist in the codebase but are **not** registered into a normal game: a `BRIDGE_EXTRAS`
-switch in `CIOBlocks` / `CIOItems` is currently **off**, so most of them don't load at all,
-and the rest aren't on the creative menu or craftable. They're documented here for context,
-not for use.
-
-### Interoperable Transformer (multiblock)
-
-The intended flagship bridge: a 2-tall × 3-long structure — a Power Grid keystone at one
-end, an Electro Energetics keystone at the other, fillers between, wrenched together. Three
-block classes, because the two ends need incompatible Java parents rather than just
-different states. Currently code-only — placeholder terminal positions, no models — so it's
-switched off.
-
-### Interim transformer & single coupler
-
-- A 1×1 **interim transformer** that packs both grid halves into one block. It's where the
-  coupler's electrical behaviour was first worked out; kept around as a reference.
-- The single **Interoperable Coupler** is being reworked into a pure signal relay — copying
-  a voltage reading with no current path. Until that lands it still carries the older
-  two-terminal logic and stays disabled.
+Everything below is either switched off entirely (a `BRIDGE_EXTRAS` flag in `CIOBlocks` /
+`CIOItems` disables the extra connector models), still settling in, or — for the Pantographs &
+Wires bridge and the Immersive Vehicles integration — real and loadable but experimental enough
+to live only on the `experimental` branch (see [Branches](#branches)). None of it is on the
+creative menu or craftable. Documented here for context, not for use.
 
 ### Extra connector models
 
@@ -193,25 +256,51 @@ exactly like the base connector (same wire type, same zero-resistance single ter
 block entity); only the model differs. Registered behind the `BRIDGE_EXTRAS` switch, so not
 available yet.
 
-### Steam & heat
+### Pantographs & Wires bridge
 
-Two kinetic blocks meant to link Create's boilers to Cold Sweat body temperature:
+An experimental conductor bridge letting a Create: Pantographs & Wires conductor
+participate in an Electro Energetics circuit. Entirely inert unless both Electro Energetics
+and Pantographs & Wires are installed together. Real code, but early and untested enough
+that it's kept off the mod's `main` branch for now — `experimental` branch only.
 
-- **Steam Outlet** — sits on top of a Create Fluid Tank, reads the boiler's real heat and
-  water levels, and produces a "steam" fluid into Create's pipe network.
-- **Brass Heater** — a dead-end kinetic shaft block that consumes that steam and reports a
-  0–100 % throttle (driven by shaft speed) to Cold Sweat.
+### Immersive Vehicles (purely experimental)
 
-Loadable but not surfaced — no creative-menu entry, no recipe.
+**Purely experimental, `experimental` branch only — not on `main`, untested in real play.**
+It patches Immersive Vehicles' (formerly MTS) internals through mixins, so any Immersive
+Vehicles update can break it. Each half has its own config toggle (`mtsAaSpotlight`,
+`mtsPoleLights`) to hand the blocks straight back to Immersive Vehicles.
 
-### Set aside
+- **AA Spotlight** (MTS Official Content Pack) — won't light its beam, auto-rotate or
+  traverse, and every light on it (standby LED included) goes dark; looking at it shows
+  "Missing power". Wire the **AA Base Plate** it sits on: a ground-placed plate grows a power
+  terminal on one corner. A searchlight-class load: 6 kW on the 120 V rail while lit (+5 %
+  while auto-rotating). Spotlights on vehicles, and the AA guns, are untouched.
+- **Street lights & traffic signals** — every lamp goes dark (a traffic signal shows nothing
+  at all, not even its unlinked red flash), and a street light stops lighting the world. Wire
+  the **pole block** they hang on — only a pole block that carries a lamp gets a nub. Power is
+  checked every tick: cut the supply, or let a brownout drop the rail, and they go dark again.
+  100 W per street light, 25 W per signal head, 120 V rail. The **Signal Controller** is a node
+  too but needs no power (yet). Signs are untouched.
 
-- A **ceiling-tile** re-implementation was built and then removed.
-- Bridging **Create Crafts & Additions** (Forge Energy) into the grid was designed and
-  shelved — it duplicates an electrical layer Power Grid already provides and sits outside
-  what CIO is for.
+### Simple Voice Chat telephone support
+
+With [Simple Voice Chat](https://modrinth.com/plugin/simple-voice-chat) installed (optional, server-side plugin), an
+*answered* call carries voice: anyone talking within 5 blocks of either phone is heard, from that
+phone, out of the one at the other end - spatially, so bystanders next to it hear it too. Works with
+all five phones (Interoperable, CPG, CEE, and Iden's two). Whispering carries half as far. Both phones also play a quiet line hiss (with the odd soft crackle)
+for as long as the call is up, over a faint open-line dial tone. Radius, playback range and hiss loudness (`lineNoise`, 0 = off) are in
+the `telephoneVoice` config section, or switch the whole thing off with `relayEnabled`. Without
+Simple Voice Chat nothing changes.
 
 ---
+
+## Branches
+
+- **`main`** — the alpha line everything in *Working now* above ships from.
+- **`experimental`** — `main` plus integrations that are real but not yet trusted:
+  the Pantographs & Wires bridge and the Immersive Vehicles integration. It is rebased onto
+  (or merges in) `main` as `main` moves; an experimental feature graduates by landing on
+  `main`.
 
 ## Building
 
