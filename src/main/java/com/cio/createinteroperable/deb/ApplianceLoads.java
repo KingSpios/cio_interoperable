@@ -98,8 +98,12 @@ public final class ApplianceLoads {
         put("createrailwaysnavigator", "advanced_display_block_entity", Pool.LV, 8);
 
         // Vista (cameramod)'s TV, keyed by a base per-tile rating (one TVBlock
-        // implements ScalableAppliance so a grown NxN connected wall bills
-        // n^2 * this, see com.cio.createinteroperable.mixin.vista).
+        // implements ScalableAppliance so a connected wall bills one unit per
+        // screen tile, see com.cio.createinteroperable.mixin.vista). Vista 5.5.x
+        // registers the block entity type as "television" (read from its
+        // VistaMod bytecode); older builds used "tv". Without a matching row a
+        // Power Kit skips the TV entirely, so it never receives power.
+        put("vista", "television", Pool.LV, 8);
         put("vista", "tv", Pool.LV, 8);
 
         // Iden's Decor lights — Iden's Decor itself makes its LightBlockEntity a
