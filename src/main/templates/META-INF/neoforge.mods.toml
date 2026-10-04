@@ -198,3 +198,13 @@ license="${mod_license}"
     versionRange="${pipes_n_physics_version_range}"
     ordering="AFTER"
     side="BOTH"
+
+# Soft dependency. When present, an answered Telephone call carries nearby players'
+# voice between the two phones (see com.cio.createinteroperable.voice). Simple Voice
+# Chat discovers CioVoicechatPlugin itself; nothing else in this mod touches its API.
+[[dependencies.${mod_id}]]
+    modId="voicechat"
+    type="optional"
+    versionRange="${voicechat_version_range}"
+    ordering="AFTER"
+    side="BOTH"

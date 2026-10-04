@@ -68,6 +68,8 @@ repositories {
     // CurseForge/Modrinth — its own README points at JitPack, which builds
     // straight from its GitHub tags. See gradle.properties for the exact tag.
     maven { url = "https://jitpack.io" }
+    // Simple Voice Chat's API artifact (compileOnly below).
+    maven { url = "https://maven.maxhenkel.de/repository/public" }
 }
 
 dependencies {
@@ -146,6 +148,13 @@ dependencies {
     // above), matching the exact jar this addon's code was verified against
     // (pipesnphysics-3.2.1.jar, z_reference_mods/create-pipes-n-physics-main).
     compileOnly "com.github.StaticFX:create-pipes-n-physics:${pipes_n_physics_version}"
+
+    // --- Simple Voice Chat ------------------------------------------------
+    // Soft (optional) dependency: only the API jar, compileOnly, so nothing of it is
+    // required at runtime. com.cio.createinteroperable.voice.CioVoicechatPlugin is the
+    // only class that touches it, and Simple Voice Chat only instantiates that class
+    // when it is installed.
+    compileOnly "de.maxhenkel.voicechat:voicechat-api:${voicechat_api_version}"
 }
 
 var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {
@@ -167,7 +176,8 @@ var generateModMetadata = tasks.register("generateModMetadata", ProcessResources
             electro_energetics_version_range: electro_energetics_version_range,
             refurbished_furniture_version_range: refurbished_furniture_version_range,
             cold_sweat_version_range        : cold_sweat_version_range,
-            pipes_n_physics_version_range   : pipes_n_physics_version_range
+            pipes_n_physics_version_range   : pipes_n_physics_version_range,
+            voicechat_version_range         : voicechat_version_range
     ]
     inputs.properties replaceProperties
     expand replaceProperties

@@ -64,6 +64,11 @@ public class CreateInteroperable {
         if (PipesNPhysicsCompat.present()) {
             PipesNPhysicsIntegration.register(modEventBus);
         }
+        // Voice relay for answered Telephone calls. VoiceCallTracker holds no Simple Voice Chat
+        // types; the plugin class itself is found and instantiated by Simple Voice Chat.
+        if (com.cio.createinteroperable.compat.SimpleVoiceChatCompat.present()) {
+            net.neoforged.neoforge.common.NeoForge.EVENT_BUS.register(com.cio.createinteroperable.voice.VoiceCallTracker.class);
+        }
     }
 
     public static ResourceLocation rl(String path) {

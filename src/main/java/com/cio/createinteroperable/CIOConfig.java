@@ -47,6 +47,18 @@ public final class CIOConfig {
      */
     public static final ModConfigSpec.BooleanValue SINK_REQUIRE_PIPE_SUPPLY;
 
+    /** Simple Voice Chat telephone relay master switch (a no-op without that mod). */
+    public static final ModConfigSpec.BooleanValue VOICE_RELAY;
+
+    /** Blocks around a phone in which speech is picked up. */
+    public static final ModConfigSpec.DoubleValue VOICE_CAPTURE_RADIUS;
+
+    /** Blocks around the far phone within which the relayed voice is audible. */
+    public static final ModConfigSpec.DoubleValue VOICE_PLAYBACK_RANGE;
+
+    /** Loudness of the quiet hiss each phone plays for the length of an answered call; 0 = none. */
+    public static final ModConfigSpec.DoubleValue VOICE_LINE_NOISE;
+
     /** Capacity of a Let's Do sink's internal supply buffer, in millibuckets. */
     public static final ModConfigSpec.IntValue SINK_BUFFER_CAPACITY_MB;
 
@@ -291,6 +303,26 @@ public final class CIOConfig {
                         "scale (256 = the fastest a Mechanical Pump turns). It scales down with the",
                         "motor's power. 0 disables it and leaves the motor as a plain tank.")
                 .defineInRange("motorPumpRpm", 256.0, 0.0, 256.0);
+        b.pop();
+
+        b.push("telephoneVoice");
+        VOICE_RELAY = b
+                .comment("A no-op unless Simple Voice Chat is installed. While a telephone call is",
+                        "answered, players speaking near either phone are heard from the other one.",
+                        "Set false to turn the relay off.")
+                .define("relayEnabled", true);
+        VOICE_CAPTURE_RADIUS = b
+                .comment("Blocks around a phone in which a player's voice is picked up and carried",
+                        "down the line. Whispering picks up half this distance.")
+                .defineInRange("captureRadius", 5.0, 1.0, 32.0);
+        VOICE_PLAYBACK_RANGE = b
+                .comment("Blocks around the far phone within which the carried voice can be heard.")
+                .defineInRange("playbackRange", 8.0, 1.0, 64.0);
+        VOICE_LINE_NOISE = b
+                .comment("A faint hiss with the odd soft crackle, played from both phones for as long as",
+                        "a call is answered - mild by default. 0 turns it off, 1 is roughly four times",
+                        "as loud as the default.")
+                .defineInRange("lineNoise", 0.25, 0.0, 1.0);
         b.pop();
 
         SPEC = b.build();
