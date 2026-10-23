@@ -57,6 +57,11 @@ neoForge {
 
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
+// Editor sources and scratch art live next to the real assets while being worked on; they don't ship.
+tasks.named('processResources') {
+    exclude '**/*.bbmodel', '**/*.psd', '**/_wip/**', '**/*.wip.png'
+}
+
 repositories {
     // Create, Ponder, Flywheel
     maven { url = "https://maven.createmod.net" }

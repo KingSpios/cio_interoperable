@@ -49,3 +49,19 @@ texel_utopia/
 /minecraft_title_CIO.png
 /telephone_*.png
 /z_working_assets
+
+# Scratch art next to the real assets: any _wip/ folder or *.wip.png under src/main/resources
+# (also left out of the jar, see processResources in build.gradle). Photoshop sources too;
+# Blockbench .bbmodel files stay tracked but are likewise left out of the jar.
+src/main/resources/**/_wip/
+src/main/resources/**/*.wip.png
+*.psd
+
+# Textures no model references, kept on disk for now but not tracked
+src/main/resources/assets/createinteroperable/textures/block/aircon_base.png
+src/main/resources/assets/createinteroperable/textures/block/brass_heater_oxi.png
+src/main/resources/assets/createinteroperable/textures/block/deb_rectifier_tier3_red.png
+src/main/resources/assets/createinteroperable/textures/block/deb_rectifier_tier3_yellow.png
+src/main/resources/assets/createinteroperable/textures/block/pipes_connected.png
+src/main/resources/assets/createinteroperable/textures/block/steam_outlet_realpng.png
+src/main/resources/assets/createinteroperable/textures/block/streetlight_broken_new.png
