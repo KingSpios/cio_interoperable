@@ -1,9 +1,10 @@
 package com.cio.createinteroperable.mixin.crayfish;
 
-import com.cio.createinteroperable.deb.ApplianceLoads;
-import com.cio.createinteroperable.deb.CeeDebRectifierBlockEntity;
-import com.cio.createinteroperable.deb.DebNodeBox;
-import com.cio.createinteroperable.deb.Pool;
+import com.cio.createinteroperable.grid.ApplianceLoads;
+import com.cio.createinteroperable.grid.ApplianceNode;
+import com.cio.createinteroperable.powerkit.cee.CeeDebRectifierBlockEntity;
+import com.cio.createinteroperable.powerkit.DebNodeBox;
+import com.cio.createinteroperable.grid.Pool;
 import com.mrcrayfish.furniture.refurbished.electricity.Connection;
 import com.mrcrayfish.furniture.refurbished.electricity.IElectricityNode;
 import com.mrcrayfish.furniture.refurbished.electricity.ISourceNode;
@@ -45,7 +46,7 @@ import java.util.Set;
  * purpose (see {@code CeeDebRectifierBlockEntity}'s own class doc), and this
  * project's established pattern is full duplication across the PG/CEE split
  * rather than an abstraction that would force one side to reference the
- * other's class. Every method here reads through {@link com.cio.createinteroperable.deb.ApplianceSource},
+ * other's class. Every method here reads through {@link com.cio.createinteroperable.grid.ApplianceSource},
  * the protocol-neutral interface both BlockEntity families already implement.</p>
  */
 @Mixin(CeeDebRectifierBlockEntity.class)

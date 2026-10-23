@@ -9,9 +9,9 @@ import com.cio.createinteroperable.iden.ElectricHeavyLeverBlock;
 import com.cio.createinteroperable.iden.ElectricLeverBlock;
 import com.cio.createinteroperable.iden.ElectricSwitchBlockEntity;
 import com.cio.createinteroperable.iden.ElectricSwitches;
-import com.cio.createinteroperable.iden.IdenCeeTelephoneBlockEntity;
-import com.cio.createinteroperable.iden.IdenPgTelephoneBlockEntity;
-import com.cio.createinteroperable.iden.IdenTelephones;
+import com.cio.createinteroperable.telephone.iden.IdenCeeTelephoneBlockEntity;
+import com.cio.createinteroperable.telephone.iden.IdenPgTelephoneBlockEntity;
+import com.cio.createinteroperable.telephone.iden.IdenTelephones;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.level.block.SoundType;
@@ -175,7 +175,7 @@ public final class IdenDecorModule {
                 DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, CreateInteroperable.ID);
 
         // Iden's Decor telephone — CIO swaps its own block in at Iden's registration
-        // (see com.cio.createinteroperable.iden.IdenTelephones); these carry the
+        // (see com.cio.createinteroperable.telephone.iden.IdenTelephones); these carry the
         // call logic + appliance-grid node. The PG type backs both the PG-only and
         // the PG+CEE block; the CEE type only exists on a CEE-only install.
         public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<IdenPgTelephoneBlockEntity>> BLOCK_ENTITY =

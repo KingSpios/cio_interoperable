@@ -1,7 +1,7 @@
 package com.cio.createinteroperable.modules;
 
-import com.cio.createinteroperable.iden.IdenPhone;
-import com.cio.createinteroperable.iden.IdenTelephoneRenderer;
+import com.cio.createinteroperable.telephone.iden.IdenPhone;
+import com.cio.createinteroperable.telephone.iden.IdenTelephoneRenderer;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import java.util.function.Supplier;
 import net.minecraft.world.level.block.entity.BlockEntityType;

@@ -1,7 +1,7 @@
 package com.cio.createinteroperable.modules;
 
-import com.cio.createinteroperable.InteroperableDoubleCouplerRenderer;
-import com.cio.createinteroperable.TelephoneRenderer;
+import com.cio.createinteroperable.bridge.InteroperableDoubleCouplerRenderer;
+import com.cio.createinteroperable.telephone.TelephoneRenderer;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 

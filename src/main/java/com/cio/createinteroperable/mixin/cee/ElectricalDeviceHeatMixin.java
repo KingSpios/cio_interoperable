@@ -1,8 +1,8 @@
 package com.cio.createinteroperable.mixin.cee;
 
-import com.cio.createinteroperable.compat.CeeDeviceTemperature;
+import com.cio.createinteroperable.thermal.cee.CeeDeviceTemperature;
 import com.cio.createinteroperable.compat.Mods;
-import com.cio.createinteroperable.compat.ColdSweatWorldTemp;
+import com.cio.createinteroperable.thermal.coldsweat.ColdSweatWorldTemp;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;

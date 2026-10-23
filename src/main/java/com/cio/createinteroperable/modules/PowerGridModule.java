@@ -1,27 +1,25 @@
 package com.cio.createinteroperable.modules;
 
-import com.cio.createinteroperable.AirconMotorBottom240Block;
-import com.cio.createinteroperable.AirconMotorBottomBlock;
-import com.cio.createinteroperable.AirconMotorBottomBlockEntity;
-import com.cio.createinteroperable.CIOConnectorBlock;
-import com.cio.createinteroperable.CIOConnectorGlassBlock;
+import com.cio.createinteroperable.thermal.cpg.AirconMotorBottom240Block;
+import com.cio.createinteroperable.thermal.cpg.AirconMotorBottomBlock;
+import com.cio.createinteroperable.thermal.cpg.AirconMotorBottomBlockEntity;
+import com.cio.createinteroperable.cpg.CIOConnectorBlock;
+import com.cio.createinteroperable.cpg.CIOConnectorGlassBlock;
 import com.cio.createinteroperable.CIOCreativeTab;
-import com.cio.createinteroperable.CIODoubleConnectorBlock;
-import com.cio.createinteroperable.CIODoubleConnectorBlockEntity;
-import com.cio.createinteroperable.CpgTelephoneBlock;
-import com.cio.createinteroperable.CpgTelephoneBlockEntity;
+import com.cio.createinteroperable.cpg.CIODoubleConnectorBlock;
+import com.cio.createinteroperable.cpg.CIODoubleConnectorBlockEntity;
+import com.cio.createinteroperable.telephone.cpg.CpgTelephoneBlock;
+import com.cio.createinteroperable.telephone.cpg.CpgTelephoneBlockEntity;
 import com.cio.createinteroperable.CreateInteroperable;
 import com.cio.createinteroperable.compat.Mods;
-import com.cio.createinteroperable.deb.DebRectifierBlock;
-import com.cio.createinteroperable.deb.PowerKitTier1Block;
-import com.cio.createinteroperable.deb.PowerKitTier1BlockEntity;
-import com.cio.createinteroperable.deb.PowerKitTier2BlockEntity;
-import com.cio.createinteroperable.deb.PowerKitTier3Block;
-import com.cio.createinteroperable.deb.PowerKitTier3BlockEntity;
-import com.cio.createinteroperable.deb.PowerKitTier4Block;
-import com.cio.createinteroperable.deb.PowerKitTier4BlockEntity;
-import com.cio.createinteroperable.deb.RedstoneSwitchBlock;
-import com.cio.createinteroperable.deb.RedstoneSwitchBlockEntity;
+import com.cio.createinteroperable.powerkit.cpg.DebRectifierBlock;
+import com.cio.createinteroperable.powerkit.cpg.PowerKitTier1Block;
+import com.cio.createinteroperable.powerkit.cpg.PowerKitTier1BlockEntity;
+import com.cio.createinteroperable.powerkit.cpg.PowerKitTier2BlockEntity;
+import com.cio.createinteroperable.powerkit.cpg.PowerKitTier3Block;
+import com.cio.createinteroperable.powerkit.cpg.PowerKitTier3BlockEntity;
+import com.cio.createinteroperable.powerkit.cpg.PowerKitTier4Block;
+import com.cio.createinteroperable.powerkit.cpg.PowerKitTier4BlockEntity;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -40,8 +38,8 @@ import org.patryk3211.powergrid.electricity.wireconnector.ConnectorBlockEntity;
 /**
  * Power Grid content: everything CIO registers only when Power Grid is
  * installed — the PG Aircon motor bottoms, the CPG Telephone, the CPG Double
- * Connector, the Domestic Electrical Board / CPG Power Kits and the CPG
- * Redstone Switch. Touched only after {@link CIOModules} has checked
+ * Connector and the Domestic Electrical Board / CPG Power Kits (the
+ * experimental CPG Redstone Switch is in {@link RedstoneSwitchModule}). Touched only after {@link CIOModules} has checked
  * {@link #REQUIRES}.
  */
 public final class PowerGridModule {
@@ -133,14 +131,6 @@ public final class PowerGridModule {
                     .strength(3.0f, 10.0f)
                     .noOcclusion()));
 
-    // Redstone Switch — a redstone-gated two-pole inline break. Throughput caps
-    // and thermal model calibrated against the tier-2 Power Kit. PG-only.
-    public static final DeferredBlock<RedstoneSwitchBlock> REDSTONE_SWITCH = BLOCKS.register("redstone_switch",
-            () -> new RedstoneSwitchBlock(BlockBehaviour.Properties.of()
-                    .mapColor(MapColor.METAL)
-                    .strength(2.0f, 6.0f)
-                    .noOcclusion()));
-
     // --- Block entities ---
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CpgTelephoneBlockEntity>> CPG_TELEPHONE_BE =
@@ -191,11 +181,6 @@ public final class PowerGridModule {
                     (pos, state) -> new PowerKitTier4BlockEntity(PowerGridModule.DEB_RECTIFIER_TIER4_BE.get(), pos, state),
                     PowerGridModule.DEB_RECTIFIER_TIER4.get()).build(null));
 
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<RedstoneSwitchBlockEntity>> REDSTONE_SWITCH_BE =
-            BLOCK_ENTITIES.register("redstone_switch", () -> BlockEntityType.Builder.of(
-                    (pos, state) -> new RedstoneSwitchBlockEntity(PowerGridModule.REDSTONE_SWITCH_BE.get(), pos, state),
-                    PowerGridModule.REDSTONE_SWITCH.get()).build(null));
-
     // Aircon motor bottom (both voltages share one type) — see CIOBlocks.
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AirconMotorBottomBlockEntity>> AIRCON_MOTOR_BOTTOM_BE =
             BLOCK_ENTITIES.register("aircon_motor_bottom", () -> BlockEntityType.Builder.of(
@@ -227,9 +212,6 @@ public final class PowerGridModule {
 
     public static final DeferredItem<BlockItem> DEB_RECTIFIER_TIER4_ITEM = ITEMS.registerSimpleBlockItem(
             "deb_rectifier_tier4", PowerGridModule.DEB_RECTIFIER_TIER4);
-
-    public static final DeferredItem<BlockItem> REDSTONE_SWITCH_ITEM = ITEMS.registerSimpleBlockItem(
-            "redstone_switch", PowerGridModule.REDSTONE_SWITCH);
 
     public static final DeferredItem<BlockItem> AIRCON_MOTOR_BOTTOM_ITEM = ITEMS.registerSimpleBlockItem(
             "aircon_motor_bottom", PowerGridModule.AIRCON_MOTOR_BOTTOM);

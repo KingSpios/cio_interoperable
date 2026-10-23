@@ -1,6 +1,6 @@
 package com.cio.createinteroperable.iden;
 
-import com.cio.createinteroperable.deb.MeteredAppliance;
+import com.cio.createinteroperable.grid.MeteredAppliance;
 import com.cio.createinteroperable.grid.ApplianceGrid;
 import com.cio.createinteroperable.grid.ApplianceNode;
 import com.cio.createinteroperable.compat.Mods;

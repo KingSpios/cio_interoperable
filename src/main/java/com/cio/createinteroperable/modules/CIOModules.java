@@ -1,7 +1,7 @@
 package com.cio.createinteroperable.modules;
 
 import com.cio.createinteroperable.CreateInteroperable;
-import com.cio.createinteroperable.compat.ColdSweatIntegration;
+import com.cio.createinteroperable.thermal.coldsweat.ColdSweatIntegration;
 import com.cio.createinteroperable.compat.Mods;
 import com.cio.createinteroperable.compat.PipesNPhysicsIntegration;
 import com.cio.createinteroperable.voice.VoiceCallTracker;
@@ -49,6 +49,16 @@ public final class CIOModules {
         if (isEnabled(ElectroEnergeticsModule.REQUIRES)) {
             ElectroEnergeticsModule.register(modEventBus);
             markEnabled("ElectroEnergeticsModule");
+        }
+        // EXPERIMENTAL (experimental branch only): the CPG / CEE Redstone Switch.
+        // Off the creative tab by design.
+        if (isEnabled(RedstoneSwitchModule.Cpg.REQUIRES)) {
+            RedstoneSwitchModule.Cpg.register(modEventBus);
+            markEnabled("RedstoneSwitchModule.Cpg");
+        }
+        if (isEnabled(RedstoneSwitchModule.Cee.REQUIRES)) {
+            RedstoneSwitchModule.Cee.register(modEventBus);
+            markEnabled("RedstoneSwitchModule.Cee");
         }
         if (isEnabled(BridgeModule.REQUIRES)) {
             BridgeModule.register(modEventBus);

@@ -1,8 +1,8 @@
 package com.cio.createinteroperable.voice;
 
 import com.cio.createinteroperable.CIOConfig;
-import com.cio.createinteroperable.TelephoneNode;
-import com.cio.createinteroperable.TelephoneRegistry;
+import com.cio.createinteroperable.telephone.TelephoneNode;
+import com.cio.createinteroperable.telephone.TelephoneRegistry;
 import com.cio.createinteroperable.compat.Mods;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;

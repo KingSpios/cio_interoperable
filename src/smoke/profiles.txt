@@ -8,15 +8,15 @@
 # catches a module whose REQUIRES check is wrong, not just a crash.
 
 bare         | create                                          | -
-pg           | powergrid                                       | PowerGridModule
-cee          | electroenergetics                               | ElectroEnergeticsModule
-pg-cee       | powergrid electroenergetics                     | PowerGridModule ElectroEnergeticsModule BridgeModule
-pg-crayfish  | powergrid refurbished_furniture                 | PowerGridModule RefurbishedFurnitureModule
-cee-crayfish | electroenergetics refurbished_furniture         | ElectroEnergeticsModule RefurbishedFurnitureModule
-pg-iden      | powergrid iden_decor                            | PowerGridModule IdenDecorModule IdenDecorModule.PgTelephone
-cee-iden     | electroenergetics iden_decor                    | ElectroEnergeticsModule IdenDecorModule IdenDecorModule.CeeTelephone
-cee-pnw      | electroenergetics pantographsandwires           | ElectroEnergeticsModule PantographsAndWiresModule
-pg-mts       | powergrid mts                                   | PowerGridModule ImmersiveVehiclesModule
-mts-crayfish | powergrid mts refurbished_furniture             | PowerGridModule ImmersiveVehiclesModule RefurbishedFurnitureModule
+pg           | powergrid                                       | PowerGridModule RedstoneSwitchModule.Cpg
+cee          | electroenergetics                               | ElectroEnergeticsModule RedstoneSwitchModule.Cee
+pg-cee       | powergrid electroenergetics                     | PowerGridModule ElectroEnergeticsModule BridgeModule RedstoneSwitchModule.Cpg RedstoneSwitchModule.Cee
+pg-crayfish  | powergrid refurbished_furniture                 | PowerGridModule RefurbishedFurnitureModule RedstoneSwitchModule.Cpg
+cee-crayfish | electroenergetics refurbished_furniture         | ElectroEnergeticsModule RefurbishedFurnitureModule RedstoneSwitchModule.Cee
+pg-iden      | powergrid iden_decor                            | PowerGridModule IdenDecorModule IdenDecorModule.PgTelephone RedstoneSwitchModule.Cpg
+cee-iden     | electroenergetics iden_decor                    | ElectroEnergeticsModule IdenDecorModule IdenDecorModule.CeeTelephone RedstoneSwitchModule.Cee
+cee-pnw      | electroenergetics pantographsandwires           | ElectroEnergeticsModule PantographsAndWiresModule RedstoneSwitchModule.Cee
+pg-mts       | powergrid mts                                   | PowerGridModule ImmersiveVehiclesModule RedstoneSwitchModule.Cpg
+mts-crayfish | powergrid mts refurbished_furniture             | PowerGridModule ImmersiveVehiclesModule RefurbishedFurnitureModule RedstoneSwitchModule.Cpg
 # curios: Beachparty needs it at runtime without declaring it in its mods.toml.
-soft-mods    | powergrid electroenergetics refurbished_furniture cold_sweat pipesnphysics voicechat furniture candlelight beachparty curios alpinewhispers another_furniture | PowerGridModule ElectroEnergeticsModule BridgeModule RefurbishedFurnitureModule ColdSweatIntegration PipesNPhysicsIntegration VoiceCallTracker
+soft-mods    | powergrid electroenergetics refurbished_furniture cold_sweat pipesnphysics voicechat furniture candlelight beachparty curios alpinewhispers another_furniture | PowerGridModule ElectroEnergeticsModule BridgeModule RefurbishedFurnitureModule ColdSweatIntegration PipesNPhysicsIntegration VoiceCallTracker RedstoneSwitchModule.Cpg RedstoneSwitchModule.Cee

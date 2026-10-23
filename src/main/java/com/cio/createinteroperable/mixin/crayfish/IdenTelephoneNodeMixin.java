@@ -31,8 +31,8 @@ import java.util.Set;
  * {@code SmartBlockEntity} {@code read}/{@code write}, like the Power Kit's.
  */
 @Mixin(targets = {
-        "com.cio.createinteroperable.iden.IdenPgTelephoneBlockEntity",
-        "com.cio.createinteroperable.iden.IdenCeeTelephoneBlockEntity"})
+        "com.cio.createinteroperable.telephone.iden.IdenPgTelephoneBlockEntity",
+        "com.cio.createinteroperable.telephone.iden.IdenCeeTelephoneBlockEntity"})
 @Implements(@Interface(iface = IModuleNode.class, prefix = "imn$"))
 public abstract class IdenTelephoneNodeMixin {
 

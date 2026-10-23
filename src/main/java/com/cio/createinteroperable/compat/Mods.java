@@ -1,5 +1,6 @@
 package com.cio.createinteroperable.compat;
 
+import com.cio.createinteroperable.thermal.coldsweat.ColdSweatIntegration;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.loading.LoadingModList;
 import org.jetbrains.annotations.Nullable;

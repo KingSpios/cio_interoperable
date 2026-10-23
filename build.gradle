@@ -124,10 +124,11 @@ dependencies {
     // --- MrCrayfish's Furniture Mod: Refurbished ----------------------
     // com.mrcrayfish.furniture.refurbished. Project 897116, file 7473565 =
     // refurbished_furniture-neoforge-1.21.1-1.0.22.jar (NeoForge 1.21.1,
-    // uploaded 2026-01-17), the newest 1.21.1 NeoForge build. Hard dependency
-    // of the Domestic Electrical Board feature (com.cio.createinteroperable.deb):
-    // DebRectifierBlockEntity implements Crayfish's ISourceNode and the DEB
-    // reads the ElectricityGenerator's own appliance node graph. The multi-
+    // uploaded 2026-01-17), the newest 1.21.1 NeoForge build. Optional at
+    // runtime (mods.toml): when installed, the Power Kits
+    // (com.cio.createinteroperable.powerkit) become Crayfish ISourceNodes via
+    // the *crayfish* mixin configs and feed its appliance node graph; without
+    // it CIO's own appliance grid does the job. The multi-
     // loader mod shades its `common` electricity package (IElectricityNode /
     // ISourceNode / Connection / ElectricityTicker) into this NeoForge jar.
     implementation "curse.maven:refurbished-furniture-897116:7473565"

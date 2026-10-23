@@ -1,8 +1,7 @@
 package com.cio.createinteroperable.modules;
 
-import com.cio.createinteroperable.TelephoneRenderer;
-import com.cio.createinteroperable.deb.DebRectifierRenderer;
-import com.cio.createinteroperable.deb.RedstoneSwitchRenderer;
+import com.cio.createinteroperable.telephone.TelephoneRenderer;
+import com.cio.createinteroperable.powerkit.cpg.DebRectifierRenderer;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
 import net.neoforged.bus.api.IEventBus;
@@ -31,8 +30,6 @@ final class PowerGridModuleClient {
         event.registerBlockEntityRenderer(PowerGridModule.DEB_RECTIFIER_TIER1_BE.get(), DebRectifierRenderer::new);
         event.registerBlockEntityRenderer(PowerGridModule.DEB_RECTIFIER_TIER3_BE.get(), DebRectifierRenderer::new);
         event.registerBlockEntityRenderer(PowerGridModule.DEB_RECTIFIER_TIER4_BE.get(), DebRectifierRenderer::new);
-        RedstoneSwitchRenderer.init();
-        event.registerBlockEntityRenderer(PowerGridModule.REDSTONE_SWITCH_BE.get(), RedstoneSwitchRenderer::new);
     }
 
     private static void clientSetup(FMLClientSetupEvent event) {

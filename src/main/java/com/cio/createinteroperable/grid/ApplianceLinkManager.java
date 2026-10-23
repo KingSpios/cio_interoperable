@@ -136,7 +136,7 @@ public final class ApplianceLinkManager {
     private static void notify(Player player, BlockPos from) {
         if (player instanceof ServerPlayer sp) {
             net.neoforged.neoforge.network.PacketDistributor.sendToPlayer(sp,
-                    new com.cio.createinteroperable.MsgApplianceLinkState(java.util.Optional.ofNullable(from)));
+                    new com.cio.createinteroperable.grid.MsgApplianceLinkState(java.util.Optional.ofNullable(from)));
         }
         CreateInteroperable.LOGGER.debug("[grid] link state for {} -> {}", player.getGameProfile().getName(), from);
     }

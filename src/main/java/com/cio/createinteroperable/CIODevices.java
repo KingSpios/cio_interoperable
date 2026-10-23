@@ -1,9 +1,13 @@
 package com.cio.createinteroperable;
 
+import com.cio.createinteroperable.bridge.InteroperableDevice;
+import com.cio.createinteroperable.cee.CeeCompactTransformerDevice;
+import com.cio.createinteroperable.cee.CeeStreetlightDevice;
 import com.cio.createinteroperable.compat.PnwTerminalDevice;
 import com.cio.createinteroperable.compat.Mods;
-import com.cio.createinteroperable.deb.DebCeeDevice;
-import com.cio.createinteroperable.deb.RedstoneSwitchCeeDevice;
+import com.cio.createinteroperable.powerkit.cee.DebCeeDevice;
+import com.cio.createinteroperable.telephone.cee.TelephoneDevice;
+import com.cio.createinteroperable.thermal.cee.AirconCeeDevice;
 import com.george_vi.electroenergetics.CEERegistries;
 import com.george_vi.electroenergetics.content.connector.DoubleConnectorDevice;
 import com.george_vi.electroenergetics.devices.device.SimulatedDeviceType;
@@ -44,18 +48,13 @@ public class CIODevices {
 
     /**
      * Shared by all four CEE-wired Power Kit tiers (see
-     * {@link com.cio.createinteroperable.deb.CeeDebRectifierBlock}) &mdash; the
+     * {@link com.cio.createinteroperable.powerkit.cee.CeeDebRectifierBlock}) &mdash; the
      * per-tier feed topology is pushed in from the BlockEntity each tick, so one
      * device type covers every tier.
      */
     public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<DebCeeDevice>> POWER_KIT =
             DEVICES.register("power_kit", () -> new SimulatedDeviceType<>(CreateInteroperable.rl("power_kit"),
                     ((type, level, pos, sd) -> new DebCeeDevice(level, pos, sd, type))));
-
-    /** Electro Energetics side of the CEE Redstone Switch (two independent pole resistors). */
-    public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<RedstoneSwitchCeeDevice>> REDSTONE_SWITCH =
-            DEVICES.register("redstone_switch", () -> new SimulatedDeviceType<>(CreateInteroperable.rl("redstone_switch"),
-                    ((type, level, pos, sd) -> new RedstoneSwitchCeeDevice(level, pos, sd, type))));
 
     /** Electro Energetics side of the CEE Aircon Motor (a single dynamic-resistance load). */
     public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<AirconCeeDevice>> AIRCON_MOTOR =

@@ -1,5 +1,11 @@
 package com.cio.createinteroperable;
 
+import com.cio.createinteroperable.thermal.AirconMotorTopRenderer;
+import com.cio.createinteroperable.thermal.BrassHeaterRenderer;
+import com.cio.createinteroperable.thermal.BrassHeaterVisual;
+import com.cio.createinteroperable.thermal.RadiatorSmokeParticle;
+import com.cio.createinteroperable.thermal.SteamOutletRenderer;
+import com.cio.createinteroperable.thermal.SteamOutletVisual;
 import dev.engine_room.flywheel.lib.visualization.SimpleBlockEntityVisualizer;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;

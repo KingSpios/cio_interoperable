@@ -2,29 +2,27 @@ package com.cio.createinteroperable.modules;
 
 import com.cio.createinteroperable.CIOCreativeTab;
 import com.cio.createinteroperable.CIODevices;
-import com.cio.createinteroperable.CeeAirconMotorBottom240Block;
-import com.cio.createinteroperable.CeeAirconMotorBottomBlock;
-import com.cio.createinteroperable.CeeAirconMotorBottomBlockEntity;
-import com.cio.createinteroperable.CeeCompactTransformerBlock;
-import com.cio.createinteroperable.CeeCompactTransformerBlockEntity;
-import com.cio.createinteroperable.CeeMiniConnectorBlock;
-import com.cio.createinteroperable.CeeStreetlightBlock;
-import com.cio.createinteroperable.CeeStreetlightBlockEntity;
-import com.cio.createinteroperable.CeeStreetlightLightBlock;
-import com.cio.createinteroperable.CeeTelephoneBlock;
-import com.cio.createinteroperable.CeeTelephoneBlockEntity;
+import com.cio.createinteroperable.thermal.cee.CeeAirconMotorBottom240Block;
+import com.cio.createinteroperable.thermal.cee.CeeAirconMotorBottomBlock;
+import com.cio.createinteroperable.thermal.cee.CeeAirconMotorBottomBlockEntity;
+import com.cio.createinteroperable.cee.CeeCompactTransformerBlock;
+import com.cio.createinteroperable.cee.CeeCompactTransformerBlockEntity;
+import com.cio.createinteroperable.cee.CeeMiniConnectorBlock;
+import com.cio.createinteroperable.cee.CeeStreetlightBlock;
+import com.cio.createinteroperable.cee.CeeStreetlightBlockEntity;
+import com.cio.createinteroperable.cee.CeeStreetlightLightBlock;
+import com.cio.createinteroperable.telephone.cee.CeeTelephoneBlock;
+import com.cio.createinteroperable.telephone.cee.CeeTelephoneBlockEntity;
 import com.cio.createinteroperable.CreateInteroperable;
 import com.cio.createinteroperable.compat.Mods;
-import com.cio.createinteroperable.deb.CeeDebRectifierBlock;
-import com.cio.createinteroperable.deb.CeePowerKitTier1Block;
-import com.cio.createinteroperable.deb.CeePowerKitTier1BlockEntity;
-import com.cio.createinteroperable.deb.CeePowerKitTier2BlockEntity;
-import com.cio.createinteroperable.deb.CeePowerKitTier3Block;
-import com.cio.createinteroperable.deb.CeePowerKitTier3BlockEntity;
-import com.cio.createinteroperable.deb.CeePowerKitTier4Block;
-import com.cio.createinteroperable.deb.CeePowerKitTier4BlockEntity;
-import com.cio.createinteroperable.deb.CeeRedstoneSwitchBlock;
-import com.cio.createinteroperable.deb.CeeRedstoneSwitchBlockEntity;
+import com.cio.createinteroperable.powerkit.cee.CeeDebRectifierBlock;
+import com.cio.createinteroperable.powerkit.cee.CeePowerKitTier1Block;
+import com.cio.createinteroperable.powerkit.cee.CeePowerKitTier1BlockEntity;
+import com.cio.createinteroperable.powerkit.cee.CeePowerKitTier2BlockEntity;
+import com.cio.createinteroperable.powerkit.cee.CeePowerKitTier3Block;
+import com.cio.createinteroperable.powerkit.cee.CeePowerKitTier3BlockEntity;
+import com.cio.createinteroperable.powerkit.cee.CeePowerKitTier4Block;
+import com.cio.createinteroperable.powerkit.cee.CeePowerKitTier4BlockEntity;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.level.block.SoundType;
@@ -43,7 +41,8 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 /**
  * Electro Energetics content: the CEE Aircon motor bottoms, the CEE
  * Telephone, the Compact Transformer, the Streetlight, the Mini Double
- * Connector, the CEE Power Kits and the CEE Redstone Switch, plus CIO's
+ * Connector and the CEE Power Kits (the experimental CEE Redstone Switch is
+ * in {@link RedstoneSwitchModule}), plus CIO's
  * SimulatedDevice types ({@link CIODevices}). Touched only after
  * {@link CIOModules} has checked {@link #REQUIRES}.
  */
@@ -135,12 +134,6 @@ public final class ElectroEnergeticsModule {
                     .strength(3.0f, 10.0f)
                     .noOcclusion()));
 
-    public static final DeferredBlock<CeeRedstoneSwitchBlock> CEE_REDSTONE_SWITCH = BLOCKS.register("cee_redstone_switch",
-            () -> new CeeRedstoneSwitchBlock(BlockBehaviour.Properties.of()
-                    .mapColor(MapColor.METAL)
-                    .strength(2.0f, 6.0f)
-                    .noOcclusion()));
-
     // --- Block entities ---
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CeeTelephoneBlockEntity>> CEE_TELEPHONE_BE =
@@ -179,11 +172,6 @@ public final class ElectroEnergeticsModule {
                     (pos, state) -> new CeePowerKitTier4BlockEntity(ElectroEnergeticsModule.CEE_DEB_RECTIFIER_TIER4_BE.get(), pos, state),
                     ElectroEnergeticsModule.CEE_DEB_RECTIFIER_TIER4.get()).build(null));
 
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CeeRedstoneSwitchBlockEntity>> CEE_REDSTONE_SWITCH_BE =
-            BLOCK_ENTITIES.register("cee_redstone_switch", () -> BlockEntityType.Builder.of(
-                    (pos, state) -> new CeeRedstoneSwitchBlockEntity(ElectroEnergeticsModule.CEE_REDSTONE_SWITCH_BE.get(), pos, state),
-                    ElectroEnergeticsModule.CEE_REDSTONE_SWITCH.get()).build(null));
-
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CeeAirconMotorBottomBlockEntity>> CEE_AIRCON_MOTOR_BOTTOM_BE =
             BLOCK_ENTITIES.register("cee_aircon_motor_bottom", () -> BlockEntityType.Builder.of(
                     (pos, state) -> new CeeAirconMotorBottomBlockEntity(ElectroEnergeticsModule.CEE_AIRCON_MOTOR_BOTTOM_BE.get(), pos, state),
@@ -215,9 +203,6 @@ public final class ElectroEnergeticsModule {
 
     public static final DeferredItem<BlockItem> CEE_DEB_RECTIFIER_TIER4_ITEM = ITEMS.registerSimpleBlockItem(
             "cee_deb_rectifier_tier4", ElectroEnergeticsModule.CEE_DEB_RECTIFIER_TIER4);
-
-    public static final DeferredItem<BlockItem> CEE_REDSTONE_SWITCH_ITEM = ITEMS.registerSimpleBlockItem(
-            "cee_redstone_switch", ElectroEnergeticsModule.CEE_REDSTONE_SWITCH);
 
     public static final DeferredItem<BlockItem> CEE_AIRCON_MOTOR_BOTTOM_ITEM = ITEMS.registerSimpleBlockItem(
             "cee_aircon_motor_bottom", ElectroEnergeticsModule.CEE_AIRCON_MOTOR_BOTTOM);

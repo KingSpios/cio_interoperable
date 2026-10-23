@@ -1,9 +1,8 @@
 package com.cio.createinteroperable.modules;
 
-import com.cio.createinteroperable.CeeStreetlightRenderer;
-import com.cio.createinteroperable.TelephoneRenderer;
-import com.cio.createinteroperable.deb.CeeDebRectifierRenderer;
-import com.cio.createinteroperable.deb.RedstoneSwitchRenderer;
+import com.cio.createinteroperable.cee.CeeStreetlightRenderer;
+import com.cio.createinteroperable.telephone.TelephoneRenderer;
+import com.cio.createinteroperable.powerkit.cee.CeeDebRectifierRenderer;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
 import net.neoforged.bus.api.IEventBus;
@@ -30,8 +29,6 @@ final class ElectroEnergeticsModuleClient {
         event.registerBlockEntityRenderer(ElectroEnergeticsModule.CEE_DEB_RECTIFIER_TIER1_BE.get(), CeeDebRectifierRenderer::new);
         event.registerBlockEntityRenderer(ElectroEnergeticsModule.CEE_DEB_RECTIFIER_TIER3_BE.get(), CeeDebRectifierRenderer::new);
         event.registerBlockEntityRenderer(ElectroEnergeticsModule.CEE_DEB_RECTIFIER_TIER4_BE.get(), CeeDebRectifierRenderer::new);
-        RedstoneSwitchRenderer.init();
-        event.registerBlockEntityRenderer(ElectroEnergeticsModule.CEE_REDSTONE_SWITCH_BE.get(), RedstoneSwitchRenderer::new);
     }
 
     private static void clientSetup(FMLClientSetupEvent event) {

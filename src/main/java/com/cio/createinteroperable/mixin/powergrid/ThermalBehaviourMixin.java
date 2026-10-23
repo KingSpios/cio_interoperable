@@ -2,7 +2,7 @@ package com.cio.createinteroperable.mixin.powergrid;
 
 import com.cio.createinteroperable.CreateInteroperable;
 import com.cio.createinteroperable.compat.Mods;
-import com.cio.createinteroperable.compat.ColdSweatWorldTemp;
+import com.cio.createinteroperable.thermal.coldsweat.ColdSweatWorldTemp;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;

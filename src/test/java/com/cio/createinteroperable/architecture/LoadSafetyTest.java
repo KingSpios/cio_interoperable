@@ -29,8 +29,11 @@ import static org.junit.jupiter.api.Assertions.fail;
  *     <li><b>Modules</b>: any class declaring {@code public static final String
  *     REQUIRES = "modA,modB"} (nested classes inherit it). The bootstrap only
  *     touches a module after checking those mods are loaded.</li>
- *     <li><b>Protocol-neutral cores</b> ({@link #PROTOCOL_NEUTRAL}, e.g.
- *     {@code TelephoneCore}): gate = nothing, so the logic shared by a PG and a
+ *     <li><b>Package gates</b> (any other class): a package named after a mod
+ *     ({@link #PACKAGE_GATES}: {@code cpg}, {@code cee}, {@code coldsweat},
+ *     {@code interop}, {@code bridge}) may need only that mod; the top level of a
+ *     feature package ({@link #NEUTRAL_FEATURE_PACKAGES}, e.g. {@code telephone}
+ *     with {@code TelephoneCore}) may need none, so logic shared by a PG and a
  *     CEE twin can't quietly start needing one of them.</li>
  *     <li><b>Mixins</b>: the mods owning the mixin's targets, plus whatever its
  *     config's plugin checks (the {@code Mods} constants it names).</li>
@@ -88,14 +91,19 @@ class LoadSafetyTest {
             "CIOBlocks", "CIOBlockEntities", "CIOItems", "CIOCreativeTab", "modules/CIOModules",
             "CIOConfig", "CIOFluids", "CIOParticles", "compat/Mods", "compat/ModGatedMixinPlugin");
 
+    /** Package segment -> the mods a class in such a package may need (the deepest matching segment wins). */
+    private static final Map<String, Set<String>> PACKAGE_GATES = Map.of(
+            "cpg", Set.of("powergrid"),
+            "cee", Set.of("electroenergetics"),
+            "coldsweat", Set.of("cold_sweat"),
+            "interop", Set.of("powergrid", "electroenergetics"),
+            "bridge", Set.of("powergrid", "electroenergetics"));
+
     /**
-     * Shared cores of CIO's PG/CEE twin blocks and the protocol they speak:
-     * loaded by every variant, so they may not need any optional mod (nested
-     * classes included). A PG- or CEE-only detail belongs in the block entity.
+     * Feature packages whose own top level is shared by every variant (the
+     * mod-specific variants live in sub-packages), so it may need no optional mod.
      */
-    private static final Set<String> PROTOCOL_NEUTRAL = Set.of(
-            "TelephoneCore", "CioTelephone", "TelephoneNode", "TelephoneRegistry", "TelephoneNumbers",
-            "TelephoneRedstone", "TelephoneAutoAnswerBehaviour");
+    private static final Set<String> NEUTRAL_FEATURE_PACKAGES = Set.of("telephone", "thermal", "powerkit", "experimental");
 
     /** The presence enum; mixin plugins name their mods by its constants. */
     private static final String MODS = BytecodeModel.CIO + "compat/Mods";
@@ -252,8 +260,25 @@ class LoadSafetyTest {
         if (isAlwaysLoaded(c)) {
             return new Gate(Set.of(), true, "always loaded");
         }
-        if (PROTOCOL_NEUTRAL.contains(c.outermost().substring(BytecodeModel.CIO.length()))) {
-            return new Gate(Set.of(), false, "protocol-neutral core");
+        return packageGate(c);
+    }
+
+    /** The gate a class's package implies, or null when its package implies none. */
+    private static Gate packageGate(CioClass c) {
+        String rel = c.name.substring(BytecodeModel.CIO.length());
+        int slash = rel.lastIndexOf('/');
+        if (slash < 0) {
+            return null;
+        }
+        String[] segments = rel.substring(0, slash).split("/");
+        for (int i = segments.length - 1; i >= 0; i--) {
+            Set<String> mods = PACKAGE_GATES.get(segments[i]);
+            if (mods != null) {
+                return new Gate(new TreeSet<>(mods), false, "package " + segments[i]);
+            }
+        }
+        if (segments.length == 1 && NEUTRAL_FEATURE_PACKAGES.contains(segments[0])) {
+            return new Gate(Set.of(), false, "package " + segments[0]);
         }
         return null;
     }

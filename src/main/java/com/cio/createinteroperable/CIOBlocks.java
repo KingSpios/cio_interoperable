@@ -1,5 +1,12 @@
 package com.cio.createinteroperable;
 
+import com.cio.createinteroperable.thermal.AirconMotorTopBlock;
+import com.cio.createinteroperable.thermal.AirconVenterBlock;
+import com.cio.createinteroperable.thermal.BrassHeaterBlock;
+import com.cio.createinteroperable.thermal.RadiatorMiddleBlock;
+import com.cio.createinteroperable.thermal.RadiatorValveNorthBlock;
+import com.cio.createinteroperable.thermal.RadiatorValveSouthBlock;
+import com.cio.createinteroperable.thermal.SteamOutletBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
 import net.neoforged.bus.api.IEventBus;

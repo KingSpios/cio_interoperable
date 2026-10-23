@@ -1,9 +1,10 @@
 package com.cio.createinteroperable.mixin.crayfish;
 
-import com.cio.createinteroperable.deb.ApplianceLoads;
-import com.cio.createinteroperable.deb.DebNodeBox;
-import com.cio.createinteroperable.deb.DebRectifierBlockEntity;
-import com.cio.createinteroperable.deb.Pool;
+import com.cio.createinteroperable.grid.ApplianceLoads;
+import com.cio.createinteroperable.grid.ApplianceNode;
+import com.cio.createinteroperable.powerkit.DebNodeBox;
+import com.cio.createinteroperable.powerkit.cpg.DebRectifierBlockEntity;
+import com.cio.createinteroperable.grid.Pool;
 import com.mrcrayfish.furniture.refurbished.electricity.Connection;
 import com.mrcrayfish.furniture.refurbished.electricity.IElectricityNode;
 import com.mrcrayfish.furniture.refurbished.electricity.ISourceNode;
@@ -33,7 +34,7 @@ import java.util.Set;
  * auto-registers the board into its {@code ElectricityTicker} and its wrench,
  * link handler, node-indicator overlay and wire renderer all key off the
  * interface &mdash; exactly as before the source model was moved onto
- * {@link com.cio.createinteroperable.deb.ApplianceSource}.
+ * {@link com.cio.createinteroperable.grid.ApplianceSource}.
  *
  * <p>The CEE-rooted twin ({@code CeeDebRectifierBlockEntity} and its own tier
  * subclasses) is <b>not</b> targeted by this mixin and never becomes an
@@ -56,7 +57,7 @@ import java.util.Set;
  * confirmed (and fixed) on {@code ThermalBehaviourMixin}, see that class's
  * own doc.</p>
  */
-@Mixin(targets = "com.cio.createinteroperable.deb.DebRectifierBlockEntity")
+@Mixin(targets = "com.cio.createinteroperable.powerkit.cpg.DebRectifierBlockEntity")
 @Implements(@Interface(iface = ISourceNode.class, prefix = "isn$"))
 public abstract class DebSourceNodeMixin {
 

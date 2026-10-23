@@ -1,7 +1,7 @@
 package com.cio.createinteroperable.mixin.letsdo;
 
 import com.cio.createinteroperable.CIOConfig;
-import com.cio.createinteroperable.deb.MeteredAppliance;
+import com.cio.createinteroperable.grid.MeteredAppliance;
 import com.cio.createinteroperable.grid.ApplianceGrid;
 import com.cio.createinteroperable.grid.ApplianceNode;
 import com.cio.createinteroperable.compat.Mods;

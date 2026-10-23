@@ -1,8 +1,8 @@
 package com.cio.createinteroperable.mixin.coldsweat;
 
-import com.cio.createinteroperable.AirconVenterBlockEntity;
+import com.cio.createinteroperable.thermal.AirconVenterBlockEntity;
 import com.cio.createinteroperable.CreateInteroperable;
-import com.cio.createinteroperable.RadiatorValveNorthBlockEntity;
+import com.cio.createinteroperable.thermal.RadiatorValveNorthBlockEntity;
 import com.momosoftworks.coldsweat.api.util.Temperature;
 import com.momosoftworks.coldsweat.common.blockentity.HearthBlockEntity;
 import net.minecraft.core.BlockPos;
@@ -66,7 +66,7 @@ import java.util.Map;
  * <p>
  * <b>Patches BOTH real ambient-read entry points, not just one</b> —
  * {@code getRoughTemperatureAt} (cached per 8-block segment, up to 50s TTL;
- * this is what {@link com.cio.createinteroperable.compat.ColdSweatWorldTemp}
+ * this is what {@link com.cio.createinteroperable.thermal.coldsweat.ColdSweatWorldTemp}
  * and, through it, PG's own {@code ThermalBehaviour} ambient baseline, use)
  * AND {@code getTemperatureAt} (uncached/exact; this is what the REAL Cold
  * Sweat Thermometer item, {@code Thermolith}, {@code Waterskin}, and the

@@ -1,7 +1,7 @@
 package com.cio.createinteroperable.compat;
 
-import com.cio.createinteroperable.AirconMotorBottomInfo;
-import com.cio.createinteroperable.AirconVenterBlockEntity;
+import com.cio.createinteroperable.thermal.AirconMotorBottomInfo;
+import com.cio.createinteroperable.thermal.AirconVenterBlockEntity;
 import com.cio.createinteroperable.CIOConfig;
 import de.devin.pipesnphysics.PipesNPhysicsConfig;
 import de.devin.pipesnphysics.engine.boundary.BoundaryColumn;

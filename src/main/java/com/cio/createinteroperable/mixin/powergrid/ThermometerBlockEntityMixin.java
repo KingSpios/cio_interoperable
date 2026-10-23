@@ -1,6 +1,6 @@
 package com.cio.createinteroperable.mixin.powergrid;
 
-import com.cio.createinteroperable.compat.CeeDeviceTemperature;
+import com.cio.createinteroperable.thermal.cee.CeeDeviceTemperature;
 import com.cio.createinteroperable.compat.Mods;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;

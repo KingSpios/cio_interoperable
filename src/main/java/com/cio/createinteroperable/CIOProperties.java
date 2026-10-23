@@ -1,5 +1,12 @@
 package com.cio.createinteroperable;
 
+import com.cio.createinteroperable.telephone.TelephoneRedstone;
+import com.cio.createinteroperable.telephone.cee.CeeTelephoneBlock;
+import com.cio.createinteroperable.telephone.cpg.CpgTelephoneBlock;
+import com.cio.createinteroperable.telephone.interop.TelephoneBlock;
+import com.cio.createinteroperable.thermal.AirconMotorAssembly;
+import com.cio.createinteroperable.thermal.AirconMotorTopBlock;
+import com.cio.createinteroperable.thermal.cpg.AirconMotorBottomBlock;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 
