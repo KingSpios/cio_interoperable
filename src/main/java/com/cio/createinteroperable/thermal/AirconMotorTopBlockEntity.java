@@ -1,5 +1,6 @@
 package com.cio.createinteroperable.thermal;
 
+import com.cio.createinteroperable.Lang;
 import com.cio.createinteroperable.thermal.cpg.AirconMotorBottomBlockEntity;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
 import com.simibubi.create.content.kinetics.fan.AirCurrent;
@@ -402,42 +403,42 @@ public class AirconMotorTopBlockEntity extends SmartBlockEntity implements IAirC
 
     @Override
     public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
-        CreateLang.text("AC Unit Fan (top)")
+        Lang.translate("thermal.ac_unit_fan_top")
                 .style(ChatFormatting.WHITE)
                 .forGoggles(tooltip);
 
         BlockState state = getBlockState();
         boolean assembled = state.getBlock() instanceof AirconMotorTopBlock
                 && state.getValue(AirconMotorTopBlock.ASSEMBLED);
-        CreateLang.text("Assembled: ")
+        Lang.translate("thermal.assembled")
                 .style(ChatFormatting.GRAY)
-                .add(CreateLang.text(assembled ? "Yes" : "No")
+                .add(Lang.translate(assembled ? "thermal.yes" : "thermal.no")
                         .style(assembled ? ChatFormatting.GREEN : ChatFormatting.RED))
                 .forGoggles(tooltip, 1);
 
         float performance = getPerformance();
-        CreateLang.text("Performance: ")
+        Lang.translate("thermal.performance")
                 .style(ChatFormatting.GRAY)
                 .add(CreateLang.number(Math.round(performance * 100))
                         .text("%")
                         .style(ChatFormatting.GREEN))
                 .forGoggles(tooltip, 1);
 
-        CreateLang.text("Airflow: ")
+        Lang.translate("thermal.airflow")
                 .style(ChatFormatting.GRAY)
-                .add(CreateLang.text(performance > 0f ? "Venting hot air" : "Idle")
+                .add(Lang.translate(performance > 0f ? "thermal.venting_hot_air" : "thermal.idle")
                         .style(performance > 0f ? ChatFormatting.GOLD : ChatFormatting.DARK_GRAY))
                 .forGoggles(tooltip, 1);
 
         if (!assembled) {
-            CreateLang.text("Requires: ")
+            Lang.translate("thermal.requires")
                     .style(ChatFormatting.GRAY)
-                    .add(CreateLang.text("Wrench together with an AC Unit Motor (bottom)").style(ChatFormatting.RED))
+                    .add(Lang.translate("thermal.wrench_together_with_an_ac_unit_moto").style(ChatFormatting.RED))
                     .forGoggles(tooltip, 1);
         } else if (performance <= 0f) {
-            CreateLang.text("Requires: ")
+            Lang.translate("thermal.requires")
                     .style(ChatFormatting.GRAY)
-                    .add(CreateLang.text("Power at the AC Unit Motor (bottom)").style(ChatFormatting.RED))
+                    .add(Lang.translate("thermal.power_at_the_ac_unit_motor_bottom").style(ChatFormatting.RED))
                     .forGoggles(tooltip, 1);
         }
 

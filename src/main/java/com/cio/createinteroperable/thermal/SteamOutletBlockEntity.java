@@ -2,6 +2,7 @@ package com.cio.createinteroperable.thermal;
 
 import com.cio.createinteroperable.CIOFluids;
 import com.cio.createinteroperable.CIOParticles;
+import com.cio.createinteroperable.Lang;
 import com.cio.createinteroperable.compat.Mods;
 import com.cio.createinteroperable.thermal.coldsweat.ColdSweatWarmthEffect;
 import com.simibubi.create.AllSoundEvents;
@@ -550,22 +551,22 @@ public class SteamOutletBlockEntity extends KineticBlockEntity {
         // than a Steam Outlet. Create's goggle overlay has no automatic block-name
         // header of its own (GoggleOverlayRenderer renders exactly and only what
         // addToGoggleTooltip populates) — so the name has to be added explicitly.
-        CreateLang.text("Steam Outlet")
+        Lang.translate("thermal.steam_outlet")
                 .style(ChatFormatting.WHITE)
                 .forGoggles(tooltip);
         added |= containedFluidTooltip(tooltip, isPlayerSneaking, steamTank);
 
         FluidTankBlockEntity controller = getBoilerController();
         boolean boilerActive = controller != null && controller.boiler != null && controller.boiler.isActive();
-        CreateLang.text("Boiler: ")
+        Lang.translate("thermal.boiler")
                 .style(ChatFormatting.GRAY)
-                .add(CreateLang.text(boilerActive ? "Active" : "Inactive")
+                .add(Lang.translate(boilerActive ? "thermal.active" : "thermal.inactive")
                         .style(boilerActive ? ChatFormatting.GREEN : ChatFormatting.RED))
                 .forGoggles(tooltip, 1);
 
         if (boilerActive) {
             float efficiency = Mth.clamp(controller.boiler.getEngineEfficiency(controller.getTotalTankSize()), 0, 1);
-            CreateLang.text("Efficiency: ")
+            Lang.translate("thermal.efficiency")
                     .style(ChatFormatting.GRAY)
                     .add(CreateLang.number(Math.round(efficiency * 100))
                             .text("%")
@@ -573,7 +574,7 @@ public class SteamOutletBlockEntity extends KineticBlockEntity {
                     .forGoggles(tooltip, 1);
 
             double availablePerTick = availableSteamPerTick(controller);
-            CreateLang.text("Available: ")
+            Lang.translate("thermal.available")
                     .style(ChatFormatting.GRAY)
                     .add(CreateLang.number(Math.round(availablePerTick))
                             .text(" SU / mB/t")
@@ -582,22 +583,22 @@ public class SteamOutletBlockEntity extends KineticBlockEntity {
 
             int output = (int) Math.round(availablePerTick * pointer.getValue());
             boolean bufferFull = steamTank.getFluidAmount() >= steamTank.getCapacity();
-            CreateLang.text("Output: ")
+            Lang.translate("thermal.output")
                     .style(ChatFormatting.GRAY)
                     .add(CreateLang.number(output)
-                            .text(" mB/t" + (bufferFull ? "  (buffer full)" : ""))
+                            .text(" mB/t").add(bufferFull ? Lang.translate("thermal.buffer_full") : Lang.builder())
                             .style(bufferFull ? ChatFormatting.RED : ChatFormatting.AQUA))
                     .forGoggles(tooltip, 1);
 
             if (isOverstressed(controller)) {
-                CreateLang.text("Overstressed: ")
+                Lang.translate("thermal.overstressed")
                         .style(ChatFormatting.RED)
-                        .add(CreateLang.text("too many engines for this boiler's heat").style(ChatFormatting.RED))
+                        .add(Lang.translate("thermal.too_many_engines_for_this_boiler_s_h").style(ChatFormatting.RED))
                         .forGoggles(tooltip, 1);
             }
         }
 
-        CreateLang.text("Valve: ")
+        Lang.translate("thermal.valve")
                 .style(ChatFormatting.GRAY)
                 .add(CreateLang.number(Math.round(pointer.getValue() * 100))
                         .text("%")

@@ -1,5 +1,6 @@
 package com.cio.createinteroperable.telephone.interop;
 
+import com.cio.createinteroperable.Lang;
 import com.cio.createinteroperable.CIOValueBox;
 import com.cio.createinteroperable.telephone.CioTelephone;
 import com.cio.createinteroperable.telephone.TelephoneAutoAnswerBehaviour;
@@ -123,17 +124,17 @@ public class TelephoneBlockEntity extends ElectricBlockEntity implements IHaveHo
     }
 
     @Override
-    public String telephoneName() {
-        return "Interoperable Telephone";
+    public Component telephoneName() {
+        return Lang.component("telephone.name.interop");
     }
 
     @Override
-    public String wiringLabel() {
-        return switch (getBlockState().getValue(TelephoneBlock.WIRE_LOCK)) {
-            case PG -> "CPG";
-            case CEE -> "CEE";
-            case NONE -> "Free";
-        };
+    public Component wiringLabel() {
+        return Lang.component(switch (getBlockState().getValue(TelephoneBlock.WIRE_LOCK)) {
+            case PG -> "telephone.wiring.cpg";
+            case CEE -> "telephone.wiring.cee";
+            case NONE -> "telephone.wiring.free";
+        });
     }
 
     @Override

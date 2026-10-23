@@ -1,5 +1,6 @@
 package com.cio.createinteroperable.telephone;
 
+import com.cio.createinteroperable.Lang;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 
@@ -16,30 +17,30 @@ public final class TelephoneLabels {
 
     /** Powers the phone: ~12 V across positive/negative (it overheats above 20 V). */
     public static MutableComponent positive() {
-        return Component.literal("Telephone Positive (12 V in)");
+        return Lang.component("telephone.telephone_positive_12_v_in");
     }
 
     public static MutableComponent negative() {
-        return Component.literal("Telephone Negative (12 V in)");
+        return Lang.component("telephone.telephone_negative_12_v_in");
     }
 
     /** The call line: phones whose taps are wired together can call each other. */
     public static MutableComponent tap() {
-        return Component.literal("Telephone Tap (call line)");
+        return Lang.component("telephone.telephone_tap_call_line");
     }
 
     /** Switch to the negative rail, closed on the answering phone while a call is up. */
     public static MutableComponent callBreaker() {
-        return Component.literal("Call Breaker (closes while answered)");
+        return Lang.component("telephone.call_breaker_closes_while_answered");
     }
 
     /** Pass-through of the positive rail, live on the answering phone while a call is up. */
     public static MutableComponent callFeedPositive() {
-        return Component.literal("Call Feed + (live while answered)");
+        return Lang.component("telephone.call_feed_live_while_answered");
     }
 
     public static MutableComponent callFeedNegative() {
-        return Component.literal("Call Feed − (live while answered)");
+        return Lang.component("telephone.call_feed_live_while_answered_2");
     }
 
     /**
@@ -54,7 +55,7 @@ public final class TelephoneLabels {
             case 3 -> callFeedPositive();
             case 4 -> callFeedNegative();
             case 5 -> callBreaker();
-            default -> Component.literal("Telephone");
+            default -> Lang.component("telephone.telephone");
         };
     }
 }

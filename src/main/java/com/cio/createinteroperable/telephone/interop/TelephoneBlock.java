@@ -2,6 +2,7 @@ package com.cio.createinteroperable.telephone.interop;
 
 import com.cio.createinteroperable.CIODevices;
 import com.cio.createinteroperable.CIOProperties;
+import com.cio.createinteroperable.Lang;
 import com.cio.createinteroperable.modules.BridgeModule;
 import com.cio.createinteroperable.telephone.TelephoneClient;
 import com.cio.createinteroperable.telephone.TelephoneLabels;
@@ -509,7 +510,7 @@ public class TelephoneBlock extends ElectricBlock
                         spawnDenySmoke(level, pos);
                     } else {
                         player.displayClientMessage(
-                                Component.literal("That number is busy.").withStyle(ChatFormatting.RED), true);
+                                Lang.component("telephone.that_number_is_busy").withStyle(ChatFormatting.RED), true);
                     }
                 }
             }

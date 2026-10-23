@@ -1,5 +1,6 @@
 package com.cio.createinteroperable.telephone;
 
+import com.cio.createinteroperable.Lang;
 import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import net.minecraft.ChatFormatting;
@@ -8,6 +9,7 @@ import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -501,51 +503,53 @@ public final class TelephoneCore {
     // --- readout + NBT ---------------------------------------------------------
 
     public void addToTooltip(List<Component> tooltip) {
-        tooltip.add(Component.literal("    " + phone.telephoneName()).withStyle(ChatFormatting.WHITE));
-        tooltip.add(Component.literal("Number: " + ownNumber()).withStyle(ChatFormatting.GRAY));
+        tooltip.add(Component.literal("    ").append(phone.telephoneName()).withStyle(ChatFormatting.WHITE));
+        tooltip.add(Lang.component("telephone.number", ownNumber()).withStyle(ChatFormatting.GRAY));
         if (!label.isEmpty()) {
             tooltip.add(Component.literal(label).withStyle(ChatFormatting.ITALIC, ChatFormatting.GRAY));
         }
-        tooltip.add(Component.literal("Powered: " + (powered ? "Yes" : "No"))
+        tooltip.add(Lang.component("telephone.powered", Lang.component(powered ? "common.yes" : "common.no"))
                 .withStyle(powered ? ChatFormatting.GREEN : ChatFormatting.RED));
 
         if (ringing && receivingCall) {
-            tooltip.add(Component.literal("Incoming call" + partnerSuffix()).withStyle(ChatFormatting.YELLOW));
+            tooltip.add(partnerLine("telephone.incoming_call").withStyle(ChatFormatting.YELLOW));
         } else if (busy && answered) {
-            tooltip.add(Component.literal("In call" + partnerSuffix()).withStyle(ChatFormatting.GREEN));
+            tooltip.add(partnerLine("telephone.in_call").withStyle(ChatFormatting.GREEN));
         } else if (busy) {
-            tooltip.add(Component.literal("Calling" + partnerSuffix() + "…").withStyle(ChatFormatting.YELLOW));
+            tooltip.add(partnerLine("telephone.calling").withStyle(ChatFormatting.YELLOW));
         } else if (!dialingTarget.isEmpty()) {
-            tooltip.add(Component.literal("Dialling: " + dialDisplay()).withStyle(ChatFormatting.GRAY));
+            tooltip.add(Lang.component("telephone.dialling", dialDisplay()).withStyle(ChatFormatting.GRAY));
         } else {
-            tooltip.add(Component.literal("Idle").withStyle(ChatFormatting.GREEN));
+            tooltip.add(Lang.component("telephone.idle").withStyle(ChatFormatting.GREEN));
         }
 
-        tooltip.add(Component.literal("Auto-Answer: " + (autoAnswer() ? "On" : "Off"))
+        tooltip.add(Lang.component("telephone.auto_answer_state", Lang.component(autoAnswer() ? "common.on" : "common.off"))
                 .withStyle(autoAnswer() ? ChatFormatting.GREEN : ChatFormatting.GRAY));
         if (pulseMode) {
-            tooltip.add(Component.literal("Pulse (3s): On for calls from here").withStyle(ChatFormatting.GRAY));
+            tooltip.add(Lang.component("telephone.pulse_3s_on_for_calls_from_here").withStyle(ChatFormatting.GRAY));
         }
         if (pulsedCall && receivingCall) {
-            tooltip.add(Component.literal("Caller is pulsing this line").withStyle(ChatFormatting.GOLD));
+            tooltip.add(Lang.component("telephone.caller_is_pulsing_this_line").withStyle(ChatFormatting.GOLD));
         }
 
         if (overheating) {
-            tooltip.add(Component.literal("Overheating").withStyle(ChatFormatting.RED, ChatFormatting.BOLD));
+            tooltip.add(Lang.component("telephone.overheating").withStyle(ChatFormatting.RED, ChatFormatting.BOLD));
         }
-        tooltip.add(Component.literal("Wiring: " + phone.wiringLabel()).withStyle(ChatFormatting.GRAY));
+        tooltip.add(Lang.component("telephone.wiring", phone.wiringLabel()).withStyle(ChatFormatting.GRAY));
     }
 
-    /** {@code ": <label-or-number>"} of the connected/ringing peer, or {@code ""} if it can't be resolved. */
-    private String partnerSuffix() {
-        if (callPartner == null || level() == null) {
-            return "";
+    /**
+     * A call-state line: {@code key} alone, or {@code key + "_with"} naming the
+     * connected/ringing peer (its label, else its number) when that resolves.
+     */
+    private MutableComponent partnerLine(String key) {
+        if (callPartner != null && level() != null) {
+            TelephoneNode peer = TelephoneRegistry.get(level(), callPartner);
+            if (peer != null) {
+                return Lang.component(key + "_with", peer.getLabel().isEmpty() ? peer.ownNumber() : peer.getLabel());
+            }
         }
-        TelephoneNode peer = TelephoneRegistry.get(level(), callPartner);
-        if (peer == null) {
-            return "";
-        }
-        return ": " + (peer.getLabel().isEmpty() ? peer.ownNumber() : peer.getLabel());
+        return Lang.component(key);
     }
 
     /** The number typed into the dial screen, shown as its target's label when that resolves. */

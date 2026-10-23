@@ -2,6 +2,7 @@ package com.cio.createinteroperable.bridge;
 
 import com.cio.createinteroperable.CIOGlyphs;
 import com.cio.createinteroperable.CIOValueBox;
+import com.cio.createinteroperable.Lang;
 import com.george_vi.electroenergetics.devices.device.DevicesSavedData;
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -92,7 +93,7 @@ public class InteroperableSmallBlockEntity extends ElectricBlockEntity {
 
         @Override
         public ValueSettingsBoard createBoard(Player player, BlockHitResult hitResult) {
-            return new ValueSettingsBoard(label, max, 10, ImmutableList.of(Component.literal("Mode")),
+            return new ValueSettingsBoard(label, max, 10, ImmutableList.of(Lang.component("bridge.mode")),
                     new ValueSettingsFormatter(vs -> Component.literal(vs.value() == 0 ? CIOGlyphs.cpgToCee() : CIOGlyphs.ceeToCpg())));
         }
     }

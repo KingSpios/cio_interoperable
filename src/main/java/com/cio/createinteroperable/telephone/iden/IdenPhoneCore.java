@@ -1,5 +1,6 @@
 package com.cio.createinteroperable.telephone.iden;
 
+import com.cio.createinteroperable.Lang;
 import com.cio.createinteroperable.telephone.TelephoneNode;
 import com.cio.createinteroperable.telephone.TelephoneNumbers;
 import com.cio.createinteroperable.telephone.TelephoneRedstone;
@@ -13,6 +14,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -210,10 +212,10 @@ public final class IdenPhoneCore {
             // just joins it. No number set: a plain decorative phone.
             return;
         }
-        String failure = dial();
+        MutableComponent failure = dial();
         if (failure != null) {
             denyFeedback();
-            player.displayClientMessage(Component.literal(failure).withStyle(ChatFormatting.RED), true);
+            player.displayClientMessage(failure.withStyle(ChatFormatting.RED), true);
         }
     }
 
@@ -250,19 +252,19 @@ public final class IdenPhoneCore {
 
     /** @return {@code null} once the call is placed, else a player-facing reason it wasn't. */
     @Nullable
-    private String dial() {
+    private MutableComponent dial() {
         if (!powered) {
-            return "No power.";
+            return Lang.component("iden_phone.err.no_power");
         }
         if (dialTarget.equals(ownNumber())) {
-            return "That's this phone's own number.";
+            return Lang.component("iden_phone.err.own_number");
         }
         TelephoneNode target = TelephoneRegistry.findAnyByNumber(phone, dialTarget);
         if (target == null || target == phone) {
-            return "No phone with that number is connected to this one.";
+            return Lang.component("iden_phone.err.unreachable");
         }
         if (target.isBusy()) {
-            return "That number is busy.";
+            return Lang.component("telephone.err.busy");
         }
         busy = true;
         ringing = false;
@@ -419,33 +421,35 @@ public final class IdenPhoneCore {
     // --- goggles ---------------------------------------------------------
 
     public void addGoggleTooltip(List<Component> tooltip) {
-        tooltip.add(Component.literal("    Telephone").withStyle(ChatFormatting.WHITE));
-        tooltip.add(Component.literal("Number: " + (ownNumberText.isEmpty() ? "not set" : ownNumber()))
+        tooltip.add(Lang.component("telephone.telephone_2").withStyle(ChatFormatting.WHITE));
+        tooltip.add(Lang.component("iden_phone.number",
+                ownNumberText.isEmpty() ? Lang.component("telephone.not_set") : Component.literal(ownNumber()))
                 .withStyle(ChatFormatting.GRAY));
         if (!label.isEmpty()) {
             tooltip.add(Component.literal(label).withStyle(ChatFormatting.ITALIC, ChatFormatting.GRAY));
         }
-        tooltip.add(Component.literal("Powered: " + (powered ? "Yes" : "No"))
+        tooltip.add(Lang.component("telephone.powered", Lang.component(powered ? "common.yes" : "common.no"))
                 .withStyle(powered ? ChatFormatting.GREEN : ChatFormatting.RED));
 
         if (ringing && receivingCall) {
-            tooltip.add(Component.literal("Incoming call" + partnerSuffix()).withStyle(ChatFormatting.YELLOW));
+            tooltip.add(partnerLine("telephone.incoming_call").withStyle(ChatFormatting.YELLOW));
         } else if (busy && answered) {
-            tooltip.add(Component.literal("In call" + partnerSuffix()).withStyle(ChatFormatting.GREEN));
+            tooltip.add(partnerLine("telephone.in_call").withStyle(ChatFormatting.GREEN));
         } else if (busy) {
-            tooltip.add(Component.literal("Calling" + partnerSuffix() + "…").withStyle(ChatFormatting.YELLOW));
+            tooltip.add(partnerLine("telephone.calling").withStyle(ChatFormatting.YELLOW));
         } else if (!handsetOnCradle()) {
-            tooltip.add(Component.literal("Off the hook").withStyle(ChatFormatting.GRAY));
+            tooltip.add(Lang.component("telephone.off_the_hook").withStyle(ChatFormatting.GRAY));
         } else {
-            tooltip.add(Component.literal("Idle").withStyle(ChatFormatting.GREEN));
+            tooltip.add(Lang.component("telephone.idle").withStyle(ChatFormatting.GREEN));
         }
 
-        tooltip.add(Component.literal("Calls: " + (dialTarget.isEmpty() ? "not set" : dialDisplay()))
+        tooltip.add(Lang.component("iden_phone.calls",
+                dialTarget.isEmpty() ? Lang.component("telephone.not_set") : Component.literal(dialDisplay()))
                 .withStyle(ChatFormatting.GRAY));
-        tooltip.add(Component.literal("Auto-Answer: " + (autoAnswer ? "On" : "Off"))
+        tooltip.add(Lang.component("telephone.auto_answer_state", Lang.component(autoAnswer ? "common.on" : "common.off"))
                 .withStyle(autoAnswer ? ChatFormatting.GREEN : ChatFormatting.GRAY));
 
-        StringBuilder taps = new StringBuilder("Tap: ");
+        StringBuilder taps = new StringBuilder();
         if (Mods.POWER_GRID.present()) {
             taps.append("CPG ").append(pgTap ? "✔" : "✘");
         }
@@ -455,16 +459,17 @@ public final class IdenPhoneCore {
             }
             taps.append("CEE ").append(ceeTap ? "✔" : "✘");
         }
-        tooltip.add(Component.literal(taps.toString())
+        tooltip.add(Lang.component("iden_phone.tap", taps.toString())
                 .withStyle(pgTap || ceeTap ? ChatFormatting.GRAY : ChatFormatting.DARK_GRAY));
     }
 
-    private String partnerSuffix() {
+    /** A call-state line, naming the connected/ringing peer (label, else number) when it resolves. */
+    private MutableComponent partnerLine(String key) {
         TelephoneNode peer = TelephoneRegistry.get(level(), callPartner);
         if (peer == null) {
-            return "";
+            return Lang.component(key);
         }
-        return ": " + (peer.getLabel().isEmpty() ? peer.ownNumber() : peer.getLabel());
+        return Lang.component(key + "_with", peer.getLabel().isEmpty() ? peer.ownNumber() : peer.getLabel());
     }
 
     private String dialDisplay() {

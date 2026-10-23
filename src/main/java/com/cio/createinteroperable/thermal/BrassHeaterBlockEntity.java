@@ -1,6 +1,7 @@
 package com.cio.createinteroperable.thermal;
 
 import com.cio.createinteroperable.CIOFluids;
+import com.cio.createinteroperable.Lang;
 import com.cio.createinteroperable.compat.Mods;
 import com.cio.createinteroperable.thermal.coldsweat.ColdSweatWorldTemp;
 import com.simibubi.create.content.kinetics.base.KineticBlockEntity;
@@ -325,7 +326,7 @@ public class BrassHeaterBlockEntity extends KineticBlockEntity {
         boolean added = super.addToGoggleTooltip(tooltip, isPlayerSneaking);
         added |= containedFluidTooltip(tooltip, isPlayerSneaking, steamTank);
 
-        CreateLang.text("Valve: ")
+        Lang.translate("thermal.valve")
                 .style(ChatFormatting.GRAY)
                 .add(CreateLang.number(Math.round(pointer.getValue() * 100))
                         .text("%")
@@ -335,14 +336,14 @@ public class BrassHeaterBlockEntity extends KineticBlockEntity {
         int desired = Math.round(pointer.getValue() * MAX_STEAM_CONSUMPTION_PER_TICK);
         int drawn = Math.round(heatFraction * MAX_STEAM_CONSUMPTION_PER_TICK);
         boolean starved = desired - drawn >= 1;
-        CreateLang.text("Draw: ")
+        Lang.translate("thermal.draw")
                 .style(ChatFormatting.GRAY)
                 .add(CreateLang.number(drawn)
-                        .text(" mB/t" + (starved ? "  (starved, wants " + desired + ")" : ""))
+                        .text(" mB/t").add(starved ? Lang.translate("thermal.starved", desired) : Lang.builder())
                         .style(starved ? ChatFormatting.RED : ChatFormatting.AQUA))
                 .forGoggles(tooltip, 1);
 
-        CreateLang.text("Heat: ")
+        Lang.translate("thermal.heat")
                 .style(ChatFormatting.GRAY)
                 .add(CreateLang.number(Math.round(heatFraction * 100))
                         .text("% (" + getBlockState().getValue(BrassHeaterBlock.HEAT_LEVEL).getSerializedName() + ")")

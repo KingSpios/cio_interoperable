@@ -1,6 +1,7 @@
 package com.cio.createinteroperable.telephone.cpg;
 
 import com.cio.createinteroperable.CIOProperties;
+import com.cio.createinteroperable.Lang;
 import com.cio.createinteroperable.modules.PowerGridModule;
 import com.cio.createinteroperable.telephone.TelephoneClient;
 import com.cio.createinteroperable.telephone.TelephoneLabels;
@@ -296,7 +297,7 @@ public class CpgTelephoneBlock extends ElectricBlock implements IBE<CpgTelephone
                         spawnDenySmoke(level, pos);
                     } else {
                         player.displayClientMessage(
-                                Component.literal("That number is busy.").withStyle(net.minecraft.ChatFormatting.RED), true);
+                                Lang.component("telephone.that_number_is_busy").withStyle(net.minecraft.ChatFormatting.RED), true);
                     }
                 }
             }

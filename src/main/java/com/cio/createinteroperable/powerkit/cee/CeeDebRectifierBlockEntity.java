@@ -1,5 +1,6 @@
 package com.cio.createinteroperable.powerkit.cee;
 
+import com.cio.createinteroperable.Lang;
 import com.cio.createinteroperable.compat.Mods;
 import com.cio.createinteroperable.grid.ApplianceGrid;
 import com.cio.createinteroperable.grid.ApplianceSource;
@@ -556,7 +557,7 @@ public class CeeDebRectifierBlockEntity extends SmartBlockEntity implements Appl
 
         CreateLang.builder()
                 .add(Component.translatable(GK + "wiring",
-                        Component.literal("CEE").withStyle(ChatFormatting.AQUA)))
+                        Lang.component("powerkit.cee").withStyle(ChatFormatting.AQUA)))
                 .style(ChatFormatting.GRAY)
                 .forGoggles(tooltip, 1);
 

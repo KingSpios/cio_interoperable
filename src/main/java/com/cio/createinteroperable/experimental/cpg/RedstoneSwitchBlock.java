@@ -1,5 +1,6 @@
 package com.cio.createinteroperable.experimental.cpg;
 
+import com.cio.createinteroperable.Lang;
 import com.cio.createinteroperable.experimental.RedstoneSwitchRenderer;
 import com.cio.createinteroperable.experimental.RedstoneSwitchState;
 import com.cio.createinteroperable.experimental.RedstoneSwitchStats;
@@ -59,13 +60,13 @@ public class RedstoneSwitchBlock extends DirectionalElectricBlock implements IBE
     //   0/1 = input +/-  (mv_positive_120v / mv_negative_120v, bottom nubs)
     //   2/3 = output +/- (lv_positive_120v_out / lv_negative_120v_out, top nubs)
     private static final TerminalBoundingBox[] TERMINALS = {
-            new TerminalBoundingBox(Component.literal("In +"), 9, 1, 0, 10, 2, 1, NUB_EXPAND)
+            new TerminalBoundingBox(Lang.component("experimental.in"), 9, 1, 0, 10, 2, 1, NUB_EXPAND)
                     .withColor(IDecoratedTerminal.RED),
-            new TerminalBoundingBox(Component.literal("In −"), 6, 1, 0, 7, 2, 1, NUB_EXPAND)
+            new TerminalBoundingBox(Lang.component("experimental.in_2"), 6, 1, 0, 7, 2, 1, NUB_EXPAND)
                     .withColor(IDecoratedTerminal.BLUE),
-            new TerminalBoundingBox(Component.literal("Out +"), 9, 15, 1, 10, 16, 2, NUB_EXPAND)
+            new TerminalBoundingBox(Lang.component("experimental.out"), 9, 15, 1, 10, 16, 2, NUB_EXPAND)
                     .withColor(IDecoratedTerminal.RED),
-            new TerminalBoundingBox(Component.literal("Out −"), 6, 15, 1, 7, 16, 2, NUB_EXPAND)
+            new TerminalBoundingBox(Lang.component("experimental.out_2"), 6, 15, 1, 7, 16, 2, NUB_EXPAND)
                     .withColor(IDecoratedTerminal.BLUE),
     };
 

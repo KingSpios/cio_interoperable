@@ -1,6 +1,7 @@
 package com.cio.createinteroperable.thermal;
 
 import com.cio.createinteroperable.CIOFluids;
+import com.cio.createinteroperable.Lang;
 import com.cio.createinteroperable.thermal.coldsweat.ColdSweatChillEffect;
 import com.cio.createinteroperable.compat.Mods;
 import com.cio.createinteroperable.thermal.coldsweat.ColdSweatWarmthEffect;
@@ -1036,91 +1037,89 @@ public class AirconVenterBlockEntity extends SmartBlockEntity implements IAirCur
 
     @Override
     public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
-        CreateLang.text("AC Vent (venter)")
+        Lang.translate("thermal.ac_vent_venter")
                 .style(ChatFormatting.WHITE)
                 .forGoggles(tooltip);
 
         boolean overLimit = chainLength > AirconVenterAssembly.MAX_CHAIN;
         boolean relaying = chainLength >= 2 && chainIndexFromWest < AirconVenterAssembly.MAX_CHAIN;
-        CreateLang.text("Chain: ")
+        Lang.translate("thermal.chain")
                 .style(ChatFormatting.GRAY)
                 .add(CreateLang.number(chainLength)
-                        .text(chainLength == 1 ? " (working alone)"
-                                : overLimit ? " (exceeds " + AirconVenterAssembly.MAX_CHAIN + ")" : " (relaying)")
+                        .add(chainLength == 1 ? Lang.translate("thermal.working_alone")
+                                : overLimit ? Lang.translate("thermal.exceeds", AirconVenterAssembly.MAX_CHAIN) : Lang.translate("thermal.relaying"))
                         .style(overLimit ? ChatFormatting.RED : chainLength >= 2 ? ChatFormatting.GREEN : ChatFormatting.GRAY))
                 .forGoggles(tooltip, 1);
 
         if (overLimit && !relaying) {
-            CreateLang.text("Warning: ")
+            Lang.translate("thermal.warning")
                     .style(ChatFormatting.RED)
-                    .add(CreateLang.text("Chain longer than " + AirconVenterAssembly.MAX_CHAIN
-                            + " — only the first " + AirconVenterAssembly.MAX_CHAIN
-                            + " (from the west end) relay; this one is idle for relay purposes")
+                    .add(Lang.translate("thermal.chain_too_long", AirconVenterAssembly.MAX_CHAIN)
                             .style(ChatFormatting.RED))
                     .forGoggles(tooltip, 1);
         }
 
-        CreateLang.text("Function: ")
+        Lang.translate("thermal.function")
                 .style(ChatFormatting.GRAY)
-                .add(CreateLang.text("cold_air in → hot_air out (1:2)").style(ChatFormatting.DARK_AQUA))
+                .add(Lang.translate("thermal.cold_air_in_hot_air_out_1_2").style(ChatFormatting.DARK_AQUA))
                 .forGoggles(tooltip, 1);
 
-        CreateLang.text("Clogged: ")
+        Lang.translate("thermal.clogged")
                 .style(ChatFormatting.GRAY)
-                .add(CreateLang.text(clogged ? "Yes — bottom face obstructed" : "No")
+                .add(Lang.translate(clogged ? "thermal.yes_bottom_face_obstructed" : "thermal.no")
                         .style(clogged ? ChatFormatting.RED : ChatFormatting.GREEN))
                 .forGoggles(tooltip, 1);
 
-        CreateLang.text("Activity: ")
+        Lang.translate("thermal.activity")
                 .style(ChatFormatting.GRAY)
                 .add(CreateLang.number(Math.round(activity * 100)).text("%").style(ChatFormatting.GREEN))
                 .forGoggles(tooltip, 1);
 
         int totalColdDemand = COLD_AIR_CONSUMED_PER_CYCLE + VENTED_COLD_AIR_PER_CYCLE;
-        CreateLang.text("Cold Air In: ")
+        Lang.translate("thermal.cold_air_in")
                 .style(ChatFormatting.GRAY)
                 .add(CreateLang.number(Math.round(totalColdDemand * activity))
-                        .text(" / " + totalColdDemand + " mB/t")
+                        .add(Lang.translate("thermal.of_mb_t", totalColdDemand))
                         .style(ChatFormatting.BLUE))
                 .forGoggles(tooltip, 1);
         CreateLang.builder()
-                .add(CreateLang.text("(" + COLD_AIR_CONSUMED_PER_CYCLE + " -> hot air, " + VENTED_COLD_AIR_PER_CYCLE + " vented)")
+                .add(Lang.translate("thermal.cold_split", COLD_AIR_CONSUMED_PER_CYCLE, VENTED_COLD_AIR_PER_CYCLE)
                         .style(ChatFormatting.DARK_GRAY))
                 .forGoggles(tooltip, 1);
         CreateLang.builder()
                 .add(CreateLang.number(coldAirIntake.getFluidAmount())
-                        .text(" / " + coldAirIntake.getCapacity() + " mB buffered")
+                        .add(Lang.translate("thermal.of_mb_buffered", coldAirIntake.getCapacity()))
                         .style(ChatFormatting.DARK_GRAY))
                 .forGoggles(tooltip, 1);
 
-        CreateLang.text("Hot Air Out: ")
+        Lang.translate("thermal.hot_air_out")
                 .style(ChatFormatting.GRAY)
                 .add(CreateLang.number(Math.round(HOT_AIR_PRODUCED_PER_CYCLE * activity))
-                        .text(" / " + HOT_AIR_PRODUCED_PER_CYCLE + " mB/t")
+                        .add(Lang.translate("thermal.of_mb_t", HOT_AIR_PRODUCED_PER_CYCLE))
                         .style(ChatFormatting.GOLD))
                 .forGoggles(tooltip, 1);
         CreateLang.builder()
                 .add(CreateLang.number(hotAirOutput.getFluidAmount())
-                        .text(" / " + hotAirOutput.getCapacity() + " mB buffered")
+                        .add(Lang.translate("thermal.of_mb_buffered", hotAirOutput.getCapacity()))
                         .style(ChatFormatting.DARK_GRAY))
                 .forGoggles(tooltip, 1);
 
         boolean receivingSupply = isReceivingColdAirSupply();
-        CreateLang.text("Cold Air Pipe: ")
+        Lang.translate("thermal.cold_air_pipe")
                 .style(ChatFormatting.GRAY)
-                .add(CreateLang.text(receivingSupply ? "Delivering" : "Nothing recently received")
+                .add(Lang.translate(receivingSupply ? "thermal.delivering" : "thermal.nothing_recently_received")
                         .style(receivingSupply ? ChatFormatting.GREEN : ChatFormatting.DARK_GRAY))
                 .forGoggles(tooltip, 1);
 
         if (Mods.COLD_SWEAT.present()) {
-            CreateLang.text("Cooling Strength: ")
+            Lang.translate("thermal.cooling_strength")
                     .style(ChatFormatting.GRAY)
-                    .add(CreateLang.number(currentDropC()).text("°C max (from nearby motor setting)").style(ChatFormatting.LIGHT_PURPLE))
+                    .add(CreateLang.number(currentDropC()).add(Lang.translate("thermal.max_from_motor")).style(ChatFormatting.LIGHT_PURPLE))
                     .forGoggles(tooltip, 1);
             if (isWorking()) {
-                CreateLang.text("Cooling: ")
+                Lang.translate("thermal.cooling")
                         .style(ChatFormatting.GRAY)
-                        .add(CreateLang.text(getCooledRoomSize() + " blocks").style(ChatFormatting.LIGHT_PURPLE))
+                        .add(Lang.translate("thermal.n_blocks", getCooledRoomSize()).style(ChatFormatting.LIGHT_PURPLE))
                         .forGoggles(tooltip, 1);
             }
         }

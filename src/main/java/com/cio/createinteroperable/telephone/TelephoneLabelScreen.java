@@ -1,5 +1,6 @@
 package com.cio.createinteroperable.telephone;
 
+import com.cio.createinteroperable.Lang;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
@@ -14,14 +15,14 @@ public class TelephoneLabelScreen extends Screen {
     private EditBox labelBox;
 
     public TelephoneLabelScreen(BlockPos pos, String initialValue) {
-        super(Component.literal("Label this Telephone"));
+        super(Lang.component("telephone.label_this_telephone"));
         this.pos = pos;
         this.initialValue = initialValue;
     }
 
     @Override
     protected void init() {
-        labelBox = new EditBox(font, width / 2 - 75, height / 2 - 10, 150, 20, Component.literal("Label"));
+        labelBox = new EditBox(font, width / 2 - 75, height / 2 - 10, 150, 20, Lang.component("telephone.label"));
         labelBox.setMaxLength(100);
         labelBox.setValue(initialValue);
         addRenderableWidget(labelBox);

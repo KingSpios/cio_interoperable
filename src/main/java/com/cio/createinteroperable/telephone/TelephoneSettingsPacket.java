@@ -1,6 +1,7 @@
 package com.cio.createinteroperable.telephone;
 
 import com.cio.createinteroperable.CreateInteroperable;
+import com.cio.createinteroperable.Lang;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -58,7 +59,7 @@ public record TelephoneSettingsPacket(BlockPos pos, int areaCode, String number,
                     && TelephoneNumbers.sanitizeNumberText(packet.number()).equals(phone.getOwnNumberText());
             if (!unchanged && !phone.setOwnNumber(area, packet.number())) {
                 phone.denyFeedback();
-                player.displayClientMessage(Component.literal("That number is already in use.")
+                player.displayClientMessage(Lang.component("telephone.that_number_is_already_in_use")
                         .withStyle(ChatFormatting.RED), true);
             }
         }

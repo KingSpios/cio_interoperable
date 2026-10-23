@@ -1,6 +1,7 @@
 package com.cio.createinteroperable.telephone;
 
 import com.cio.createinteroperable.CIOGlyphs;
+import com.cio.createinteroperable.Lang;
 import com.google.common.collect.ImmutableList;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BehaviourType;
@@ -53,7 +54,7 @@ public class TelephoneAutoAnswerBehaviour extends ScrollValueBehaviour {
     };
 
     public TelephoneAutoAnswerBehaviour(SmartBlockEntity be, ValueBoxTransform slot) {
-        super(Component.literal("Auto-Answer"), be, slot);
+        super(Lang.component("telephone.auto_answer"), be, slot);
         between(0, 1);
         withFormatter(i -> CIOGlyphs.onOff(i != 0));
     }
@@ -78,7 +79,7 @@ public class TelephoneAutoAnswerBehaviour extends ScrollValueBehaviour {
 
     @Override
     public ValueSettingsBoard createBoard(Player player, BlockHitResult hitResult) {
-        return new ValueSettingsBoard(label, max, 1, ImmutableList.of(Component.literal("Auto")),
+        return new ValueSettingsBoard(label, max, 1, ImmutableList.of(Lang.component("telephone.auto")),
                 new ScrollOptionSettingsFormatter(OPTIONS));
     }
 

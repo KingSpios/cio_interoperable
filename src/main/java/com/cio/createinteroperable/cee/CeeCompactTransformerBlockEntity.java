@@ -106,7 +106,7 @@ public class CeeCompactTransformerBlockEntity extends SmartBlockEntity implement
         Lang.builder("electroenergetics")
                 .text(LangNumberFormat.format(Math.round(CeeCompactTransformerDevice.MAX_POWER)))
                 .translate("generic.watts")
-                .text(" max")
+                .add(com.cio.createinteroperable.Lang.translate("cee.max_suffix"))
                 .style(ChatFormatting.DARK_GRAY)
                 .forGoggles(tooltip, 1);
         return true;

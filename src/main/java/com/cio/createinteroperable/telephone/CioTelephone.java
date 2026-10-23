@@ -1,6 +1,7 @@
 package com.cio.createinteroperable.telephone;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 
 /**
  * One of CIO's own telephones (Interoperable, CPG, CEE): a {@link TelephoneNode}
@@ -30,10 +31,10 @@ public interface CioTelephone extends TelephoneNode {
     void playRingSound();
 
     /** Goggle readout header, e.g. "CPG Telephone". */
-    String telephoneName();
+    Component telephoneName();
 
     /** Goggle readout "Wiring:" value. */
-    String wiringLabel();
+    Component wiringLabel();
 
     // --- TelephoneNode, forwarded to the core ---
 

@@ -1,5 +1,6 @@
 package com.cio.createinteroperable.thermal;
 
+import com.cio.createinteroperable.Lang;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
 import com.simibubi.create.foundation.utility.CreateLang;
 import net.minecraft.ChatFormatting;
@@ -29,13 +30,13 @@ public class RadiatorMiddleBlockEntity extends BlockEntity implements IHaveGoggl
 
     @Override
     public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
-        CreateLang.text("Steam Hearth Radiator")
+        Lang.translate("thermal.steam_hearth_radiator")
                 .style(ChatFormatting.WHITE)
                 .forGoggles(tooltip);
 
         BlockState state = getBlockState();
         if (state.getBlock() instanceof RadiatorMiddleBlock) {
-            CreateLang.text("Heat: ")
+            Lang.translate("thermal.heat")
                     .style(ChatFormatting.GRAY)
                     .add(CreateLang.text(state.getValue(RadiatorMiddleBlock.HEAT_LEVEL).name())
                             .style(ChatFormatting.GOLD))

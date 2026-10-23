@@ -1,5 +1,6 @@
 package com.cio.createinteroperable.powerkit.cpg;
 
+import com.cio.createinteroperable.Lang;
 import com.cio.createinteroperable.grid.Pool;
 import com.cio.createinteroperable.powerkit.DebTier;
 import com.cio.createinteroperable.powerkit.PowerKitGeometry;
@@ -131,7 +132,7 @@ public class PowerKitTier3BlockEntity extends DebRectifierBlockEntity {
         // read mode().
         IntFunction<String> labels = this::modeLabelStr;
         intakeMode = new IntakeModeScrollBehaviour(
-                Component.literal("Intake Tap"),
+                Lang.component("powerkit.intake_tap"),
                 this, PowerKitGeometry.intakeSlot(sliderSlotBase()), tapOptions())
                 .between(0, sub().modes().length - 1);
         intakeMode.withFormatter(labels::apply);
@@ -181,7 +182,7 @@ public class PowerKitTier3BlockEntity extends DebRectifierBlockEntity {
 
         @Override
         public ValueSettingsBoard createBoard(Player player, BlockHitResult hitResult) {
-            return new ValueSettingsBoard(label, max, 1, ImmutableList.of(Component.literal("Intake")),
+            return new ValueSettingsBoard(label, max, 1, ImmutableList.of(Lang.component("powerkit.intake")),
                     new ScrollOptionSettingsFormatter(options));
         }
     }

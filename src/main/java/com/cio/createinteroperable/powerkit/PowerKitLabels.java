@@ -1,5 +1,6 @@
 package com.cio.createinteroperable.powerkit;
 
+import com.cio.createinteroperable.Lang;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 
@@ -23,14 +24,14 @@ public final class PowerKitLabels {
     /** Intake nub; {@code volts} is null when the tap can't be known (PG, multi-tap tiers). */
     public static MutableComponent intake(String volts, boolean positive) {
         String sign = positive ? "+" : "−";
-        return Component.literal(volts == null
-                ? "Power Kit Intake " + sign
-                : "Power Kit Intake " + volts + " " + sign);
+        return volts == null
+                ? Lang.component("powerkit.intake_nub", sign)
+                : Lang.component("powerkit.intake_nub_volts", volts, sign);
     }
 
     /** Outlet nub, e.g. {@code "+12V Outlet"}. */
     public static MutableComponent outlet(String volts, boolean positive) {
-        return Component.literal((positive ? "+" : "−") + volts + " Outlet");
+        return Lang.component("powerkit.outlet_nub", positive ? "+" : "−", volts);
     }
 
     /** "120V", "240V", "1kV" &mdash; the intake tap as a nub label reads it. */
@@ -54,6 +55,6 @@ public final class PowerKitLabels {
         int pair = (id - 2) / 2;
         return pair < outlets.length
                 ? outlet(outlets[pair], positive)
-                : Component.literal("Power Kit");
+                : Lang.component("powerkit.power_kit");
     }
 }

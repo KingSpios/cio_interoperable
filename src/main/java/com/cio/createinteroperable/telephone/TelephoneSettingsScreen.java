@@ -1,5 +1,6 @@
 package com.cio.createinteroperable.telephone;
 
+import com.cio.createinteroperable.Lang;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Checkbox;
@@ -61,7 +62,7 @@ public class TelephoneSettingsScreen extends Screen {
 
     private TelephoneSettingsScreen(BlockPos pos, boolean dialOnly, int areaCode, String number, String label,
                                     String dialTarget, boolean autoAnswer, boolean pulseSupported, boolean pulse) {
-        super(Component.literal(dialOnly ? "Dial" : "Telephone Settings"));
+        super(Lang.component(dialOnly ? "telephone.dial" : "telephone.telephone_settings"));
         this.pos = pos;
         this.dialOnly = dialOnly;
         this.initialAreaCode = String.format("%03d", areaCode);
@@ -101,20 +102,19 @@ public class TelephoneSettingsScreen extends Screen {
             areaCodeBox = areaBox(x + 80, y + 22, initialAreaCode, "Area Code");
             numberBox = numberBox(x + 124, y + 22, initialNumber, "Number");
 
-            labelBox = new EditBox(font, x + 80, y + 48, 120, 18, Component.literal("Label"));
+            labelBox = new EditBox(font, x + 80, y + 48, 120, 18, Lang.component("telephone.label"));
             labelBox.setMaxLength(32);
             labelBox.setValue(initialLabel);
             addRenderableWidget(labelBox);
 
-            autoAnswerBox = Checkbox.builder(Component.literal("Auto-Answer"), font)
+            autoAnswerBox = Checkbox.builder(Lang.component("telephone.auto_answer"), font)
                     .pos(x, y + 112).selected(initialAutoAnswer).build();
             addRenderableWidget(autoAnswerBox);
 
             if (pulseSupported) {
-                pulseBox = Checkbox.builder(Component.literal("Pulse (3s)"), font)
+                pulseBox = Checkbox.builder(Lang.component("telephone.pulse_3s"), font)
                         .pos(x + 110, y + 112).selected(initialPulse).build();
-                pulseBox.setTooltip(Tooltip.create(Component.literal(
-                        "Calls placed from this phone make the answering phone's Call Breaker, Call Feeds and redstone output switch on and off every 3 seconds.")));
+                pulseBox.setTooltip(Tooltip.create(Lang.component("telephone.calls_placed_from_this_phone_make_th")));
                 addRenderableWidget(pulseBox);
             }
         }
@@ -122,7 +122,7 @@ public class TelephoneSettingsScreen extends Screen {
         dialAreaBox = areaBox(x + 80, y + callsRow(), initialDialArea, "Call Area Code");
         dialNumberBox = numberBox(x + 124, y + callsRow(), initialDialNumber, "Call Number");
 
-        addRenderableWidget(Button.builder(Component.literal("Done"), b -> onClose())
+        addRenderableWidget(Button.builder(Lang.component("telephone.done"), b -> onClose())
                 .bounds(width / 2 - 40, y + panelHeight() - 28, 80, 20).build());
 
         setInitialFocus(dialOnly ? dialAreaBox : areaCodeBox);

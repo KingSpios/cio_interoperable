@@ -3,6 +3,7 @@ package com.cio.createinteroperable.thermal.cee;
 import com.cio.createinteroperable.CIOFluids;
 import com.cio.createinteroperable.CIOGlyphs;
 import com.cio.createinteroperable.CIOValueBox;
+import com.cio.createinteroperable.Lang;
 import com.cio.createinteroperable.compat.Mods;
 import com.cio.createinteroperable.thermal.AirconMotorBottomInfo;
 import com.cio.createinteroperable.thermal.AirconMotorTopBlock;
@@ -163,7 +164,7 @@ public class CeeAirconMotorBottomBlockEntity extends SmartBlockEntity
 
         @Override
         public ValueSettingsBoard createBoard(Player player, BlockHitResult hitResult) {
-            return new ValueSettingsBoard(label, max, 1, ImmutableList.of(Component.literal("Cooling")),
+            return new ValueSettingsBoard(label, max, 1, ImmutableList.of(Lang.component("thermal.cooling_2")),
                     new ValueSettingsFormatter(vs -> Component.literal(SETTING_LABELS[Mth.clamp(vs.value(), 0, 3)])));
         }
     }
@@ -507,90 +508,90 @@ public class CeeAirconMotorBottomBlockEntity extends SmartBlockEntity
 
     @Override
     public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
-        CreateLang.text("CEE Aircon Motor (" + Math.round(ratedVolts()) + "v)")
+        Lang.translate("thermal.motor_title.cee", Math.round(ratedVolts()))
                 .style(ChatFormatting.WHITE)
                 .forGoggles(tooltip);
 
         BlockState state = getBlockState();
         boolean assembled = state.getBlock() instanceof CeeAirconMotorBottomBlock
                 && state.getValue(CeeAirconMotorBottomBlock.ASSEMBLED);
-        CreateLang.text("Assembled: ")
+        Lang.translate("thermal.assembled")
                 .style(ChatFormatting.GRAY)
-                .add(CreateLang.text(assembled ? "Yes" : "No")
+                .add(Lang.translate(assembled ? "thermal.yes" : "thermal.no")
                         .style(assembled ? ChatFormatting.GREEN : ChatFormatting.RED))
                 .forGoggles(tooltip, 1);
 
         boolean overvoltage = voltage >= smokeVolts();
-        CreateLang.text("Voltage: ")
+        Lang.translate("thermal.voltage")
                 .style(ChatFormatting.GRAY)
                 .add(CreateLang.number(Math.round(voltage))
-                        .text(" V" + (reversed ? " (reversed polarity)" : ""))
+                        .add(Lang.translate("thermal.volts_unit")).add(reversed ? Lang.translate("thermal.reversed_polarity") : Lang.builder())
                         .style(overvoltage ? ChatFormatting.RED : ChatFormatting.AQUA))
                 .forGoggles(tooltip, 1);
 
         boolean off = isOff();
-        CreateLang.text("Setting: ")
+        Lang.translate("thermal.setting")
                 .style(ChatFormatting.GRAY)
                 .add(CreateLang.text(SETTING_LABELS[getPowerSettingIndex()])
-                        .text(off ? " (power cut)" : " (venter cooling ceiling: " + Math.round(getSettingDropC()) + "°C)")
+                        .add(off ? Lang.translate("thermal.power_cut") : Lang.translate("thermal.cooling_ceiling", Math.round(getSettingDropC())))
                         .style(off ? ChatFormatting.DARK_GRAY : ChatFormatting.BLUE))
                 .forGoggles(tooltip, 1);
 
         float resistance = currentResistance();
         float watts = off || resistance <= 0f ? 0f : voltage * voltage / resistance;
-        CreateLang.text("Resistance: ")
+        Lang.translate("thermal.resistance")
                 .style(ChatFormatting.GRAY)
-                .add(off ? CreateLang.text("Disconnected").style(ChatFormatting.DARK_GRAY)
+                .add(off ? Lang.translate("thermal.disconnected").style(ChatFormatting.DARK_GRAY)
                         : CreateLang.number(Math.round(resistance * 10) / 10f).text(" Ω").style(ChatFormatting.GOLD))
                 .forGoggles(tooltip, 1);
 
-        CreateLang.text("Power Draw: ")
+        Lang.translate("thermal.power_draw")
                 .style(ChatFormatting.GRAY)
                 .add(CreateLang.number(Math.round(watts)).text(" W").style(ChatFormatting.GOLD))
                 .forGoggles(tooltip, 1);
 
-        CreateLang.text("Efficiency: ")
+        Lang.translate("thermal.efficiency")
                 .style(ChatFormatting.GRAY)
                 .add(CreateLang.number(Math.round(efficiency * 100)).text("%").style(ChatFormatting.GREEN))
                 .forGoggles(tooltip, 1);
 
-        CreateLang.text("Cold Air Out: ")
+        Lang.translate("thermal.cold_air_out")
                 .style(ChatFormatting.GRAY)
                 .add(CreateLang.number(Math.round(coldAirRate() * efficiency))
-                        .text(" / " + coldAirRate() + " mB/t")
+                        .add(Lang.translate("thermal.of_mb_t", coldAirRate()))
                         .style(ChatFormatting.AQUA))
                 .forGoggles(tooltip, 1);
         CreateLang.builder()
                 .add(CreateLang.number(coldAirTank.getFluidAmount())
-                        .text(" / " + coldAirTank.getCapacity() + " mB buffered")
+                        .add(Lang.translate("thermal.of_mb_buffered", coldAirTank.getCapacity()))
                         .style(ChatFormatting.DARK_GRAY))
                 .forGoggles(tooltip, 1);
 
         boolean receivingHotAir = isReceivingHotAirSupply();
-        CreateLang.text("Hot Air In: ")
+        Lang.translate("thermal.hot_air_in")
                 .style(ChatFormatting.GRAY)
                 .add(CreateLang.number(Math.round(hotAirRate() * efficiency))
-                        .text(" / " + hotAirRate() + " mB/t max")
+                        .add(Lang.translate("thermal.of_mb_t_max", hotAirRate()))
                         .style(ChatFormatting.GOLD))
                 .forGoggles(tooltip, 1);
         CreateLang.builder()
-                .add(CreateLang.text(receivingHotAir ? "Pipe delivering" : "Nothing recently received")
+                .add(Lang.translate(receivingHotAir ? "thermal.pipe_delivering" : "thermal.nothing_recently_received")
                         .style(receivingHotAir ? ChatFormatting.GREEN : ChatFormatting.DARK_GRAY))
                 .forGoggles(tooltip, 1);
 
         int waterPercent = waterTank.getCapacity() > 0
                 ? Math.round(waterTank.getFluidAmount() / (float) waterTank.getCapacity() * 100) : 0;
-        CreateLang.text("Water Buffer: ")
+        Lang.translate("thermal.water_buffer")
                 .style(ChatFormatting.GRAY)
                 .add(CreateLang.number(waterTank.getFluidAmount())
-                        .text(" / " + waterTank.getCapacity() + " mB (" + waterPercent + "%)")
+                        .add(Lang.translate("thermal.of_mb_percent", waterTank.getCapacity(), waterPercent))
                         .style(ChatFormatting.BLUE))
                 .forGoggles(tooltip, 1);
 
         if (overvoltage) {
-            CreateLang.text("Warning: ")
+            Lang.translate("thermal.warning")
                     .style(ChatFormatting.RED)
-                    .add(CreateLang.text("Overvoltage — smoking").style(ChatFormatting.RED))
+                    .add(Lang.translate("thermal.overvoltage_smoking").style(ChatFormatting.RED))
                     .forGoggles(tooltip, 1);
         }
 

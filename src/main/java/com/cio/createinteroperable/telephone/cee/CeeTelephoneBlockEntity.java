@@ -1,5 +1,6 @@
 package com.cio.createinteroperable.telephone.cee;
 
+import com.cio.createinteroperable.Lang;
 import com.cio.createinteroperable.CIOValueBox;
 import com.cio.createinteroperable.telephone.CioTelephone;
 import com.cio.createinteroperable.telephone.TelephoneAutoAnswerBehaviour;
@@ -77,13 +78,13 @@ public class CeeTelephoneBlockEntity extends SmartBlockEntity implements IHaveHo
     }
 
     @Override
-    public String telephoneName() {
-        return "CEE Telephone";
+    public Component telephoneName() {
+        return Lang.component("telephone.name.cee");
     }
 
     @Override
-    public String wiringLabel() {
-        return "CEE";
+    public Component wiringLabel() {
+        return Lang.component("telephone.wiring.cee");
     }
 
     /**

@@ -2,6 +2,7 @@ package com.cio.createinteroperable.thermal;
 
 import com.cio.createinteroperable.CIOFluids;
 import com.cio.createinteroperable.CIOParticles;
+import com.cio.createinteroperable.Lang;
 import com.cio.createinteroperable.thermal.coldsweat.ColdSweatChillEffect;
 import com.cio.createinteroperable.compat.Mods;
 import com.cio.createinteroperable.thermal.coldsweat.ColdSweatWarmthEffect;
@@ -1066,7 +1067,7 @@ public class RadiatorValveNorthBlockEntity extends KineticBlockEntity {
     @Override
     public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
         super.addToGoggleTooltip(tooltip, isPlayerSneaking);
-        CreateLang.text("Steam Hearth Inlet")
+        Lang.translate("thermal.steam_hearth_inlet")
                 .style(ChatFormatting.WHITE)
                 .forGoggles(tooltip);
         containedFluidTooltip(tooltip, isPlayerSneaking, steamTank);
@@ -1080,24 +1081,24 @@ public class RadiatorValveNorthBlockEntity extends KineticBlockEntity {
         // flags that specific "intake with no outlet" case rather than
         // leaving it to be inferred from "Assembled: No" alone.
         if (!assembled && pointer.getValue() > 0) {
-            CreateLang.text("Clogged: ")
+            Lang.translate("thermal.clogged")
                     .style(ChatFormatting.RED)
-                    .add(CreateLang.text("No Water Outlet attached").style(ChatFormatting.RED))
+                    .add(Lang.translate("thermal.no_water_outlet_attached").style(ChatFormatting.RED))
                     .forGoggles(tooltip, 1);
         } else if (assembled && isSouthWaterFull()) {
             // Named explicitly rather than just "water tank full" — the water
             // itself is buffered at the Water Outlet (South), not here; this
             // is one shared water level for the whole assembled body, and
             // North stalling is a downstream symptom, not a local one.
-            CreateLang.text("Clogged: ")
+            Lang.translate("thermal.clogged")
                     .style(ChatFormatting.RED)
-                    .add(CreateLang.text("Water Outlet is full — drain it to resume").style(ChatFormatting.RED))
+                    .add(Lang.translate("thermal.water_outlet_is_full_drain_it_to_res").style(ChatFormatting.RED))
                     .forGoggles(tooltip, 1);
         }
 
-        CreateLang.text("Assembled: ")
+        Lang.translate("thermal.assembled")
                 .style(ChatFormatting.GRAY)
-                .add(CreateLang.text(assembled ? "Yes (" + middlePositions.size() + " middle)" : "No")
+                .add((assembled ? Lang.translate("thermal.yes_middle", middlePositions.size()) : Lang.translate("thermal.no"))
                         .style(assembled ? ChatFormatting.GREEN : ChatFormatting.RED))
                 .forGoggles(tooltip, 1);
 
@@ -1105,7 +1106,7 @@ public class RadiatorValveNorthBlockEntity extends KineticBlockEntity {
         // single shared level for the whole assembled body, not something
         // local to either end — see class doc.
         if (assembled && southPos != null && level.getBlockEntity(southPos) instanceof RadiatorValveSouthBlockEntity southBe) {
-            CreateLang.text("Water: ")
+            Lang.translate("thermal.water")
                     .style(ChatFormatting.GRAY)
                     .add(CreateLang.number(Math.round(southBe.getWaterFraction() * 100))
                             .text("%")
@@ -1113,14 +1114,14 @@ public class RadiatorValveNorthBlockEntity extends KineticBlockEntity {
                     .forGoggles(tooltip, 1);
         }
 
-        CreateLang.text("Valve: ")
+        Lang.translate("thermal.valve")
                 .style(ChatFormatting.GRAY)
                 .add(CreateLang.number(Math.round(pointer.getValue() * 100))
                         .text("%")
                         .style(ChatFormatting.AQUA))
                 .forGoggles(tooltip, 1);
 
-        CreateLang.text("Heat: ")
+        Lang.translate("thermal.heat")
                 .style(ChatFormatting.GRAY)
                 .add(CreateLang.number(Math.round(heatFraction * 100))
                         .text("% (" + state.getValue(RadiatorValveNorthBlock.HEAT_LEVEL).getSerializedName() + ")")
@@ -1138,14 +1139,14 @@ public class RadiatorValveNorthBlockEntity extends KineticBlockEntity {
             int roomSize = roomCache.size();
             int seedCount = middlePositions.size() + (southPos != null ? 2 : 1);
             if (roomSize > seedCount) {
-                CreateLang.text("Warmth: ")
+                Lang.translate("thermal.warmth")
                         .style(ChatFormatting.GRAY)
-                        .add(CreateLang.text("enclosed room, " + roomSize + " blocks").style(ChatFormatting.LIGHT_PURPLE))
+                        .add(Lang.translate("thermal.enclosed_room", roomSize).style(ChatFormatting.LIGHT_PURPLE))
                         .forGoggles(tooltip, 1);
             } else {
-                CreateLang.text("Warmth: ")
+                Lang.translate("thermal.warmth")
                         .style(ChatFormatting.GRAY)
-                        .add(CreateLang.text("open air — local heat only").style(ChatFormatting.LIGHT_PURPLE))
+                        .add(Lang.translate("thermal.open_air_local_heat_only").style(ChatFormatting.LIGHT_PURPLE))
                         .forGoggles(tooltip, 1);
             }
         }

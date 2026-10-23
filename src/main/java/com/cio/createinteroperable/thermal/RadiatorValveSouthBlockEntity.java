@@ -1,5 +1,6 @@
 package com.cio.createinteroperable.thermal;
 
+import com.cio.createinteroperable.Lang;
 import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.content.kinetics.base.KineticBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
@@ -256,20 +257,20 @@ public class RadiatorValveSouthBlockEntity extends KineticBlockEntity {
     @Override
     public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
         super.addToGoggleTooltip(tooltip, isPlayerSneaking);
-        CreateLang.text("Water Outlet")
+        Lang.translate("thermal.water_outlet")
                 .style(ChatFormatting.WHITE)
                 .forGoggles(tooltip);
         containedFluidTooltip(tooltip, isPlayerSneaking, waterTank);
 
         BlockState state = getBlockState();
         boolean assembled = state.getBlock() instanceof RadiatorValveSouthBlock && state.getValue(RadiatorValveSouthBlock.ASSEMBLED);
-        CreateLang.text("Assembled: ")
+        Lang.translate("thermal.assembled")
                 .style(ChatFormatting.GRAY)
-                .add(CreateLang.text(assembled ? "Yes (" + middleCount + " middle)" : "No")
+                .add((assembled ? Lang.translate("thermal.yes_middle", middleCount) : Lang.translate("thermal.no"))
                         .style(assembled ? ChatFormatting.GREEN : ChatFormatting.RED))
                 .forGoggles(tooltip, 1);
 
-        CreateLang.text("Valve: ")
+        Lang.translate("thermal.valve")
                 .style(ChatFormatting.GRAY)
                 .add(CreateLang.number(Math.round(pointer.getValue() * 100))
                         .text("%")
@@ -278,9 +279,9 @@ public class RadiatorValveSouthBlockEntity extends KineticBlockEntity {
 
         if (pointer.getValue() > 0) {
             boolean connected = level != null && isConnectedBelow();
-            CreateLang.text("Status: ")
+            Lang.translate("thermal.status")
                     .style(ChatFormatting.GRAY)
-                    .add(CreateLang.text(connected ? "Connected" : "Dripping (wasting water)")
+                    .add(Lang.translate(connected ? "thermal.connected" : "thermal.dripping_wasting_water")
                             .style(connected ? ChatFormatting.GREEN : ChatFormatting.GOLD))
                     .forGoggles(tooltip, 1);
         }

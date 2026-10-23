@@ -1,5 +1,6 @@
 package com.cio.createinteroperable.telephone.cpg;
 
+import com.cio.createinteroperable.Lang;
 import com.cio.createinteroperable.CIOValueBox;
 import com.cio.createinteroperable.telephone.CioTelephone;
 import com.cio.createinteroperable.telephone.TelephoneAutoAnswerBehaviour;
@@ -84,13 +85,13 @@ public class CpgTelephoneBlockEntity extends ElectricBlockEntity implements IHav
     }
 
     @Override
-    public String telephoneName() {
-        return "CPG Telephone";
+    public Component telephoneName() {
+        return Lang.component("telephone.name.cpg");
     }
 
     @Override
-    public String wiringLabel() {
-        return "CPG";
+    public Component wiringLabel() {
+        return Lang.component("telephone.wiring.cpg");
     }
 
     @Override

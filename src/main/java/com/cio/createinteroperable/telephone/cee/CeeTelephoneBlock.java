@@ -2,6 +2,7 @@ package com.cio.createinteroperable.telephone.cee;
 
 import com.cio.createinteroperable.CIODevices;
 import com.cio.createinteroperable.CIOProperties;
+import com.cio.createinteroperable.Lang;
 import com.cio.createinteroperable.modules.ElectroEnergeticsModule;
 import com.cio.createinteroperable.telephone.TelephoneLabels;
 import com.cio.createinteroperable.telephone.TelephoneRedstone;
@@ -235,7 +236,7 @@ public class CeeTelephoneBlock extends SimpleElectricalDeviceBlock<TelephoneDevi
                         spawnDenySmoke(level, pos);
                     } else {
                         player.displayClientMessage(
-                                Component.literal("That number is busy.").withStyle(net.minecraft.ChatFormatting.RED), true);
+                                Lang.component("telephone.that_number_is_busy").withStyle(net.minecraft.ChatFormatting.RED), true);
                     }
                 }
             }
