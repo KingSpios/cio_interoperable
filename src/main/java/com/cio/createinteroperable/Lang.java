@@ -25,8 +25,13 @@ public final class Lang {
         return new LangBuilder(CreateInteroperable.ID).translate(key, args);
     }
 
-    /** An empty {@link LangBuilder} in this mod's namespace. */
-    public static LangBuilder builder() {
-        return new LangBuilder(CreateInteroperable.ID);
+    /**
+     * A {@link LangBuilder} holding empty text, for the "nothing" side of a
+     * conditional {@code .add(cond ? Lang.translate(..) : Lang.empty())}. A bare
+     * {@code new LangBuilder(..)} has no component yet and makes
+     * {@code LangBuilder#add} throw "No components were added to builder".
+     */
+    public static LangBuilder empty() {
+        return new LangBuilder(CreateInteroperable.ID).text("");
     }
 }
