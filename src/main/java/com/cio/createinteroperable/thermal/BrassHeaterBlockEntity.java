@@ -339,7 +339,7 @@ public class BrassHeaterBlockEntity extends KineticBlockEntity {
         Lang.translate("thermal.draw")
                 .style(ChatFormatting.GRAY)
                 .add(CreateLang.number(drawn)
-                        .add(Lang.translate("unit.mb_per_tick")).add(starved ? Lang.translate("thermal.starved", desired) : Lang.builder())
+                        .add(Lang.translate("unit.mb_per_tick")).add(starved ? Lang.translate("thermal.starved", desired) : Lang.empty())
                         .style(starved ? ChatFormatting.RED : ChatFormatting.AQUA))
                 .forGoggles(tooltip, 1);
 

@@ -586,7 +586,7 @@ public class SteamOutletBlockEntity extends KineticBlockEntity {
             Lang.translate("thermal.output")
                     .style(ChatFormatting.GRAY)
                     .add(CreateLang.number(output)
-                            .add(Lang.translate("unit.mb_per_tick")).add(bufferFull ? Lang.translate("thermal.buffer_full") : Lang.builder())
+                            .add(Lang.translate("unit.mb_per_tick")).add(bufferFull ? Lang.translate("thermal.buffer_full") : Lang.empty())
                             .style(bufferFull ? ChatFormatting.RED : ChatFormatting.AQUA))
                     .forGoggles(tooltip, 1);
 

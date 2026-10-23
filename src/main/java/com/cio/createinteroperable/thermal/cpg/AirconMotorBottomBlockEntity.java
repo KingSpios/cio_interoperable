@@ -880,7 +880,7 @@ public class AirconMotorBottomBlockEntity extends ElectricBlockEntity
         Lang.translate("thermal.voltage")
                 .style(ChatFormatting.GRAY)
                 .add(CreateLang.number(Math.round(voltage))
-                        .add(Lang.translate("thermal.volts_unit")).add(reversed ? Lang.translate("thermal.reversed_polarity") : Lang.builder())
+                        .add(Lang.translate("thermal.volts_unit")).add(reversed ? Lang.translate("thermal.reversed_polarity") : Lang.empty())
                         .style(overvoltage ? ChatFormatting.RED : ChatFormatting.AQUA))
                 .forGoggles(tooltip, 1);
 
