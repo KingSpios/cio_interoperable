@@ -78,6 +78,9 @@ public class CIOCreativeTab {
                             output.accept(CIOItems.CEE_DEB_RECTIFIER_TIER3.get());
                             output.accept(CIOItems.CEE_DEB_RECTIFIER_TIER4.get());
                             output.accept(CIOItems.CEE_TELEPHONE.get());
+                            output.accept(CIOItems.CEE_COMPACT_TRANSFORMER.get());
+                            output.accept(CIOItems.CEE_STREETLIGHT.get());
+                            output.accept(CIOItems.CEE_MINI_CONNECTOR.get());
                         }
                         if (IdenDecorCompat.present()) {
                             output.accept(CIOItems.ELECTRIC_HEAVY_BUTTON.get());

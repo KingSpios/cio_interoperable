@@ -1,0 +1,32 @@
+{
+	"credit": "Generated for CIO's Streetlight: full-bright glass + bulb, drawn by CeeStreetlightRenderer while lit",
+	"textures": {
+		"lit": "createinteroperable:block/streetlight_on_actual",
+		"particle": "createinteroperable:block/streetlight_on_actual"
+	},
+	"elements": [
+		{
+			"name": "bottom_glass",
+			"from": [5, -1.05, 1],
+			"to": [11, -1.05, 12],
+			"rotation": {"angle": -22.5, "axis": "x", "origin": [8, 0.28907, 2.37949]},
+			"faces": {
+				"down": {"uv": [2.5, 10.5, 5.5, 16], "texture": "#lit"}
+			}
+		},
+		{
+			"name": "bulb_body",
+			"from": [5.95, 0.45, 2.05],
+			"to": [10.05, 2.55, 11.15],
+			"rotation": {"angle": -22.5, "axis": "x", "origin": [8, 0.28907, 2.37949]},
+			"faces": {
+				"north": {"uv": [8.5, 10.5, 10.5, 11.5], "texture": "#lit"},
+				"east": {"uv": [5, 11.5, 6, 16], "rotation": 270, "texture": "#lit"},
+				"south": {"uv": [8.5, 10.5, 10.5, 11.5], "texture": "#lit"},
+				"west": {"uv": [5, 11.5, 6, 16], "rotation": 270, "texture": "#lit"},
+				"up": {"uv": [5.5, 1.5, 7.5, 6], "texture": "#lit"},
+				"down": {"uv": [8.5, 11, 10.5, 15.5], "texture": "#lit"}
+			}
+		}
+	]
+}

@@ -207,6 +207,39 @@ public class CIOBlocks {
                     .strength(2.0f, 6.0f)
                     )) : null;
 
+    /** CEE-only Compact Transformer — no CPG equivalent. */
+    public static final DeferredBlock<CeeCompactTransformerBlock> CEE_COMPACT_TRANSFORMER = CEE ? BLOCKS.register("cee_mini_transformer",
+            () -> new CeeCompactTransformerBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.COLOR_GRAY)
+                    .strength(1.5f, 6.0f)
+                    .requiresCorrectToolForDrops()
+                    .noOcclusion()
+                    )) : null;
+
+    /** CEE-only Streetlight — no CPG equivalent. */
+    public static final DeferredBlock<CeeStreetlightBlock> CEE_STREETLIGHT = CEE ? BLOCKS.register("cee_streetlight",
+            () -> new CeeStreetlightBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.METAL)
+                    .strength(1.5f, 6.0f)
+                    .sound(SoundType.LANTERN)
+                    .requiresCorrectToolForDrops()
+                    .noOcclusion()
+                    )) : null;
+
+    /** CEE-only Mini Double Connector — two separate pins, no CPG equivalent. */
+    public static final DeferredBlock<CeeMiniConnectorBlock> CEE_MINI_CONNECTOR = CEE ? BLOCKS.register("cee_mini_connector",
+            () -> new CeeMiniConnectorBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.COLOR_ORANGE)
+                    .strength(1.0f, 6.0f)
+                    .sound(SoundType.COPPER)
+                    .requiresCorrectToolForDrops()
+                    .noOcclusion()
+                    )) : null;
+
+    /** The Streetlight's projected light (invisible, air-like, no item). */
+    public static final DeferredBlock<CeeStreetlightLightBlock> CEE_STREETLIGHT_LIGHT = CEE ? BLOCKS.register("cee_streetlight_light",
+            () -> new CeeStreetlightLightBlock(BlockBehaviour.Properties.of())) : null;
+
     // --- Aesthetic PG connector reskins (see CIOConnectorBlock/CIOConnectorGlassBlock docs) ---
     // Not interoperable — plain PG-only, equivalent in specs to PG's own
     // wire_connector/heavy_wire_connector, just different models/textures.

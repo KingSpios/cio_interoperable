@@ -1,0 +1,20 @@
+{
+  "neoforge:conditions": [
+    { "type": "neoforge:mod_loaded", "modid": "electroenergetics" }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": { "item": "electroenergetics:connector" },
+    "W": { "item": "electroenergetics:copper_wire_spool" },
+    "T": { "item": "electroenergetics:transformer_core_lamination" }
+  },
+  "pattern": [
+    "CWC",
+    " T "
+  ],
+  "result": {
+    "count": 1,
+    "id": "createinteroperable:cee_mini_transformer"
+  }
+}

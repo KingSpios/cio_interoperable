@@ -64,6 +64,9 @@ public class CIOClient {
         }
         if (ElectroEnergeticsCompat.present()) {
             event.registerBlockEntityRenderer(CIOBlockEntities.CEE_TELEPHONE.get(), TelephoneRenderer::new);
+            // Additive glow (rays, glass, bulb); init() registers its PartialModels before Flywheel bakes.
+            CeeStreetlightRenderer.init();
+            event.registerBlockEntityRenderer(CIOBlockEntities.CEE_STREETLIGHT.get(), CeeStreetlightRenderer::new);
         }
         // Draws the tier viewers / needle gauge, plus (only with Crayfish
         // installed) the yellow wrench-link box + connection lines. PG-only

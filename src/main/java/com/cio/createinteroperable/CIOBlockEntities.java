@@ -118,6 +118,16 @@ public class CIOBlockEntities {
                     (pos, state) -> new CeeTelephoneBlockEntity(CIOBlockEntities.CEE_TELEPHONE.get(), pos, state),
                     CIOBlocks.CEE_TELEPHONE.get()).build(null)) : null;
 
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CeeCompactTransformerBlockEntity>> CEE_COMPACT_TRANSFORMER =
+            CEE ? BLOCK_ENTITIES.register("cee_mini_transformer", () -> BlockEntityType.Builder.of(
+                    (pos, state) -> new CeeCompactTransformerBlockEntity(CIOBlockEntities.CEE_COMPACT_TRANSFORMER.get(), pos, state),
+                    CIOBlocks.CEE_COMPACT_TRANSFORMER.get()).build(null)) : null;
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CeeStreetlightBlockEntity>> CEE_STREETLIGHT =
+            CEE ? BLOCK_ENTITIES.register("cee_streetlight", () -> BlockEntityType.Builder.of(
+                    (pos, state) -> new CeeStreetlightBlockEntity(CIOBlockEntities.CEE_STREETLIGHT.get(), pos, state),
+                    CIOBlocks.CEE_STREETLIGHT.get()).build(null)) : null;
+
     // --- Aesthetic PG connector reskins (see CIOConnectorBlock/CIOConnectorGlassBlock) ---
     // Reuses PG's own real ConnectorBlockEntity class verbatim (no CIO-side
     // circuit logic needed — a connector is just a 1-terminal pass-through).

@@ -74,6 +74,21 @@ public class CIOItems {
     public static final DeferredItem<BlockItem> CEE_TELEPHONE = CEE ? ITEMS.registerSimpleBlockItem(
             "cee_telephone", CIOBlocks.CEE_TELEPHONE) : null;
 
+    // --- Compact Transformer (CEE-only) ---
+
+    public static final DeferredItem<BlockItem> CEE_COMPACT_TRANSFORMER = CEE ? ITEMS.registerSimpleBlockItem(
+            "cee_mini_transformer", CIOBlocks.CEE_COMPACT_TRANSFORMER) : null;
+
+    // --- Streetlight (CEE-only) ---
+
+    public static final DeferredItem<BlockItem> CEE_STREETLIGHT = CEE ? ITEMS.registerSimpleBlockItem(
+            "cee_streetlight", CIOBlocks.CEE_STREETLIGHT) : null;
+
+    // --- Mini Double Connector (CEE-only) ---
+
+    public static final DeferredItem<BlockItem> CEE_MINI_CONNECTOR = CEE ? ITEMS.registerSimpleBlockItem(
+            "cee_mini_connector", CIOBlocks.CEE_MINI_CONNECTOR) : null;
+
     // --- Aesthetic PG connector reskins (PG-only) ---
 
     public static final DeferredItem<BlockItem> CIO_CONNECTOR = BRIDGE_EXTRAS && PG ? ITEMS.registerSimpleBlockItem(

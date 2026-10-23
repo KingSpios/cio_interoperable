@@ -5,6 +5,7 @@ import com.cio.createinteroperable.compat.PowerGridCompat;
 import com.cio.createinteroperable.deb.DebCeeDevice;
 import com.cio.createinteroperable.deb.RedstoneSwitchCeeDevice;
 import com.george_vi.electroenergetics.CEERegistries;
+import com.george_vi.electroenergetics.content.connector.DoubleConnectorDevice;
 import com.george_vi.electroenergetics.devices.device.SimulatedDeviceType;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -57,6 +58,21 @@ public class CIODevices {
     public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<AirconCeeDevice>> AIRCON_MOTOR =
             DEVICES.register("aircon_motor", () -> new SimulatedDeviceType<>(CreateInteroperable.rl("aircon_motor"),
                     ((type, level, pos, sd) -> new AirconCeeDevice(level, pos, sd, type))));
+
+    /** Electro Energetics side of the CEE-only Compact Transformer (a 15 kW port of CEE's own Transformer). */
+    public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<CeeCompactTransformerDevice>> COMPACT_TRANSFORMER =
+            DEVICES.register("compact_transformer", () -> new SimulatedDeviceType<>(CreateInteroperable.rl("compact_transformer"),
+                    ((type, level, pos, sd) -> new CeeCompactTransformerDevice(level, pos, sd, type))));
+
+    /** Electro Energetics side of the CEE-only Streetlight (a 120 V / 25 W photocell lamp). */
+    public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<CeeStreetlightDevice>> STREETLIGHT =
+            DEVICES.register("streetlight", () -> new SimulatedDeviceType<>(CreateInteroperable.rl("streetlight"),
+                    ((type, level, pos, sd) -> new CeeStreetlightDevice(level, pos, sd, type))));
+
+    /** CEE-only Mini Double Connector: CEE's own DoubleConnectorDevice (two separate nodes, no bridges) under CIO's type. */
+    public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<DoubleConnectorDevice>> MINI_CONNECTOR =
+            DEVICES.register("mini_connector", () -> new SimulatedDeviceType<>(CreateInteroperable.rl("mini_connector"),
+                    ((type, level, pos, sd) -> new DoubleConnectorDevice(level, pos, sd, type))));
 
     /** Inert device for Pantographs &amp; Wires connectors; see {@link PnwTerminalDevice}. */
     public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<PnwTerminalDevice>> PNW_TERMINAL =

@@ -1,0 +1,7 @@
+{
+  "parent": "createinteroperable:block/streetlamp_straight_arms",
+  "render_type": "minecraft:translucent",
+  "textures": {
+    "1": "createinteroperable:block/streetlight_on_actual"
+  }
+}

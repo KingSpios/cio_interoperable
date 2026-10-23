@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": { "model": "createinteroperable:block/cee_mini_transformer" },
+    "facing=east": { "model": "createinteroperable:block/cee_mini_transformer", "y": 90 },
+    "facing=south": { "model": "createinteroperable:block/cee_mini_transformer", "y": 180 },
+    "facing=west": { "model": "createinteroperable:block/cee_mini_transformer", "y": 270 }
+  }
+}

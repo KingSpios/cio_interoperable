@@ -1,0 +1,82 @@
+{
+  "variants": {
+    "facing=up,style=short": {
+      "model": "createinteroperable:block/mini_connector_cee_1"
+    },
+    "facing=up,style=tall": {
+      "model": "createinteroperable:block/mini_connector_cee_2"
+    },
+    "facing=up,style=stacked": {
+      "model": "createinteroperable:block/mini_connector_cee_3"
+    },
+    "facing=down,style=short": {
+      "model": "createinteroperable:block/mini_connector_cee_1",
+      "x": 180
+    },
+    "facing=down,style=tall": {
+      "model": "createinteroperable:block/mini_connector_cee_2",
+      "x": 180
+    },
+    "facing=down,style=stacked": {
+      "model": "createinteroperable:block/mini_connector_cee_3",
+      "x": 180
+    },
+    "facing=south,style=short": {
+      "model": "createinteroperable:block/mini_connector_cee_1",
+      "x": 270
+    },
+    "facing=south,style=tall": {
+      "model": "createinteroperable:block/mini_connector_cee_2",
+      "x": 270
+    },
+    "facing=south,style=stacked": {
+      "model": "createinteroperable:block/mini_connector_cee_3",
+      "x": 270
+    },
+    "facing=west,style=short": {
+      "model": "createinteroperable:block/mini_connector_cee_1",
+      "x": 270,
+      "y": 90
+    },
+    "facing=west,style=tall": {
+      "model": "createinteroperable:block/mini_connector_cee_2",
+      "x": 270,
+      "y": 90
+    },
+    "facing=west,style=stacked": {
+      "model": "createinteroperable:block/mini_connector_cee_3",
+      "x": 270,
+      "y": 90
+    },
+    "facing=north,style=short": {
+      "model": "createinteroperable:block/mini_connector_cee_1",
+      "x": 270,
+      "y": 180
+    },
+    "facing=north,style=tall": {
+      "model": "createinteroperable:block/mini_connector_cee_2",
+      "x": 270,
+      "y": 180
+    },
+    "facing=north,style=stacked": {
+      "model": "createinteroperable:block/mini_connector_cee_3",
+      "x": 270,
+      "y": 180
+    },
+    "facing=east,style=short": {
+      "model": "createinteroperable:block/mini_connector_cee_1",
+      "x": 270,
+      "y": 270
+    },
+    "facing=east,style=tall": {
+      "model": "createinteroperable:block/mini_connector_cee_2",
+      "x": 270,
+      "y": 270
+    },
+    "facing=east,style=stacked": {
+      "model": "createinteroperable:block/mini_connector_cee_3",
+      "x": 270,
+      "y": 270
+    }
+  }
+}

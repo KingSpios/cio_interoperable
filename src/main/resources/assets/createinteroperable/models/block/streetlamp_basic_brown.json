@@ -1,0 +1,7 @@
+{
+  "parent": "createinteroperable:block/streetlamp_basic",
+  "render_type": "minecraft:translucent",
+  "textures": {
+    "1": "createinteroperable:block/streetlight_brown"
+  }
+}
