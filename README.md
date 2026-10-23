@@ -1,6 +1,6 @@
 # Create: Interoperable (CIO)
 
-> A free and open **"addon for an addon"**, developed using free software and Anthropic's Sonnet 5 via Claude Code. All relevant Claude Code skills (skill.md) explaining the inner workings of this addon are also available in this repository.
+> A free and open **"addon for an addon"**, developed using free software and Anthropic's Sonnet 5, 5.5 and Opus 5.5, via Claude Code. All relevant Claude Code skills (skill.md) explaining the inner workings of this addon are also available in this repository.
 >
 > No copyrights will be asserted, but formally it has an MIT license.
 > All CIO code and assets (including all hand-made models or textures) may be fully modified and utilised without need for credit.
