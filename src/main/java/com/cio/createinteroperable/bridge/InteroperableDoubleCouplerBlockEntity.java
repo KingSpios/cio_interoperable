@@ -151,7 +151,7 @@ public class InteroperableDoubleCouplerBlockEntity extends ElectricBlockEntity i
     /** Plain-text label for the goggle overlay (the value-settings screen uses the enum's own icon+key). */
     private static String modeLabel(int m) {
         return switch (m) {
-            case MODE_OFF -> CIOGlyphs.off("OFF");
+            case MODE_OFF -> CIOGlyphs.off("bridge.mode_off");
             case MODE_CEE_TO_CPG -> CIOGlyphs.ceeToCpg();
             default -> CIOGlyphs.cpgToCee();
         };

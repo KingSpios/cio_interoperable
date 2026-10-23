@@ -1072,7 +1072,7 @@ public class AirconVenterBlockEntity extends SmartBlockEntity implements IAirCur
 
         Lang.translate("thermal.activity")
                 .style(ChatFormatting.GRAY)
-                .add(CreateLang.number(Math.round(activity * 100)).text("%").style(ChatFormatting.GREEN))
+                .add(CreateLang.number(Math.round(activity * 100)).add(Lang.translate("unit.percent")).style(ChatFormatting.GREEN))
                 .forGoggles(tooltip, 1);
 
         int totalColdDemand = COLD_AIR_CONSUMED_PER_CYCLE + VENTED_COLD_AIR_PER_CYCLE;

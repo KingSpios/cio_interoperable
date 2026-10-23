@@ -150,9 +150,15 @@ public class AirconMotorBottomBlockEntity extends ElectricBlockEntity
     /** Off/Low/Mid/Max — °C the connected venter(s) settle toward dropping, at full (120-149 V) effectiveness — see this class's own doc for how the setting actually reaches the venter. Off's own 0 is never actually read: {@link #isOff()} zeroes {@link #efficiency}, so nothing ever calls into a venter's own conversion while off. */
     private static final float[] SETTING_DROP_C = {0f, 6f, 12f, 24f};
     /** Slider row labels — special characters per the design conversation (escaped, not typed literally, so the source file's own encoding can't mangle them). */
-    private static final String[] SETTING_LABELS = {
-            CIOGlyphs.off("Off"), CIOGlyphs.snow(1, "Low"), CIOGlyphs.snow(2, "Mid"), CIOGlyphs.snow(3, "Max")
-    };
+    private static String settingLabel(int index) {
+        // Resolved when shown (client side), not at class load: the lang file is not loaded then.
+        return switch (Mth.clamp(index, 0, 3)) {
+            case 0 -> CIOGlyphs.off("thermal.setting_off");
+            case 1 -> CIOGlyphs.snow(1, "thermal.setting_low");
+            case 2 -> CIOGlyphs.snow(2, "thermal.setting_mid");
+            default -> CIOGlyphs.snow(3, "thermal.setting_max");
+        };
+    }
     /** Off/Low/Mid/Max — {@link #smoothedHumIntensity}'s own multiplier on top of {@link #efficiency}, feeding ONLY {@link #tickAudio()}. Same 1:2:4 relative-power feel as {@link #SETTING_RESISTANCE}'s own Low:Mid:Max ratio (0.25:0.5:1 of Max), so the hum's own intensity tracks how hard the unit is actually working, not just whether it has voltage. */
     private static final float[] SETTING_HUM_FRACTION = {0f, 0.25f, 0.5f, 1f};
     /**
@@ -371,7 +377,7 @@ public class AirconMotorBottomBlockEntity extends ElectricBlockEntity
         powerSetting = new PowerSettingScrollValueBehaviour(
                 Component.translatable("createinteroperable.aircon_power_setting"), this, powerSlot())
                 .between(0, 3)
-                .withFormatter(i -> SETTING_LABELS[Mth.clamp(i, 0, 3)]);
+                .withFormatter(i -> settingLabel(i));
         behaviours.add(powerSetting);
     }
 
@@ -390,7 +396,7 @@ public class AirconMotorBottomBlockEntity extends ElectricBlockEntity
         @Override
         public ValueSettingsBoard createBoard(Player player, BlockHitResult hitResult) {
             return new ValueSettingsBoard(label, max, 1, ImmutableList.of(Lang.component("thermal.cooling_2")),
-                    new ValueSettingsFormatter(vs -> Component.literal(SETTING_LABELS[Mth.clamp(vs.value(), 0, 3)])));
+                    new ValueSettingsFormatter(vs -> Component.literal(settingLabel(vs.value()))));
         }
     }
 
@@ -881,7 +887,7 @@ public class AirconMotorBottomBlockEntity extends ElectricBlockEntity
         boolean off = isOff();
         Lang.translate("thermal.setting")
                 .style(ChatFormatting.GRAY)
-                .add(CreateLang.text(SETTING_LABELS[getPowerSettingIndex()])
+                .add(CreateLang.text(settingLabel(getPowerSettingIndex()))
                         .add(off ? Lang.translate("thermal.power_cut") : Lang.translate("thermal.cooling_ceiling", Math.round(getSettingDropC())))
                         .style(off ? ChatFormatting.DARK_GRAY : ChatFormatting.BLUE))
                 .forGoggles(tooltip, 1);
@@ -894,17 +900,17 @@ public class AirconMotorBottomBlockEntity extends ElectricBlockEntity
         Lang.translate("thermal.resistance")
                 .style(ChatFormatting.GRAY)
                 .add(off ? Lang.translate("thermal.disconnected").style(ChatFormatting.DARK_GRAY)
-                        : CreateLang.number(Math.round(resistance * 10) / 10f).text(" Ω").style(ChatFormatting.GOLD))
+                        : CreateLang.number(Math.round(resistance * 10) / 10f).add(Lang.translate("unit.ohms")).style(ChatFormatting.GOLD))
                 .forGoggles(tooltip, 1);
 
         Lang.translate("thermal.power_draw")
                 .style(ChatFormatting.GRAY)
-                .add(CreateLang.number(Math.round(watts)).text(" W").style(ChatFormatting.GOLD))
+                .add(CreateLang.number(Math.round(watts)).add(Lang.translate("unit.watts")).style(ChatFormatting.GOLD))
                 .forGoggles(tooltip, 1);
 
         Lang.translate("thermal.efficiency")
                 .style(ChatFormatting.GRAY)
-                .add(CreateLang.number(Math.round(efficiency * 100)).text("%").style(ChatFormatting.GREEN))
+                .add(CreateLang.number(Math.round(efficiency * 100)).add(Lang.translate("unit.percent")).style(ChatFormatting.GREEN))
                 .forGoggles(tooltip, 1);
 
         Lang.translate("thermal.cold_air_out")

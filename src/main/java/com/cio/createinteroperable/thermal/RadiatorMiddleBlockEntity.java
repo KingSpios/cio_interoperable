@@ -38,7 +38,7 @@ public class RadiatorMiddleBlockEntity extends BlockEntity implements IHaveGoggl
         if (state.getBlock() instanceof RadiatorMiddleBlock) {
             Lang.translate("thermal.heat")
                     .style(ChatFormatting.GRAY)
-                    .add(CreateLang.text(state.getValue(RadiatorMiddleBlock.HEAT_LEVEL).name())
+                    .add(CreateLang.text(state.getValue(RadiatorMiddleBlock.HEAT_LEVEL).label().getString().toUpperCase(java.util.Locale.ROOT))
                             .style(ChatFormatting.GOLD))
                     .forGoggles(tooltip, 1);
         }

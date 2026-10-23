@@ -273,7 +273,7 @@ public class RadiatorValveSouthBlockEntity extends KineticBlockEntity {
         Lang.translate("thermal.valve")
                 .style(ChatFormatting.GRAY)
                 .add(CreateLang.number(Math.round(pointer.getValue() * 100))
-                        .text("%")
+                        .add(Lang.translate("unit.percent"))
                         .style(ChatFormatting.AQUA))
                 .forGoggles(tooltip, 1);
 

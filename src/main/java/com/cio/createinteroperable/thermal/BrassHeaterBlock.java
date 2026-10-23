@@ -176,6 +176,11 @@ public class BrassHeaterBlock extends KineticBlock implements IBE<BrassHeaterBlo
     public enum HeatLevel implements StringRepresentable {
         FREEZING, COLD, WARM, HOT, BLAZING;
 
+        /** The level's name as a player reads it ({@code thermal.heat_level.*} in the lang file). */
+        public net.minecraft.network.chat.MutableComponent label() {
+            return com.cio.createinteroperable.Lang.component("thermal.heat_level." + getSerializedName());
+        }
+
         @Override
         public String getSerializedName() {
             return name().toLowerCase(java.util.Locale.ROOT);

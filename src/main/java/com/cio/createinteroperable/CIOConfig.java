@@ -195,20 +195,22 @@ public final class CIOConfig {
 
     static {
         ModConfigSpec.Builder b = new ModConfigSpec.Builder();
-        b.push("refurbishedFurniture");
+        b.translation("createinteroperable.configuration.refurbishedFurniture").push("refurbishedFurniture");
         RF_REQUIRE_SUPPLY = b
                 .comment("ON by default. Refurbished Furniture sinks / baths / toilets no longer",
                         "fill for free: right-click bare-handed to pull water from an adjacent",
                         "supply (a tank, a drum, a Create pipe end) into the fixture; hold to keep",
                         "filling. This overrides Refurbished Furniture's own dispenseWater option.",
                         "Set false to restore Refurbished Furniture's behaviour.")
+                .translation("createinteroperable.configuration.refurbishedFurniture.requireSupply")
                 .define("requireSupply", true);
         RF_FILL_STEP_MB = b
                 .comment("Millibuckets drawn into the fixture per right-click.")
+                .translation("createinteroperable.configuration.refurbishedFurniture.fillStepMb")
                 .defineInRange("fillStepMb", 250, 1, 1_000_000);
         b.pop();
 
-        b.push("sink");
+        b.translation("createinteroperable.configuration.sink").push("sink");
         SINK_REQUIRE_PIPE_SUPPLY = b
                 .comment("ON by default. Let's Do (Farm & Charm / Candlelight / Bakery) sinks and",
                         "the Alpine Whispers bathtub no longer fill for free:",
@@ -218,29 +220,35 @@ public final class CIOConfig {
                         "Bathtub: right-click (hold) draws water from an adjacent supply until full.",
                         "A no-op unless one of those mods is installed. Set false to restore their",
                         "vanilla behaviour.")
+                .translation("createinteroperable.configuration.sink.requirePipeSupply")
                 .define("requirePipeSupply", true);
         SINK_BUFFER_CAPACITY_MB = b
                 .comment("Capacity of the sink's internal supply buffer, in millibuckets.")
+                .translation("createinteroperable.configuration.sink.bufferCapacityMb")
                 .defineInRange("bufferCapacityMb", 2000, 1, 1_000_000);
         SINK_FILL_COST_MB = b
                 .comment("Millibuckets drawn from the buffer each time the player fills the basin.")
+                .translation("createinteroperable.configuration.sink.fillCostMb")
                 .defineInRange("fillCostMb", 1000, 1, 1_000_000);
         SINK_ALLOW_MANUAL_BUCKET_FILL = b
                 .comment("Also let players top up the buffer by hand with a filled bucket.")
+                .translation("createinteroperable.configuration.sink.allowManualBucketFill")
                 .define("allowManualBucketFill", true);
         b.pop();
 
-        b.push("bathtub");
+        b.translation("createinteroperable.configuration.bathtub").push("bathtub");
         BATHTUB_CAPACITY_MB = b
                 .comment("Millibuckets a full Alpine Whispers bathtub holds. Larger = slower to fill.")
+                .translation("createinteroperable.configuration.bathtub.capacityMb")
                 .defineInRange("capacityMb", 3000, 1, 1_000_000);
         BATHTUB_FILL_STEP_MB = b
                 .comment("Millibuckets pulled from an adjacent supply per right-click while filling",
                         "the bathtub. Hold right-click to keep filling.")
+                .translation("createinteroperable.configuration.bathtub.fillStepMb")
                 .defineInRange("fillStepMb", 100, 1, 1_000_000);
         b.pop();
 
-        b.push("lamps");
+        b.translation("createinteroperable.configuration.lamps").push("lamps");
         LETSDO_LAMPS_REQUIRE_POWER = b
                 .comment("ON by default. Let's Do Furniture / Candlelight lamps and street lanterns,",
                         "Alpine Whispers fairy lights, Another Furniture lamps, and Iden's Decor Wall Lamp /",
@@ -252,20 +260,22 @@ public final class CIOConfig {
                         "attached); Another Furniture lamps also regain their redstone response.",
                         "Also makes new Iden's Decor lights (Pliers-configurable) place in their",
                         "Refurbished mode when Refurbished Furniture is installed.")
+                .translation("createinteroperable.configuration.lamps.requirePower")
                 .define("requirePower", true);
         b.pop();
 
-        b.push("beachpartyAppliances");
+        b.translation("createinteroperable.configuration.beachpartyAppliances").push("beachpartyAppliances");
         BEACHPARTY_APPLIANCES_REQUIRE_POWER = b
                 .comment("ON by default. Let's Do Beachparty's Radio and Mini Fridge become",
                         "Crayfish electricity consumers: the Radio only plays while powered (10 W,",
                         "12 V, billed only while a track plays) and the Mini Fridge only ferments",
                         "while powered (85 W, 120 V, billed whenever linked). A no-op unless",
                         "Beachparty is installed. Set false to restore their vanilla behaviour.")
+                .translation("createinteroperable.configuration.beachpartyAppliances.requirePower")
                 .define("requirePower", true);
         b.pop();
 
-        b.push("bibliocraftAppliances");
+        b.translation("createinteroperable.configuration.bibliocraftAppliances").push("bibliocraftAppliances");
         BIBLIOCRAFT_APPLIANCES_REQUIRE_POWER = b
                 .comment("ON by default. Bibliocraft's Fancy Crafter no longer auto-crafts from",
                         "redstone alone: it needs a live rail from a Domestic Electrical Board",
@@ -273,20 +283,22 @@ public final class CIOConfig {
                         "hopper automation are never blocked, even unpowered. A no-op unless",
                         "Bibliocraft is installed. Set false to hand it straight back to",
                         "Bibliocraft's own redstone behaviour.")
+                .translation("createinteroperable.configuration.bibliocraftAppliances.requirePower")
                 .define("requirePower", true);
         b.pop();
 
-        b.push("bibliocraftLanterns");
+        b.translation("createinteroperable.configuration.bibliocraftLanterns").push("bibliocraftLanterns");
         BIBLIOCRAFT_LANTERN_LIGHT_CAP = b
                 .comment("ON by default. Caps Bibliocraft's Fancy Lantern (every gold/iron,",
                         "clear/colored, regular/soul flavor) at a vanilla Soul Lantern's light",
                         "level (10) at most — the 'regular' flavors otherwise register at a full",
                         "15, matching vanilla's own Lantern. A no-op unless Bibliocraft is",
                         "installed. Set false to restore Bibliocraft's own light levels.")
+                .translation("createinteroperable.configuration.bibliocraftLanterns.capLight")
                 .define("capLight", true);
         b.pop();
 
-        b.push("crnDisplays");
+        b.translation("createinteroperable.configuration.crnDisplays").push("crnDisplays");
         CRN_DISPLAYS_REQUIRE_POWER = b
                 .comment("ON by default. A freestanding Create Train Navigator Advanced Display",
                         "renders its texts only while a live rail from a Domestic Electrical Board",
@@ -295,10 +307,11 @@ public final class CIOConfig {
                         "onto a moving contraption are never touched. A no-op unless Create Train",
                         "Navigator is installed. Set false to hand displays back to Create Train",
                         "Navigator (no node attached).")
+                .translation("createinteroperable.configuration.crnDisplays.requirePower")
                 .define("requirePower", true);
         b.pop();
 
-        b.push("vistaTvs");
+        b.translation("createinteroperable.configuration.vistaTvs").push("vistaTvs");
         VISTA_TVS_REQUIRE_POWER = b
                 .comment("ON by default. A Vista (cameramod) TV — single or grown into a",
                         "connected N x N wall — becomes a Domestic Electrical Board electricity",
@@ -309,20 +322,22 @@ public final class CIOConfig {
                         "while actually on (8 W per tile, 12 V, n^2 for a grown wall). A no-op",
                         "unless Vista is installed. Set false to hand every TV straight back to",
                         "Vista's own redstone-only behaviour.")
+                .translation("createinteroperable.configuration.vistaTvs.requirePower")
                 .define("requirePower", true);
         b.pop();
 
-        b.push("idenComputer");
+        b.translation("createinteroperable.configuration.idenComputer").push("idenComputer");
         IDEN_COMPUTER_REQUIRE_POWER = b
                 .comment("ON by default. Iden's Decor's Computer becomes a Domestic Electrical",
                         "Board electricity consumer: it only shows an inserted floppy disk's text",
                         "while a live rail reaches it (15 W, 12 V, billed only while a disk is in).",
                         "Disks still insert and eject unpowered. A no-op unless Iden's Decor is",
                         "installed. Set false to hand the computer straight back to Iden's Decor.")
+                .translation("createinteroperable.configuration.idenComputer.requirePower")
                 .define("requirePower", true);
         b.pop();
 
-        b.push("mtsAaSpotlight");
+        b.translation("createinteroperable.configuration.mtsAaSpotlight").push("mtsAaSpotlight");
         MTS_AA_SPOTLIGHT_REQUIRES_POWER = b
                 .comment("PURELY EXPERIMENTAL: patches Immersive Vehicles internals, untested in real",
                         "play, and may break on any Immersive Vehicles update.",
@@ -335,10 +350,11 @@ public final class CIOConfig {
                         "\"Missing power\". Spotlights on vehicles, and the AA guns, are untouched. A",
                         "no-op unless Immersive Vehicles is installed. Set false to hand the",
                         "Spotlight straight back to Immersive Vehicles (no power needed).")
+                .translation("createinteroperable.configuration.mtsAaSpotlight.requirePower")
                 .define("requirePower", true);
         b.pop();
 
-        b.push("mtsPoleLights");
+        b.translation("createinteroperable.configuration.mtsPoleLights").push("mtsPoleLights");
         MTS_POLE_LIGHTS_REQUIRE_POWER = b
                 .comment("PURELY EXPERIMENTAL: patches Immersive Vehicles internals, untested in real",
                         "play, and may break on any Immersive Vehicles update.",
@@ -351,10 +367,11 @@ public final class CIOConfig {
                         "component, 25 W per traffic-signal-type component, on the 120 V rail. Signs",
                         "are untouched. A no-op unless Immersive Vehicles is installed. Set false to",
                         "hand every pole light straight back to Immersive Vehicles (no power needed).")
+                .translation("createinteroperable.configuration.mtsPoleLights.requirePower")
                 .define("requirePower", true);
         b.pop();
 
-        b.push("aircon");
+        b.translation("createinteroperable.configuration.aircon").push("aircon");
         AIRCON_PUMP_RPM = b
                 .comment("A no-op unless Create: Pipes n Physics is installed. With it, the Aircon",
                         "Motor acts as its own pump: the cold-air face pushes cold air out and the",
@@ -362,10 +379,11 @@ public final class CIOConfig {
                         "This is the pump strength at full power, on Pipes n Physics' Create-RPM",
                         "scale (256 = the fastest a Mechanical Pump turns). It scales down with the",
                         "motor's power. 0 disables it and leaves the motor as a plain tank.")
+                .translation("createinteroperable.configuration.aircon.motorPumpRpm")
                 .defineInRange("motorPumpRpm", 256.0, 0.0, 256.0);
         b.pop();
 
-        b.push("temperatureMods");
+        b.translation("createinteroperable.configuration.temperatureMods").push("temperatureMods");
         TEMPERATURE_MODS_AFFECT_GRID_DEVICES = b
                 .comment("Temperature Mods should affect Power Grid and Electro Energetics devices.",
                         "OFF by default. When on, and a temperature mod (Cold Sweat) is installed, the",
@@ -374,26 +392,31 @@ public final class CIOConfig {
                         "more headroom (Power Grid's Thermometer shows the same). When off, both mods",
                         "use their own heat models as if no temperature mod were installed. Cold",
                         "Sweat's effects on players (heaters, radiators, aircon) are not affected.")
+                .translation("createinteroperable.configuration.temperatureMods.affectGridDevices")
                 .define("affectGridDevices", false);
         b.pop();
 
-        b.push("telephoneVoice");
+        b.translation("createinteroperable.configuration.telephoneVoice").push("telephoneVoice");
         VOICE_RELAY = b
                 .comment("A no-op unless Simple Voice Chat is installed. While a telephone call is",
                         "answered, players speaking near either phone are heard from the other one.",
                         "Set false to turn the relay off.")
+                .translation("createinteroperable.configuration.telephoneVoice.relayEnabled")
                 .define("relayEnabled", true);
         VOICE_CAPTURE_RADIUS = b
                 .comment("Blocks around a phone in which a player's voice is picked up and carried",
                         "down the line. Whispering picks up half this distance.")
+                .translation("createinteroperable.configuration.telephoneVoice.captureRadius")
                 .defineInRange("captureRadius", 5.0, 1.0, 32.0);
         VOICE_PLAYBACK_RANGE = b
                 .comment("Blocks around the far phone within which the carried voice can be heard.")
+                .translation("createinteroperable.configuration.telephoneVoice.playbackRange")
                 .defineInRange("playbackRange", 8.0, 1.0, 64.0);
         VOICE_LINE_NOISE = b
                 .comment("A faint hiss with the odd soft crackle, played from both phones for as long as",
                         "a call is answered - mild by default. 0 turns it off, 1 is roughly four times",
                         "as loud as the default.")
+                .translation("createinteroperable.configuration.telephoneVoice.lineNoise")
                 .defineInRange("lineNoise", 0.25, 0.0, 1.0);
         b.pop();
 

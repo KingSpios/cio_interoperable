@@ -1,5 +1,6 @@
 package com.cio.createinteroperable.powerkit.cpg;
 
+import com.cio.createinteroperable.Lang;
 import com.cio.createinteroperable.CreateInteroperable;
 import com.cio.createinteroperable.compat.Mods;
 import com.cio.createinteroperable.grid.CrayfishClient;
@@ -105,7 +106,7 @@ public class DebRectifierRenderer extends SafeBlockEntityRenderer<DebRectifierBl
             float z = PLATE_Z_T2;
             drawViewer(ms, buffer, light, z, "12v", railPercent(be.getRailLoad(Pool.LV)), be.isRailFaulted(Pool.LV), 11f, 4f);
             drawViewer(ms, buffer, light, z, "120v", railPercent(be.getRailLoad(Pool.MV)), be.isRailFaulted(Pool.MV), 5f, 4f);
-            drawViewer(ms, buffer, light, z, "USAGE", Integer.toString(Math.round(be.getTotalUsageWatts())), false, 8f, 8f);
+            drawViewer(ms, buffer, light, z, Lang.component("powerkit.usage").getString(), Integer.toString(Math.round(be.getTotalUsageWatts())), false, 8f, 8f);
         }
 
         ms.popPose();

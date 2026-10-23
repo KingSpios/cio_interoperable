@@ -420,7 +420,7 @@ public class AirconMotorTopBlockEntity extends SmartBlockEntity implements IAirC
         Lang.translate("thermal.performance")
                 .style(ChatFormatting.GRAY)
                 .add(CreateLang.number(Math.round(performance * 100))
-                        .text("%")
+                        .add(Lang.translate("unit.percent"))
                         .style(ChatFormatting.GREEN))
                 .forGoggles(tooltip, 1);
 

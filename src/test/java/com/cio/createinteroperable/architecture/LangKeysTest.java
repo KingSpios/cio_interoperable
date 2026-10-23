@@ -27,7 +27,9 @@ import static org.junit.jupiter.api.Assertions.fail;
 class LangKeysTest {
     /** Spelled-out keys that code extends with a suffix before use. */
     private static final Set<String> BUILT_KEYS = Set.of(
-            "telephone.incoming_call_with", "telephone.in_call_with", "telephone.calling_with");
+            "telephone.incoming_call_with", "telephone.in_call_with", "telephone.calling_with",
+            "thermal.heat_level.freezing", "thermal.heat_level.cold", "thermal.heat_level.warm",
+            "thermal.heat_level.hot", "thermal.heat_level.blazing");
 
     private static final Pattern CALL = Pattern.compile("Lang\\.(?:component|translate)\\(");
     private static final Pattern KEY = Pattern.compile("\"([a-z][a-z0-9_.]*)\"");
@@ -48,6 +50,9 @@ class LangKeysTest {
                     String arg = firstArgument(text, call.end());
                     Matcher key = KEY.matcher(arg);
                     while (key.find()) {
+                        if (key.group(1).endsWith(".")) {
+                            continue; // a prefix the code completes (see BUILT_KEYS)
+                        }
                         used.putIfAbsent(key.group(1), file.getFileName().toString());
                     }
                 }
@@ -69,6 +74,31 @@ class LangKeysTest {
         }
         if (!missing.isEmpty()) {
             fail(missing.size() + " lang key(s) used in code but missing from en_us.json:\n  " + String.join("\n  ", missing));
+        }
+    }
+
+    /** Every config option and section names a translation key (CIOConfig) that the lang file must carry, plus its tooltip. */
+    @Test
+    void everyConfigTranslationKeyExists() throws IOException {
+        Path resources = Path.of(System.getProperty("cio.resources"));
+        JsonObject lang = JsonParser.parseString(Files.readString(
+                resources.resolve("assets/createinteroperable/lang/en_us.json"))).getAsJsonObject();
+        String source = Files.readString(resources.resolveSibling("java/com/cio/createinteroperable/CIOConfig.java"));
+        Matcher translation = Pattern.compile("\\.translation\\(\"([^\"]+)\"\\)").matcher(source);
+        Set<String> missing = new TreeSet<>();
+        int found = 0;
+        while (translation.find()) {
+            found++;
+            String key = translation.group(1);
+            if (!lang.has(key)) {
+                missing.add(key);
+            }
+        }
+        if (found < 20) {
+            fail("expected the config translation keys in CIOConfig, found " + found);
+        }
+        if (!missing.isEmpty()) {
+            fail(missing.size() + " config translation key(s) missing from en_us.json:\n  " + String.join("\n  ", missing));
         }
     }
 

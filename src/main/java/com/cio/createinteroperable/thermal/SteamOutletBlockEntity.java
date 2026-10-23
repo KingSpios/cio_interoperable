@@ -569,7 +569,7 @@ public class SteamOutletBlockEntity extends KineticBlockEntity {
             Lang.translate("thermal.efficiency")
                     .style(ChatFormatting.GRAY)
                     .add(CreateLang.number(Math.round(efficiency * 100))
-                            .text("%")
+                            .add(Lang.translate("unit.percent"))
                             .style(ChatFormatting.GOLD))
                     .forGoggles(tooltip, 1);
 
@@ -577,7 +577,7 @@ public class SteamOutletBlockEntity extends KineticBlockEntity {
             Lang.translate("thermal.available")
                     .style(ChatFormatting.GRAY)
                     .add(CreateLang.number(Math.round(availablePerTick))
-                            .text(" SU / mB/t")
+                            .add(Lang.translate("unit.su_per_mb_per_tick"))
                             .style(ChatFormatting.AQUA))
                     .forGoggles(tooltip, 1);
 
@@ -586,7 +586,7 @@ public class SteamOutletBlockEntity extends KineticBlockEntity {
             Lang.translate("thermal.output")
                     .style(ChatFormatting.GRAY)
                     .add(CreateLang.number(output)
-                            .text(" mB/t").add(bufferFull ? Lang.translate("thermal.buffer_full") : Lang.builder())
+                            .add(Lang.translate("unit.mb_per_tick")).add(bufferFull ? Lang.translate("thermal.buffer_full") : Lang.builder())
                             .style(bufferFull ? ChatFormatting.RED : ChatFormatting.AQUA))
                     .forGoggles(tooltip, 1);
 
@@ -601,7 +601,7 @@ public class SteamOutletBlockEntity extends KineticBlockEntity {
         Lang.translate("thermal.valve")
                 .style(ChatFormatting.GRAY)
                 .add(CreateLang.number(Math.round(pointer.getValue() * 100))
-                        .text("%")
+                        .add(Lang.translate("unit.percent"))
                         .style(ChatFormatting.AQUA))
                 .forGoggles(tooltip, 1);
 

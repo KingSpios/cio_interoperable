@@ -1109,7 +1109,7 @@ public class RadiatorValveNorthBlockEntity extends KineticBlockEntity {
             Lang.translate("thermal.water")
                     .style(ChatFormatting.GRAY)
                     .add(CreateLang.number(Math.round(southBe.getWaterFraction() * 100))
-                            .text("%")
+                            .add(Lang.translate("unit.percent"))
                             .style(ChatFormatting.BLUE))
                     .forGoggles(tooltip, 1);
         }
@@ -1117,14 +1117,14 @@ public class RadiatorValveNorthBlockEntity extends KineticBlockEntity {
         Lang.translate("thermal.valve")
                 .style(ChatFormatting.GRAY)
                 .add(CreateLang.number(Math.round(pointer.getValue() * 100))
-                        .text("%")
+                        .add(Lang.translate("unit.percent"))
                         .style(ChatFormatting.AQUA))
                 .forGoggles(tooltip, 1);
 
         Lang.translate("thermal.heat")
                 .style(ChatFormatting.GRAY)
                 .add(CreateLang.number(Math.round(heatFraction * 100))
-                        .text("% (" + state.getValue(RadiatorValveNorthBlock.HEAT_LEVEL).getSerializedName() + ")")
+                        .add(Lang.translate("thermal.percent_level", state.getValue(RadiatorValveNorthBlock.HEAT_LEVEL).label()))
                         .style(ChatFormatting.GOLD))
                 .forGoggles(tooltip, 1);
 

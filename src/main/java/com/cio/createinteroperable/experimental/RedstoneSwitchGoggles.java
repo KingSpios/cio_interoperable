@@ -1,5 +1,6 @@
 package com.cio.createinteroperable.experimental;
 
+import com.cio.createinteroperable.Lang;
 import com.simibubi.create.foundation.utility.CreateLang;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -36,8 +37,8 @@ public final class RedstoneSwitchGoggles {
                 : pct >= Math.round(RedstoneSwitchStats.HAZE_FRACTION * 100f) ? ChatFormatting.GOLD : ChatFormatting.GREEN;
         CreateLang.builder()
                 .add(Component.translatable(gk + "throughput",
-                        Component.literal(Math.round(throughputWatts) + " W").withStyle(loadColor),
-                        Component.literal((int) Math.round(RedstoneSwitchStats.RATED_WATTS) + " W").withStyle(ChatFormatting.GRAY)))
+                        Lang.component("unit.watts_value", Math.round(throughputWatts)).withStyle(loadColor),
+                        Lang.component("unit.watts_value", (int) Math.round(RedstoneSwitchStats.RATED_WATTS)).withStyle(ChatFormatting.GRAY)))
                 .style(ChatFormatting.GRAY)
                 .forGoggles(tooltip, 1);
 
@@ -50,7 +51,7 @@ public final class RedstoneSwitchGoggles {
         if (faultTicks > 0) {
             CreateLang.builder()
                     .add(Component.translatable(gk + "fault",
-                            Component.literal(Math.round(faultProgress * 100f) + "%").withStyle(ChatFormatting.RED)))
+                            Lang.component("unit.percent_value", Math.round(faultProgress * 100f)).withStyle(ChatFormatting.RED)))
                     .style(ChatFormatting.GRAY)
                     .forGoggles(tooltip, 1);
         }
@@ -60,8 +61,8 @@ public final class RedstoneSwitchGoggles {
                 : temperatureC >= over * 0.55 ? ChatFormatting.GOLD : ChatFormatting.GREEN;
         CreateLang.builder()
                 .add(Component.translatable(gk + "temperature",
-                        Component.literal(Math.round(temperatureC) + "°").withStyle(tempColor),
-                        Component.literal((int) Math.round(over) + "°").withStyle(ChatFormatting.GRAY)))
+                        Lang.component("unit.degrees_value", Math.round(temperatureC)).withStyle(tempColor),
+                        Lang.component("unit.degrees_value", (int) Math.round(over)).withStyle(ChatFormatting.GRAY)))
                 .style(ChatFormatting.GRAY)
                 .forGoggles(tooltip, 1);
     }

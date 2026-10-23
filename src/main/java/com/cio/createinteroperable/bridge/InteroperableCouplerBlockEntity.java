@@ -97,7 +97,7 @@ public class InteroperableCouplerBlockEntity extends ElectricBlockEntity {
 
     private static String modeLabel(int m) {
         return switch (m) {
-            case MODE_OFF -> CIOGlyphs.off("OFF");
+            case MODE_OFF -> CIOGlyphs.off("bridge.mode_off");
             case MODE_CEE_TO_CPG -> CIOGlyphs.ceeToCpg();
             default -> CIOGlyphs.cpgToCee();
         };

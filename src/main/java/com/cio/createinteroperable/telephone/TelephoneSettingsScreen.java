@@ -99,8 +99,8 @@ public class TelephoneSettingsScreen extends Screen {
         int y = top();
 
         if (!dialOnly) {
-            areaCodeBox = areaBox(x + 80, y + 22, initialAreaCode, "Area Code");
-            numberBox = numberBox(x + 124, y + 22, initialNumber, "Number");
+            areaCodeBox = areaBox(x + 80, y + 22, initialAreaCode, "telephone.screen.area_code");
+            numberBox = numberBox(x + 124, y + 22, initialNumber, "telephone.screen.number");
 
             labelBox = new EditBox(font, x + 80, y + 48, 120, 18, Lang.component("telephone.label"));
             labelBox.setMaxLength(32);
@@ -119,8 +119,8 @@ public class TelephoneSettingsScreen extends Screen {
             }
         }
 
-        dialAreaBox = areaBox(x + 80, y + callsRow(), initialDialArea, "Call Area Code");
-        dialNumberBox = numberBox(x + 124, y + callsRow(), initialDialNumber, "Call Number");
+        dialAreaBox = areaBox(x + 80, y + callsRow(), initialDialArea, "telephone.screen.call_area_code");
+        dialNumberBox = numberBox(x + 124, y + callsRow(), initialDialNumber, "telephone.screen.call_number");
 
         addRenderableWidget(Button.builder(Lang.component("telephone.done"), b -> onClose())
                 .bounds(width / 2 - 40, y + panelHeight() - 28, 80, 20).build());
@@ -129,7 +129,7 @@ public class TelephoneSettingsScreen extends Screen {
     }
 
     private EditBox areaBox(int x, int y, String value, String name) {
-        EditBox box = new EditBox(font, x, y, 36, 18, Component.literal(name));
+        EditBox box = new EditBox(font, x, y, 36, 18, Lang.component(name));
         box.setMaxLength(3);
         box.setFilter(s -> s.chars().allMatch(Character::isDigit));
         box.setValue(value);
@@ -138,7 +138,7 @@ public class TelephoneSettingsScreen extends Screen {
     }
 
     private EditBox numberBox(int x, int y, String value, String name) {
-        EditBox box = new EditBox(font, x, y, 76, 18, Component.literal(name));
+        EditBox box = new EditBox(font, x, y, 76, 18, Lang.component(name));
         box.setMaxLength(6);
         box.setFilter(s -> s.chars().allMatch(c -> Character.isDigit(c) || c == '#' || c == '*'));
         box.setValue(value);
@@ -157,12 +157,12 @@ public class TelephoneSettingsScreen extends Screen {
 
         graphics.drawCenteredString(font, title, width / 2, y + 6, 0xFFFFFF);
         if (!dialOnly) {
-            graphics.drawString(font, "This phone", x + 10, y + 27, LABEL_COLOR);
-            graphics.drawString(font, "Label", x + 10, y + 53, LABEL_COLOR);
+            graphics.drawString(font, Lang.component("telephone.screen.this_phone"), x + 10, y + 27, LABEL_COLOR);
+            graphics.drawString(font, Lang.component("telephone.label"), x + 10, y + 53, LABEL_COLOR);
         }
-        graphics.drawString(font, "Calls", x + 10, y + callsRow() + 5, LABEL_COLOR);
-        graphics.drawString(font, "Area", x + 90, y + callsRow() - 12, HINT_COLOR);
-        graphics.drawString(font, "Number", x + 134, y + callsRow() - 12, HINT_COLOR);
+        graphics.drawString(font, Lang.component("telephone.screen.calls"), x + 10, y + callsRow() + 5, LABEL_COLOR);
+        graphics.drawString(font, Lang.component("telephone.screen.area"), x + 90, y + callsRow() - 12, HINT_COLOR);
+        graphics.drawString(font, Lang.component("telephone.screen.number"), x + 134, y + callsRow() - 12, HINT_COLOR);
     }
 
     @Override
