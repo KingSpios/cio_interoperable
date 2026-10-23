@@ -39,30 +39,28 @@ public record TelephoneSettingsPacket(BlockPos pos, int areaCode, String number,
     }
 
     public static void handle(TelephoneSettingsPacket packet, IPayloadContext context) {
-        context.enqueueWork(() -> {
-            var player = context.player();
-            if (player == null || player.isSpectator()) {
-                return;
+        var player = context.player();
+        if (player == null || player.isSpectator()) {
+            return;
+        }
+        if (!player.level().isLoaded(packet.pos()) || !player.canInteractWithBlock(packet.pos(), 20)) {
+            return;
+        }
+        if (player.level().getBlockEntity(packet.pos()) instanceof TelephoneNode phone) {
+            phone.setLabel(packet.label().length() > 32 ? packet.label().substring(0, 32) : packet.label());
+            phone.setDialingTarget(packet.dialTarget());
+            phone.setAutoAnswer(packet.autoAnswer());
+            if (phone.supportsPulse()) {
+                phone.setPulse(packet.pulse());
             }
-            if (!player.level().isLoaded(packet.pos()) || !player.canInteractWithBlock(packet.pos(), 20)) {
-                return;
+            int area = Math.max(0, Math.min(999, packet.areaCode()));
+            boolean unchanged = area == phone.getAreaCode()
+                    && TelephoneNumbers.sanitizeNumberText(packet.number()).equals(phone.getOwnNumberText());
+            if (!unchanged && !phone.setOwnNumber(area, packet.number())) {
+                phone.denyFeedback();
+                player.displayClientMessage(Component.literal("That number is already in use.")
+                        .withStyle(ChatFormatting.RED), true);
             }
-            if (player.level().getBlockEntity(packet.pos()) instanceof TelephoneNode phone) {
-                phone.setLabel(packet.label().length() > 32 ? packet.label().substring(0, 32) : packet.label());
-                phone.setDialingTarget(packet.dialTarget());
-                phone.setAutoAnswer(packet.autoAnswer());
-                if (phone.supportsPulse()) {
-                    phone.setPulse(packet.pulse());
-                }
-                int area = Math.max(0, Math.min(999, packet.areaCode()));
-                boolean unchanged = area == phone.getAreaCode()
-                        && TelephoneNumbers.sanitizeNumberText(packet.number()).equals(phone.getOwnNumberText());
-                if (!unchanged && !phone.setOwnNumber(area, packet.number())) {
-                    phone.denyFeedback();
-                    player.displayClientMessage(Component.literal("That number is already in use.")
-                            .withStyle(ChatFormatting.RED), true);
-                }
-            }
-        });
+        }
     }
 }

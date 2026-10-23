@@ -22,17 +22,15 @@ public record TelephoneDialPacket(BlockPos pos, String number) implements Custom
     }
 
     public static void handle(TelephoneDialPacket packet, IPayloadContext context) {
-        context.enqueueWork(() -> {
-            var player = context.player();
-            if (player == null || player.isSpectator()) {
-                return;
-            }
-            if (!player.level().isLoaded(packet.pos()) || !player.canInteractWithBlock(packet.pos(), 20)) {
-                return;
-            }
-            if (player.level().getBlockEntity(packet.pos()) instanceof TelephoneNode be) {
-                be.setDialingTarget(packet.number());
-            }
-        });
+        var player = context.player();
+        if (player == null || player.isSpectator()) {
+            return;
+        }
+        if (!player.level().isLoaded(packet.pos()) || !player.canInteractWithBlock(packet.pos(), 20)) {
+            return;
+        }
+        if (player.level().getBlockEntity(packet.pos()) instanceof TelephoneNode be) {
+            be.setDialingTarget(packet.number());
+        }
     }
 }

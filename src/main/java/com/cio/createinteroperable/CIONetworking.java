@@ -13,6 +13,8 @@ import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 public class CIONetworking {
     @SubscribeEvent
     static void register(RegisterPayloadHandlersEvent event) {
+        // Handlers run on the main thread (PayloadRegistrar's default), so they
+        // touch the world directly; no enqueueWork needed.
         PayloadRegistrar registrar = event.registrar(CreateInteroperable.ID);
         registrar.playToServer(TelephoneDialPacket.TYPE, TelephoneDialPacket.STREAM_CODEC, TelephoneDialPacket::handle);
         registrar.playToServer(TelephoneLabelPacket.TYPE, TelephoneLabelPacket.STREAM_CODEC, TelephoneLabelPacket::handle);

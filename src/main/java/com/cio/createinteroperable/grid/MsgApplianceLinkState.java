@@ -32,6 +32,6 @@ public record MsgApplianceLinkState(Optional<BlockPos> from) implements CustomPa
     }
 
     public static void handle(MsgApplianceLinkState msg, IPayloadContext context) {
-        context.enqueueWork(() -> com.cio.createinteroperable.grid.client.ApplianceLinkClient.setArmedFrom(msg.from().orElse(null)));
+        com.cio.createinteroperable.grid.client.ApplianceLinkClient.setArmedFrom(msg.from().orElse(null));
     }
 }

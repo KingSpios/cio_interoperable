@@ -22,17 +22,15 @@ public record TelephoneLabelPacket(BlockPos pos, String label) implements Custom
     }
 
     public static void handle(TelephoneLabelPacket packet, IPayloadContext context) {
-        context.enqueueWork(() -> {
-            var player = context.player();
-            if (player == null || player.isSpectator()) {
-                return;
-            }
-            if (!player.level().isLoaded(packet.pos()) || !player.canInteractWithBlock(packet.pos(), 20)) {
-                return;
-            }
-            if (player.level().getBlockEntity(packet.pos()) instanceof TelephoneNode be) {
-                be.setLabel(packet.label());
-            }
-        });
+        var player = context.player();
+        if (player == null || player.isSpectator()) {
+            return;
+        }
+        if (!player.level().isLoaded(packet.pos()) || !player.canInteractWithBlock(packet.pos(), 20)) {
+            return;
+        }
+        if (player.level().getBlockEntity(packet.pos()) instanceof TelephoneNode be) {
+            be.setLabel(packet.label());
+        }
     }
 }

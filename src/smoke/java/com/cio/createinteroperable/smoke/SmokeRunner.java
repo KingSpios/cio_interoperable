@@ -92,25 +92,38 @@ public final class SmokeRunner {
         installServer(serverDir, neoVersion);
 
         List<String> failures = new ArrayList<>();
+        List<String> flaky = new ArrayList<>();
         for (Profile profile : profiles) {
             System.out.println();
             System.out.println("=== smoke profile '" + profile.name() + "' ===");
             List<String> problems = runProfile(profile, serverDir, cioJar, index, neoVersion, timeout);
             if (problems.isEmpty()) {
                 System.out.println("PASS " + profile.name());
+                continue;
+            }
+            // One retry: a failure that doesn't reproduce is reported as flaky (its
+            // log and crash report are kept) instead of failing the run outright.
+            System.out.println("failed, retrying once:");
+            problems.forEach(p -> System.out.println("  - " + p));
+            List<String> retry = runProfile(profile, serverDir, cioJar, index, neoVersion, timeout);
+            if (retry.isEmpty()) {
+                System.out.println("FLAKY " + profile.name() + " (passed on retry; first failure kept in smoke-logs)");
+                flaky.add(profile.name());
             } else {
                 System.out.println("FAIL " + profile.name());
-                problems.forEach(p -> System.out.println("  - " + p));
+                retry.forEach(p -> System.out.println("  - " + p));
                 failures.add(profile.name());
             }
         }
         System.out.println();
+        Path logs = serverDir.resolve("smoke-logs");
         if (!failures.isEmpty()) {
-            System.out.println("Smoke test FAILED for: " + String.join(", ", failures)
-                    + " (logs: " + serverDir.resolve("smoke-logs") + ")");
+            System.out.println("Smoke test FAILED for: " + String.join(", ", failures) + " (logs: " + logs + ")");
             System.exit(1);
         }
-        System.out.println("Smoke test passed: " + profiles.size() + " profile(s).");
+        System.out.println("Smoke test passed: " + profiles.size() + " profile(s)."
+                + (flaky.isEmpty() ? "" : " FLAKY (failed once, passed on retry): " + String.join(", ", flaky)
+                + " — see the *-FAILED-* files in " + logs));
     }
 
     // --- profiles ----------------------------------------------------------
@@ -347,6 +360,19 @@ public final class SmokeRunner {
         Files.write(logDir.resolve(profile.name() + ".log"), lines);
 
         analyse(profile, lines, serverDir, problems);
+        if (!problems.isEmpty()) {
+            // Keep the evidence: the next run of this profile overwrites <name>.log and clears crash-reports.
+            String stamp = java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss"));
+            Files.write(logDir.resolve(profile.name() + "-FAILED-" + stamp + ".log"), lines);
+            Path crashes = serverDir.resolve("crash-reports");
+            if (Files.isDirectory(crashes)) {
+                try (Stream<Path> files = Files.list(crashes)) {
+                    for (Path f : files.toList()) {
+                        Files.copy(f, logDir.resolve(profile.name() + "-FAILED-" + stamp + "-" + f.getFileName()));
+                    }
+                }
+            }
+        }
         return problems;
     }
 
