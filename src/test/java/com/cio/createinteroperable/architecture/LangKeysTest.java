@@ -77,6 +77,53 @@ class LangKeysTest {
         }
     }
 
+    /**
+     * Translations may lag behind English (Minecraft falls back to en_us), but
+     * must not invent keys, and a translated value must carry the same
+     * %s / %1$s / %% placeholders as the English one or the line would
+     * show wrong or throw when formatted.
+     */
+    @Test
+    void translationsMatchEnglish() throws IOException {
+        Path langDir = Path.of(System.getProperty("cio.resources")).resolve("assets/createinteroperable/lang");
+        JsonObject english = JsonParser.parseString(Files.readString(langDir.resolve("en_us.json"))).getAsJsonObject();
+        Pattern placeholder = Pattern.compile("%(?:\\d+\\$)?s|%%");
+        Set<String> problems = new TreeSet<>();
+        int languages = 0;
+        try (Stream<Path> files = Files.list(langDir)) {
+            for (Path file : files.filter(p -> p.toString().endsWith(".json") && !p.endsWith("en_us.json")).toList()) {
+                languages++;
+                JsonObject other = JsonParser.parseString(Files.readString(file)).getAsJsonObject();
+                for (String key : other.keySet()) {
+                    if (!english.has(key)) {
+                        problems.add(file.getFileName() + ": unknown key " + key);
+                        continue;
+                    }
+                    if (!placeholders(placeholder, english.get(key).getAsString())
+                            .equals(placeholders(placeholder, other.get(key).getAsString()))) {
+                        problems.add(file.getFileName() + ": placeholders differ in " + key);
+                    }
+                }
+            }
+        }
+        if (languages == 0) {
+            fail("expected translation files next to en_us.json");
+        }
+        if (!problems.isEmpty()) {
+            fail(problems.size() + " translation problem(s):\n  " + String.join("\n  ", problems));
+        }
+    }
+
+    private static java.util.List<String> placeholders(Pattern placeholder, String value) {
+        java.util.List<String> found = new java.util.ArrayList<>();
+        Matcher m = placeholder.matcher(value);
+        while (m.find()) {
+            found.add(m.group());
+        }
+        java.util.Collections.sort(found);
+        return found;
+    }
+
     /** Every config option and section names a translation key (CIOConfig) that the lang file must carry, plus its tooltip. */
     @Test
     void everyConfigTranslationKeyExists() throws IOException {
