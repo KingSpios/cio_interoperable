@@ -33,6 +33,11 @@ license="${mod_license}"
 [[mixins]]
     config="createinteroperable.cee.mixin.json"
 
+# Experimental Pantographs & Wires / Electro Energetics conductor bridge.
+# Guarded by PnwMixinPlugin, so it is inert unless both optional mods load.
+[[mixins]]
+    config="createinteroperable.pnw.mixin.json"
+
 # Electro Energetics' Electric Pump under Create: Pipes n Physics: stops PnP's
 # AUTO pump/turbine dial from resolving it to a turbine (see
 # com.cio.createinteroperable.mixin.pnp). Guarded by PnpCeePumpMixinPlugin, so
@@ -112,6 +117,23 @@ license="${mod_license}"
 [[mixins]]
     config="createinteroperable.vista.crayfish.mixin.json"
 
+# PURELY EXPERIMENTAL (experimental branch only, untested in real play)
+# Optional Immersive Vehicles (formerly MTS) integration: a ground-placed MTS
+# Official Content Pack AA Base Plate gets a wireable power terminal, and the
+# AA Spotlight mounted on it needs a live Domestic Electrical Board rail to light
+# its beam, auto-rotate or traverse at all. IV pole blocks and the Signal
+# Controller become wireable nodes too, and street lights / traffic signals on a
+# pole light only while that pole is powered. Guarded by MtsMixinPlugin — a
+# complete no-op without Immersive Vehicles (see com.cio.createinteroperable.mts).
+[[mixins]]
+    config="createinteroperable.mts.mixin.json"
+
+# The Crayfish-dependent slice of the Immersive Vehicles integration: IV's pole
+# and Signal Controller block entities also become Crayfish electricity nodes.
+# Guarded by MtsCrayfishMixinPlugin — a no-op without both mods.
+[[mixins]]
+    config="createinteroperable.mts.crayfish.mixin.json"
+
 [[dependencies.${mod_id}]]
     modId="neoforge"
     type="required"
@@ -137,9 +159,10 @@ license="${mod_license}"
 # present — "neither" is unsupported and logged loudly at construction
 # (CreateInteroperable) rather than supported. When present, this mod builds
 # real terminals/blocks/BlockEntities against Power Grid's API (see
-# com.cio.createinteroperable.compat.PowerGridCompat, checked at every
-# PG-coupled registration site). When absent, all of that is skipped and the
-# mod still loads for whatever Electro Energetics-only features it has.
+# com.cio.createinteroperable.modules.PowerGridModule, enabled by
+# modules.CIOModules only when Power Grid is loaded). When absent, all of that
+# is skipped and the mod still loads for whatever Electro Energetics-only
+# features it has.
 [[dependencies.${mod_id}]]
     modId="powergrid"
     type="optional"
@@ -148,7 +171,7 @@ license="${mod_license}"
     side="BOTH"
 
 # Soft dependency, mirroring Power Grid above (see
-# com.cio.createinteroperable.compat.ElectroEnergeticsCompat). When absent,
+# com.cio.createinteroperable.modules.ElectroEnergeticsModule). When absent,
 # this mod's own SimulatedDeviceType registrations (CIODevices) are skipped
 # entirely rather than crashing at construction.
 [[dependencies.${mod_id}]]
@@ -158,13 +181,19 @@ license="${mod_license}"
     ordering="AFTER"
     side="BOTH"
 
+[[dependencies.${mod_id}]]
+    modId="pantographsandwires"
+    type="optional"
+    versionRange="[0,)"
+    ordering="AFTER"
+    side="BOTH"
+
 # Soft dependency. When present, the Domestic Electrical Board and every
 # third-party appliance/lamp integration run on Crayfish's own electricity node
-# graph, exactly as before (see com.cio.createinteroperable.mixin.crayfish and
-# the crayfish-gated half of com.cio.createinteroperable.deb). When absent, all
-# of that code is skipped (CrayfishMixinPlugin + com.cio.createinteroperable.grid
-# .CrayfishCompat) and the mod still loads for its Power Grid <-> Electro
-# Energetics bridging; a native appliance grid backend is Phase 2.
+# graph (see com.cio.createinteroperable.mixin.crayfish and
+# modules.RefurbishedFurnitureModule). When absent, all of that code is skipped
+# (CrayfishMixinPlugin, gated on compat.Mods.REFURBISHED_FURNITURE) and CIO's
+# native appliance grid (com.cio.createinteroperable.grid) takes its place.
 [[dependencies.${mod_id}]]
     modId="refurbished_furniture"
     type="optional"
@@ -174,8 +203,8 @@ license="${mod_license}"
 
 # Soft dependency. When present, the steam-heating family (Brass Heater, Multi
 # Radiator) registers real heat sources with Cold Sweat via the public
-# BlockTempRegisterEvent (see com.cio.createinteroperable.compat.ColdSweatIntegration,
-# gated on com.cio.createinteroperable.compat.ColdSweatCompat). When absent,
+# BlockTempRegisterEvent (see com.cio.createinteroperable.thermal.coldsweat
+# .ColdSweatIntegration, enabled by modules.CIOModules). When absent,
 # that registration is skipped entirely and the mod still loads normally.
 [[dependencies.${mod_id}]]
     modId="cold_sweat"
@@ -186,8 +215,8 @@ license="${mod_license}"
 
 # Soft dependency. When present, this mod's own fluid-handler blocks (Steam
 # Outlet, Brass Heater, Multi Radiator) declare their PnP role explicitly
-# (see com.cio.createinteroperable.compat.PipesNPhysicsIntegration, gated on
-# com.cio.createinteroperable.compat.PipesNPhysicsCompat) so PnP's own
+# (see com.cio.createinteroperable.compat.PipesNPhysicsIntegration, enabled by
+# modules.CIOModules) so PnP's own
 # behavioural relay detector never misclassifies a block that fills its own
 # buffer from production (not from a pipe transfer) as a bottomless relay.
 # When absent, that registration is skipped entirely and the mod still loads

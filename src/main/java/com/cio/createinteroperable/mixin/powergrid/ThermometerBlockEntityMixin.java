@@ -1,7 +1,7 @@
 package com.cio.createinteroperable.mixin.powergrid;
 
-import com.cio.createinteroperable.compat.CeeDeviceTemperature;
-import com.cio.createinteroperable.compat.ElectroEnergeticsCompat;
+import com.cio.createinteroperable.thermal.cee.CeeDeviceTemperature;
+import com.cio.createinteroperable.compat.Mods;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import net.minecraft.core.BlockPos;
@@ -35,7 +35,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
  * whenever it moves by a degree.
  * <p>
  * String-targeted: PG is a soft dependency. The CEE helper is only ever
- * touched behind {@link ElectroEnergeticsCompat#present()}.
+ * touched behind {@link Mods#ELECTRO_ENERGETICS}.
  */
 @Mixin(targets = "org.patryk3211.powergrid.equipment.thermometer.ThermometerBlockEntity")
 public abstract class ThermometerBlockEntityMixin {
@@ -57,7 +57,7 @@ public abstract class ThermometerBlockEntityMixin {
         if (level == null) {
             return;
         }
-        if (level instanceof ServerLevel serverLevel && ElectroEnergeticsCompat.present()) {
+        if (level instanceof ServerLevel serverLevel && Mods.ELECTRO_ENERGETICS.present()) {
             Direction facing = self.getBlockState().getValue(ThermometerBlock.FACING);
             BlockPos target = self.getBlockPos().relative(facing);
             float reading = Float.NaN;

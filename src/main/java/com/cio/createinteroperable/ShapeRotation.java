@@ -27,12 +27,12 @@ import java.util.Map;
  * Shapes are precomputed once per block class (static fields) and looked up
  * by state, never rebuilt per query.
  */
-final class ShapeRotation {
+public final class ShapeRotation {
     private ShapeRotation() {
     }
 
     /** A single cuboid in 1/16-block voxel coordinates, matching Blockbench's own "from"/"to" units. */
-    record Box(double x1, double y1, double z1, double x2, double y2, double z2) {
+    public record Box(double x1, double y1, double z1, double x2, double y2, double z2) {
         /** Rotates this box around the block's vertical (Y) axis by a multiple of 90°, matching blockstate "y" rotation. */
         Box rotateY(int degrees) {
             int normalized = ((degrees % 360) + 360) % 360;
@@ -59,7 +59,7 @@ final class ShapeRotation {
     }
 
     /** @return one shape per horizontal {@link Direction}, rotated from boxes authored at FACING=NORTH (0°) — the convention every block in this family except {@code RadiatorValveSouthBlock} uses. */
-    static Map<Direction, VoxelShape> forHorizontalFacing(Box... boxesAtNorth) {
+    public static Map<Direction, VoxelShape> forHorizontalFacing(Box... boxesAtNorth) {
         return forHorizontalFacing(Direction.NORTH, boxesAtNorth);
     }
 
@@ -71,7 +71,7 @@ final class ShapeRotation {
      * matching that block's own blockstate rotation cycle (south=0, west=90,
      * north=180, east=270) rather than the north=0 cycle everything else here uses.
      */
-    static Map<Direction, VoxelShape> forHorizontalFacing(Direction modelDefaultFacing, Box... boxesAtDefault) {
+    public static Map<Direction, VoxelShape> forHorizontalFacing(Direction modelDefaultFacing, Box... boxesAtDefault) {
         Map<Direction, VoxelShape> result = new EnumMap<>(Direction.class);
         for (Direction dir : new Direction[]{Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST}) {
             result.put(dir, union(boxesAtDefault, degreesBetween(modelDefaultFacing, dir)));
@@ -95,7 +95,7 @@ final class ShapeRotation {
     }
 
     /** @return one shape per horizontal {@link Direction.Axis}, rotated from boxes authored at AXIS=Z (0°). */
-    static Map<Direction.Axis, VoxelShape> forHorizontalAxis(Box... boxesAtZ) {
+    public static Map<Direction.Axis, VoxelShape> forHorizontalAxis(Box... boxesAtZ) {
         Map<Direction.Axis, VoxelShape> result = new EnumMap<>(Direction.Axis.class);
         result.put(Direction.Axis.Z, union(boxesAtZ, 0));
         result.put(Direction.Axis.X, union(boxesAtZ, 90));

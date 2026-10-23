@@ -1,6 +1,7 @@
 package com.cio.createinteroperable.letsdo;
 
 import com.cio.createinteroperable.CIOConfig;
+import com.cio.createinteroperable.CreateInteroperable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;

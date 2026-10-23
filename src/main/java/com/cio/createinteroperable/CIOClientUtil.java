@@ -1,5 +1,6 @@
 package com.cio.createinteroperable;
 
+import com.cio.createinteroperable.telephone.TelephoneClient;
 import net.minecraft.client.gui.screens.Screen;
 
 /**

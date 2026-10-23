@@ -1,5 +1,6 @@
 package com.cio.createinteroperable;
 
+import com.cio.createinteroperable.thermal.RadiatorSmokeParticle;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.core.registries.Registries;

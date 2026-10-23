@@ -1,0 +1,22 @@
+# Mod sets the dedicated-server smoke test boots CIO on (./gradlew smokeTest).
+#
+# name | mods to install besides CIO | modules CIO must enable, exactly ("-" = none)
+#
+# Mods are mod ids; each one's required server-side dependencies (and CIO's
+# own, i.e. Create) are added from the jars' neoforge.mods.toml. The last
+# column is checked against CIO's "modules enabled" startup log line, so it
+# catches a module whose REQUIRES check is wrong, not just a crash.
+
+bare         | create                                          | -
+pg           | powergrid                                       | PowerGridModule RedstoneSwitchModule.Cpg
+cee          | electroenergetics                               | ElectroEnergeticsModule RedstoneSwitchModule.Cee
+pg-cee       | powergrid electroenergetics                     | PowerGridModule ElectroEnergeticsModule BridgeModule RedstoneSwitchModule.Cpg RedstoneSwitchModule.Cee
+pg-crayfish  | powergrid refurbished_furniture                 | PowerGridModule RefurbishedFurnitureModule RedstoneSwitchModule.Cpg
+cee-crayfish | electroenergetics refurbished_furniture         | ElectroEnergeticsModule RefurbishedFurnitureModule RedstoneSwitchModule.Cee
+pg-iden      | powergrid iden_decor                            | PowerGridModule IdenDecorModule IdenDecorModule.PgTelephone RedstoneSwitchModule.Cpg
+cee-iden     | electroenergetics iden_decor                    | ElectroEnergeticsModule IdenDecorModule IdenDecorModule.CeeTelephone RedstoneSwitchModule.Cee
+cee-pnw      | electroenergetics pantographsandwires           | ElectroEnergeticsModule PantographsAndWiresModule RedstoneSwitchModule.Cee
+pg-mts       | powergrid mts                                   | PowerGridModule ImmersiveVehiclesModule RedstoneSwitchModule.Cpg
+mts-crayfish | powergrid mts refurbished_furniture             | PowerGridModule ImmersiveVehiclesModule RefurbishedFurnitureModule RedstoneSwitchModule.Cpg
+# curios: Beachparty needs it at runtime without declaring it in its mods.toml.
+soft-mods    | powergrid electroenergetics refurbished_furniture cold_sweat pipesnphysics voicechat furniture candlelight beachparty curios alpinewhispers another_furniture | PowerGridModule ElectroEnergeticsModule BridgeModule RefurbishedFurnitureModule ColdSweatIntegration PipesNPhysicsIntegration VoiceCallTracker RedstoneSwitchModule.Cpg RedstoneSwitchModule.Cee

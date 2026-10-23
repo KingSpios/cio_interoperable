@@ -2,7 +2,7 @@ package com.cio.createinteroperable.vista;
 
 import com.cio.createinteroperable.CreateInteroperable;
 import com.cio.createinteroperable.grid.ApplianceNode;
-import com.cio.createinteroperable.grid.CrayfishCompat;
+import com.cio.createinteroperable.compat.Mods;
 import com.cio.createinteroperable.grid.GridConnection;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -125,7 +125,7 @@ public final class VistaTvSupport {
             BlockPos masterPos = findMasterPos(level, pos, state);
             BlockEntity master = masterPos != null && !masterPos.equals(pos) ? level.getBlockEntity(masterPos) : null;
             CreateInteroperable.LOGGER.debug("Vista TV {}: retiring stale block entity, links -> master {}", pos, masterPos);
-            if (CrayfishCompat.present()) {
+            if (Mods.REFURBISHED_FURNITURE.present()) {
                 VistaCrayfishLinks.moveLinks(ghost, master);
             } else if (ghost instanceof ApplianceNode from) {
                 ApplianceNode to = master instanceof ApplianceNode node ? node : null;

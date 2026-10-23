@@ -3,7 +3,7 @@ package com.cio.createinteroperable.mixin.letsdo;
 import com.cio.createinteroperable.CIOConfig;
 import com.cio.createinteroperable.grid.ApplianceGrid;
 import com.cio.createinteroperable.grid.ApplianceNode;
-import com.cio.createinteroperable.grid.CrayfishCompat;
+import com.cio.createinteroperable.compat.Mods;
 import com.cio.createinteroperable.grid.GridConnection;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -47,7 +47,7 @@ public abstract class MiniFridgeNodeMixin implements ApplianceNode {
 
     @Unique
     private void cioNode$ensureRegistered() {
-        if (this.cioNode$registered || CrayfishCompat.present()) {
+        if (this.cioNode$registered || Mods.REFURBISHED_FURNITURE.present()) {
             return;
         }
         Level level = cioNode$be().getLevel();
@@ -154,7 +154,7 @@ public abstract class MiniFridgeNodeMixin implements ApplianceNode {
 
     @Inject(method = "saveAdditional", at = @At("TAIL"))
     private void cioNode$save(CompoundTag tag, HolderLookup.Provider provider, CallbackInfo ci) {
-        if (!CrayfishCompat.present()) {
+        if (!Mods.REFURBISHED_FURNITURE.present()) {
             writeApplianceNbt(tag);
             tag.putBoolean("CioPowered", this.cioNode$powered);
         }
@@ -162,7 +162,7 @@ public abstract class MiniFridgeNodeMixin implements ApplianceNode {
 
     @Inject(method = "loadAdditional", at = @At("TAIL"))
     private void cioNode$load(CompoundTag tag, HolderLookup.Provider provider, CallbackInfo ci) {
-        if (!CrayfishCompat.present()) {
+        if (!Mods.REFURBISHED_FURNITURE.present()) {
             readApplianceNbt(tag);
             this.cioNode$powered = tag.getBoolean("CioPowered");
         }

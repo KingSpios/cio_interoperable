@@ -1,5 +1,6 @@
 package com.cio.createinteroperable.vista;
 
+import com.cio.createinteroperable.compat.Mods;
 import com.mrcrayfish.furniture.refurbished.electricity.Connection;
 import com.mrcrayfish.furniture.refurbished.electricity.IElectricityNode;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -10,7 +11,7 @@ import java.util.ArrayList;
  * Crayfish half of {@link VistaTvSupport#retireGhost}: re-homes a stale TV
  * block entity's Refurbished Furniture links onto the wall's real master
  * before the stale one is removed. Imports Crayfish types, so it is only ever
- * called behind {@code CrayfishCompat.present()}.
+ * called behind {@code Mods.REFURBISHED_FURNITURE.present()}.
  */
 public final class VistaCrayfishLinks {
 

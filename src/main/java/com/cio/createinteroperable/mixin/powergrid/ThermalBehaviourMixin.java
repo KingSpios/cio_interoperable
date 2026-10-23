@@ -1,8 +1,9 @@
 package com.cio.createinteroperable.mixin.powergrid;
 
 import com.cio.createinteroperable.CreateInteroperable;
-import com.cio.createinteroperable.compat.ColdSweatCompat;
-import com.cio.createinteroperable.compat.ColdSweatWorldTemp;
+import com.cio.createinteroperable.compat.Mods;
+import com.cio.createinteroperable.thermal.TemperatureMods;
+import com.cio.createinteroperable.thermal.coldsweat.ColdSweatWorldTemp;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
@@ -37,7 +38,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
  * baseline read to Cold Sweat's own real calculation instead, so a component
  * sitting in a genuinely hot or cold — or radiator/venter-affected — spot
  * heats up and cools down accordingly. Falls through to PG's own real
- * formula, completely unmodified, whenever Cold Sweat isn't present.
+ * formula, completely unmodified, whenever Cold Sweat isn't present or the
+ * {@code temperatureMods.affectGridDevices} config option is off (the default).
+ * The periodic refresh below runs either way, so flipping that option in a
+ * running game takes effect within one refresh interval.
  * <p>
  * <b>Reverted 2026-09-21 back to {@link ColdSweatWorldTemp#getWorldTemperatureC}
  * (the CACHED read) at a 100-tick interval — a real, reported performance
@@ -125,10 +129,13 @@ public abstract class ThermalBehaviourMixin {
             // itself, was the real cost, but removing both together keeps
             // this method doing the minimum necessary).
             CreateInteroperable.LOGGER.info(
-                    "[Create: Interoperable] PG ThermalBehaviour ambient-temperature mixin active (Cold Sweat present: {})",
-                    ColdSweatCompat.present());
+                    "[Create: Interoperable] PG ThermalBehaviour ambient-temperature mixin active (Cold Sweat present: {}, "
+                            + "temperatureMods.affectGridDevices: {})",
+                    Mods.COLD_SWEAT.present(), TemperatureMods.affectGridDevices());
         }
-        if (!ColdSweatCompat.present()) {
+        // Off by default (config temperatureMods.affectGridDevices): PG's own
+        // formula then runs untouched, exactly as without Cold Sweat.
+        if (!TemperatureMods.affectGridDevices()) {
             return;
         }
         cir.setReturnValue((float) ColdSweatWorldTemp.getWorldTemperatureC(level, pos));

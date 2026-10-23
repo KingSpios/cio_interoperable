@@ -6,25 +6,24 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 
 /**
- * Exposes the Steam Outlet's, Brass Heater's, and Multi Radiator's internal
- * steam/water buffers as
- * plain NeoForge IFluidHandler capabilities. This is the ONLY thing needed
- * for Create's pipe network to recognize them — pipes look up this exact
- * capability generically on whatever block they're touching (confirmed via
- * FluidPropagator#hasFluidCapability / PumpBlockEntity#hasReachedValidEndpoint,
- * both plain {@code level.getCapability(Capabilities.FluidHandler.BLOCK, ...)}
- * calls with no Create-specific marker interface involved).
- * <p>
- * <b>Never write a lambda here whose inferred parameter type is a
- * PG-extending BlockEntity</b> (e.g. one whose class {@code extends}
- * {@code org.patryk3211.powergrid...ElectricBlockEntity}) — this class is
- * {@code @EventBusSubscriber}, so NeoForge's {@code AutomaticEventSubscriber}
- * reflects over ALL its declared methods (including synthetic lambda-
- * desugared ones) at mod construct time, which resolves that PG type
- * regardless of any runtime {@code != null} guard around the registration
- * call itself. See {@link AirconCapabilitySupport}'s own doc for the real
- * incident this caused and the fix (route through a plain, non-subscriber
- * helper class instead).
+ * Exposes the Steam Outlet's, Brass Heater's, Multi Radiator's and Aircon
+ * Venter's internal buffers as plain NeoForge IFluidHandler capabilities.
+ * This is the ONLY thing needed for Create's pipe network to recognize them —
+ * pipes look up this exact capability generically on whatever block they're
+ * touching (confirmed via FluidPropagator#hasFluidCapability /
+ * PumpBlockEntity#hasReachedValidEndpoint, both plain
+ * {@code level.getCapability(Capabilities.FluidHandler.BLOCK, ...)} calls with
+ * no Create-specific marker interface involved).
+ *
+ * <p>Only content that exists on every install belongs here. The PG / CEE
+ * Aircon motor bottoms register theirs from their own module. <b>Never write a
+ * lambda here whose inferred parameter type is a PG- or CEE-rooted
+ * BlockEntity</b>: this class is {@code @EventBusSubscriber}, so NeoForge's
+ * {@code AutomaticEventSubscriber} reflects over ALL its declared methods
+ * (synthetic lambda bodies included) at mod construction, resolving that type
+ * regardless of any runtime guard. That once crashed every CEE-only install
+ * (NoClassDefFoundError for PG's ElectricBlockEntity); {@code LoadSafetyTest}
+ * now fails the build on it.</p>
  */
 @EventBusSubscriber(modid = CreateInteroperable.ID)
 public class CIOCapabilities {
@@ -38,17 +37,6 @@ public class CIOCapabilities {
                 (be, side) -> be.getSteamHandler(side));
         event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, CIOBlockEntities.RADIATOR_VALVE_SOUTH.get(),
                 (be, side) -> be.getWaterHandler(side));
-
-        if (CIOBlockEntities.AIRCON_MOTOR_BOTTOM != null) {
-            // Routed through a plain (non-@EventBusSubscriber) helper class —
-            // see AirconCapabilitySupport's own doc for why the lambda can't
-            // live directly in this class.
-            AirconCapabilitySupport.registerPgMotorBottom(event);
-        }
-        if (CIOBlockEntities.CEE_AIRCON_MOTOR_BOTTOM != null) {
-            event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, CIOBlockEntities.CEE_AIRCON_MOTOR_BOTTOM.get(),
-                    (be, side) -> be.getFluidHandler(side));
-        }
         event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, CIOBlockEntities.AIRCON_VENTER.get(),
                 (be, side) -> be.getFluidHandler(side));
     }

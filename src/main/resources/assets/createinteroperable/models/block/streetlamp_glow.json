@@ -1,0 +1,61 @@
+{
+	"credit": "Generated for CIO's Streetlight: drawn additively by CeeStreetlightRenderer, not by the block model",
+	"textures": {
+		"glow": "createinteroperable:block/streetlight_glow",
+		"particle": "createinteroperable:block/streetlight_glow"
+	},
+	"elements": [
+		{
+			"name": "light_overflow_down_full1",
+			"from": [10.9, -7.9, 1],
+			"to": [10.9, 0.1, 12],
+			"faces": {
+				"east": {"uv": [0, 0, 5.5, 4], "texture": "#glow"}
+			}
+		},
+		{
+			"name": "light_overflow_down_full2",
+			"from": [5.1, -7.9, 1],
+			"to": [5.1, 0.1, 12],
+			"faces": {
+				"east": {"uv": [0, 0, 5.5, 4], "texture": "#glow"}
+			}
+		},
+		{
+			"name": "light_overflow_down_full3",
+			"from": [5, -7.9, 11.8],
+			"to": [11, 0.1, 11.8],
+			"faces": {
+				"south": {"uv": [0, 4, 3, 8], "texture": "#glow"}
+			}
+		},
+		{
+			"name": "light_overflow_down_full4",
+			"from": [5, -7.9, 1.1],
+			"to": [11, 0.1, 1.1],
+			"faces": {
+				"south": {"uv": [0, 4, 3, 8], "texture": "#glow"}
+			}
+		},
+		{
+			"name": "glass_glow",
+			"from": [5, -1.1, 1],
+			"to": [11, -1.1, 12],
+			"faces": {
+				"down": {"uv": [8, 0, 11, 5.5], "texture": "#glow"}
+			}
+		},
+		{
+			"name": "bulb_glow",
+			"from": [5.92, 0.42, 2.02],
+			"to": [10.08, 2.58, 11.18],
+			"faces": {
+				"north": {"uv": [12, 0, 14, 2], "texture": "#glow"},
+				"east": {"uv": [12, 0, 14, 2], "texture": "#glow"},
+				"south": {"uv": [12, 0, 14, 2], "texture": "#glow"},
+				"west": {"uv": [12, 0, 14, 2], "texture": "#glow"},
+				"down": {"uv": [12, 0, 14, 2], "texture": "#glow"}
+			}
+		}
+	]
+}

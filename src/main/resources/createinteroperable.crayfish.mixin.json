@@ -10,6 +10,7 @@
     "IFluidContainerBlockMixin",
     "IdenTelephoneNodeMixin",
     "LetsDoLampNodeMixin",
+    "MtsAaPowerNodeCrayfishMixin",
     "RefurbishedFixtureTapMixin"
   ],
   "client": [],

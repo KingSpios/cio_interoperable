@@ -1,9 +1,15 @@
 package com.cio.createinteroperable;
 
+import com.cio.createinteroperable.bridge.InteroperableDevice;
+import com.cio.createinteroperable.cee.CeeCompactTransformerDevice;
+import com.cio.createinteroperable.cee.CeeStreetlightDevice;
 import com.cio.createinteroperable.compat.PnwTerminalDevice;
-import com.cio.createinteroperable.compat.PowerGridCompat;
-import com.cio.createinteroperable.deb.DebCeeDevice;
+import com.cio.createinteroperable.compat.Mods;
+import com.cio.createinteroperable.powerkit.cee.DebCeeDevice;
+import com.cio.createinteroperable.telephone.cee.TelephoneDevice;
+import com.cio.createinteroperable.thermal.cee.AirconCeeDevice;
 import com.george_vi.electroenergetics.CEERegistries;
+import com.george_vi.electroenergetics.content.connector.DoubleConnectorDevice;
 import com.george_vi.electroenergetics.devices.device.SimulatedDeviceType;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -21,16 +27,19 @@ import net.neoforged.neoforge.registries.DeferredRegister;
  * Coupler, the interim Small block, the assembled multiblock), which only
  * ever register when Power Grid is ALSO present (see CIOBlocks/
  * CIOBlockEntities) — so that entry is additionally gated here on
- * {@link PowerGridCompat#present()}. TELEPHONE backs both the Interoperable
+ * {@link Mods#POWER_GRID}. TELEPHONE backs both the Interoperable
  * Telephone (needs both) AND the CEE-only Telephone (needs only CEE), so —
  * like POWER_KIT — it's unconditional in this already-CEE-gated file.</p>
  */
 public class CIODevices {
+    /** Registered by ElectroEnergeticsModule; this gate is what LoadSafetyTest checks it against. */
+    public static final String REQUIRES = com.cio.createinteroperable.compat.Mods.Id.ELECTRO_ENERGETICS;
+
     private static final DeferredRegister<SimulatedDeviceType<?>> DEVICES =
             DeferredRegister.create(CEERegistries.SIMULATED_DEVICE_TYPE, CreateInteroperable.ID);
 
     public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<InteroperableDevice>> INTEROPERABLE =
-            PowerGridCompat.present() ? DEVICES.register("interoperable", () -> new SimulatedDeviceType<>(CreateInteroperable.rl("interoperable"),
+            Mods.POWER_GRID.present() ? DEVICES.register("interoperable", () -> new SimulatedDeviceType<>(CreateInteroperable.rl("interoperable"),
                     ((type, level, pos, sd) -> new InteroperableDevice(level, pos, sd, type)))) : null;
 
     public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<TelephoneDevice>> TELEPHONE =
@@ -39,7 +48,7 @@ public class CIODevices {
 
     /**
      * Shared by all four CEE-wired Power Kit tiers (see
-     * {@link com.cio.createinteroperable.deb.CeeDebRectifierBlock}) &mdash; the
+     * {@link com.cio.createinteroperable.powerkit.cee.CeeDebRectifierBlock}) &mdash; the
      * per-tier feed topology is pushed in from the BlockEntity each tick, so one
      * device type covers every tier.
      */
@@ -51,6 +60,21 @@ public class CIODevices {
     public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<AirconCeeDevice>> AIRCON_MOTOR =
             DEVICES.register("aircon_motor", () -> new SimulatedDeviceType<>(CreateInteroperable.rl("aircon_motor"),
                     ((type, level, pos, sd) -> new AirconCeeDevice(level, pos, sd, type))));
+
+    /** Electro Energetics side of the CEE-only Compact Transformer (a 15 kW port of CEE's own Transformer). */
+    public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<CeeCompactTransformerDevice>> COMPACT_TRANSFORMER =
+            DEVICES.register("compact_transformer", () -> new SimulatedDeviceType<>(CreateInteroperable.rl("compact_transformer"),
+                    ((type, level, pos, sd) -> new CeeCompactTransformerDevice(level, pos, sd, type))));
+
+    /** Electro Energetics side of the CEE-only Streetlight (a 120 V / 25 W photocell lamp). */
+    public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<CeeStreetlightDevice>> STREETLIGHT =
+            DEVICES.register("streetlight", () -> new SimulatedDeviceType<>(CreateInteroperable.rl("streetlight"),
+                    ((type, level, pos, sd) -> new CeeStreetlightDevice(level, pos, sd, type))));
+
+    /** CEE-only Mini Double Connector: CEE's own DoubleConnectorDevice (two separate nodes, no bridges) under CIO's type. */
+    public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<DoubleConnectorDevice>> MINI_CONNECTOR =
+            DEVICES.register("mini_connector", () -> new SimulatedDeviceType<>(CreateInteroperable.rl("mini_connector"),
+                    ((type, level, pos, sd) -> new DoubleConnectorDevice(level, pos, sd, type))));
 
     /** Inert device for Pantographs &amp; Wires connectors; see {@link PnwTerminalDevice}. */
     public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<PnwTerminalDevice>> PNW_TERMINAL =

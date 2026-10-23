@@ -1,0 +1,184 @@
+{
+  "variants": {
+    "bulb=off,facing=north,style=straight": {
+      "model": "createinteroperable:block/streetlamp_basic"
+    },
+    "bulb=brown,facing=north,style=straight": {
+      "model": "createinteroperable:block/streetlamp_basic_brown"
+    },
+    "bulb=on,facing=north,style=straight": {
+      "model": "createinteroperable:block/streetlamp_basic_on"
+    },
+    "bulb=broken,facing=north,style=straight": {
+      "model": "createinteroperable:block/streetlamp_basic_broken"
+    },
+    "bulb=off,facing=north,style=straight_arms": {
+      "model": "createinteroperable:block/streetlamp_straight_arms"
+    },
+    "bulb=brown,facing=north,style=straight_arms": {
+      "model": "createinteroperable:block/streetlamp_straight_arms_brown"
+    },
+    "bulb=on,facing=north,style=straight_arms": {
+      "model": "createinteroperable:block/streetlamp_straight_arms_on"
+    },
+    "bulb=broken,facing=north,style=straight_arms": {
+      "model": "createinteroperable:block/streetlamp_straight_arms_broken"
+    },
+    "bulb=off,facing=north,style=angled": {
+      "model": "createinteroperable:block/streetlamp_angled_22h"
+    },
+    "bulb=brown,facing=north,style=angled": {
+      "model": "createinteroperable:block/streetlamp_angled_22h_brown"
+    },
+    "bulb=on,facing=north,style=angled": {
+      "model": "createinteroperable:block/streetlamp_angled_22h_on"
+    },
+    "bulb=broken,facing=north,style=angled": {
+      "model": "createinteroperable:block/streetlamp_angled_22h_broken"
+    },
+    "bulb=off,facing=east,style=straight": {
+      "model": "createinteroperable:block/streetlamp_basic",
+      "y": 90
+    },
+    "bulb=brown,facing=east,style=straight": {
+      "model": "createinteroperable:block/streetlamp_basic_brown",
+      "y": 90
+    },
+    "bulb=on,facing=east,style=straight": {
+      "model": "createinteroperable:block/streetlamp_basic_on",
+      "y": 90
+    },
+    "bulb=broken,facing=east,style=straight": {
+      "model": "createinteroperable:block/streetlamp_basic_broken",
+      "y": 90
+    },
+    "bulb=off,facing=east,style=straight_arms": {
+      "model": "createinteroperable:block/streetlamp_straight_arms",
+      "y": 90
+    },
+    "bulb=brown,facing=east,style=straight_arms": {
+      "model": "createinteroperable:block/streetlamp_straight_arms_brown",
+      "y": 90
+    },
+    "bulb=on,facing=east,style=straight_arms": {
+      "model": "createinteroperable:block/streetlamp_straight_arms_on",
+      "y": 90
+    },
+    "bulb=broken,facing=east,style=straight_arms": {
+      "model": "createinteroperable:block/streetlamp_straight_arms_broken",
+      "y": 90
+    },
+    "bulb=off,facing=east,style=angled": {
+      "model": "createinteroperable:block/streetlamp_angled_22h",
+      "y": 90
+    },
+    "bulb=brown,facing=east,style=angled": {
+      "model": "createinteroperable:block/streetlamp_angled_22h_brown",
+      "y": 90
+    },
+    "bulb=on,facing=east,style=angled": {
+      "model": "createinteroperable:block/streetlamp_angled_22h_on",
+      "y": 90
+    },
+    "bulb=broken,facing=east,style=angled": {
+      "model": "createinteroperable:block/streetlamp_angled_22h_broken",
+      "y": 90
+    },
+    "bulb=off,facing=south,style=straight": {
+      "model": "createinteroperable:block/streetlamp_basic",
+      "y": 180
+    },
+    "bulb=brown,facing=south,style=straight": {
+      "model": "createinteroperable:block/streetlamp_basic_brown",
+      "y": 180
+    },
+    "bulb=on,facing=south,style=straight": {
+      "model": "createinteroperable:block/streetlamp_basic_on",
+      "y": 180
+    },
+    "bulb=broken,facing=south,style=straight": {
+      "model": "createinteroperable:block/streetlamp_basic_broken",
+      "y": 180
+    },
+    "bulb=off,facing=south,style=straight_arms": {
+      "model": "createinteroperable:block/streetlamp_straight_arms",
+      "y": 180
+    },
+    "bulb=brown,facing=south,style=straight_arms": {
+      "model": "createinteroperable:block/streetlamp_straight_arms_brown",
+      "y": 180
+    },
+    "bulb=on,facing=south,style=straight_arms": {
+      "model": "createinteroperable:block/streetlamp_straight_arms_on",
+      "y": 180
+    },
+    "bulb=broken,facing=south,style=straight_arms": {
+      "model": "createinteroperable:block/streetlamp_straight_arms_broken",
+      "y": 180
+    },
+    "bulb=off,facing=south,style=angled": {
+      "model": "createinteroperable:block/streetlamp_angled_22h",
+      "y": 180
+    },
+    "bulb=brown,facing=south,style=angled": {
+      "model": "createinteroperable:block/streetlamp_angled_22h_brown",
+      "y": 180
+    },
+    "bulb=on,facing=south,style=angled": {
+      "model": "createinteroperable:block/streetlamp_angled_22h_on",
+      "y": 180
+    },
+    "bulb=broken,facing=south,style=angled": {
+      "model": "createinteroperable:block/streetlamp_angled_22h_broken",
+      "y": 180
+    },
+    "bulb=off,facing=west,style=straight": {
+      "model": "createinteroperable:block/streetlamp_basic",
+      "y": 270
+    },
+    "bulb=brown,facing=west,style=straight": {
+      "model": "createinteroperable:block/streetlamp_basic_brown",
+      "y": 270
+    },
+    "bulb=on,facing=west,style=straight": {
+      "model": "createinteroperable:block/streetlamp_basic_on",
+      "y": 270
+    },
+    "bulb=broken,facing=west,style=straight": {
+      "model": "createinteroperable:block/streetlamp_basic_broken",
+      "y": 270
+    },
+    "bulb=off,facing=west,style=straight_arms": {
+      "model": "createinteroperable:block/streetlamp_straight_arms",
+      "y": 270
+    },
+    "bulb=brown,facing=west,style=straight_arms": {
+      "model": "createinteroperable:block/streetlamp_straight_arms_brown",
+      "y": 270
+    },
+    "bulb=on,facing=west,style=straight_arms": {
+      "model": "createinteroperable:block/streetlamp_straight_arms_on",
+      "y": 270
+    },
+    "bulb=broken,facing=west,style=straight_arms": {
+      "model": "createinteroperable:block/streetlamp_straight_arms_broken",
+      "y": 270
+    },
+    "bulb=off,facing=west,style=angled": {
+      "model": "createinteroperable:block/streetlamp_angled_22h",
+      "y": 270
+    },
+    "bulb=brown,facing=west,style=angled": {
+      "model": "createinteroperable:block/streetlamp_angled_22h_brown",
+      "y": 270
+    },
+    "bulb=on,facing=west,style=angled": {
+      "model": "createinteroperable:block/streetlamp_angled_22h_on",
+      "y": 270
+    },
+    "bulb=broken,facing=west,style=angled": {
+      "model": "createinteroperable:block/streetlamp_angled_22h_broken",
+      "y": 270
+    }
+  }
+}

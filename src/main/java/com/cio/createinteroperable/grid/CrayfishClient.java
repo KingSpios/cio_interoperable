@@ -1,8 +1,15 @@
 package com.cio.createinteroperable.grid;
 
+import com.cio.createinteroperable.compat.Mods;
 import com.cio.createinteroperable.CIOBlockEntities;
+import com.cio.createinteroperable.modules.CIOModules;
+import com.cio.createinteroperable.modules.IdenDecorModule;
+import com.cio.createinteroperable.modules.ImmersiveVehiclesModule;
 import com.mrcrayfish.furniture.refurbished.client.renderer.blockentity.ElectricBlockEntityRenderer;
 import com.mrcrayfish.furniture.refurbished.electricity.IElectricityNode;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -14,7 +21,7 @@ import net.neoforged.neoforge.client.event.EntityRenderersEvent;
  * Client-side Crayfish glue, kept out of {@code CIOClient} and
  * {@code DebRectifierRenderer} so neither has a hard {@code com.mrcrayfish.*}
  * reference. Every entry point is called only from behind a
- * {@link CrayfishCompat#present()} check, so this class never classloads when
+ * {@link Mods#REFURBISHED_FURNITURE} check, so this class never classloads when
  * Refurbished Furniture is absent.
  *
  * <p>Raw casts throughout: the CIO block entities gain Crayfish's
@@ -36,10 +43,17 @@ public final class CrayfishClient {
     public static void registerApplianceNodeRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerBlockEntityRenderer((BlockEntityType) CIOBlockEntities.LETSDO_LAMP.get(),
                 (BlockEntityRendererProvider) ElectricBlockEntityRenderer::new);
-        if (CIOBlockEntities.ELECTRIC_SWITCH != null) {
-            event.registerBlockEntityRenderer((BlockEntityType) CIOBlockEntities.ELECTRIC_SWITCH.get(),
+        if (CIOModules.isEnabled(IdenDecorModule.REQUIRES)) {
+            event.registerBlockEntityRenderer((BlockEntityType) IdenDecorModule.ELECTRIC_SWITCH_BE.get(),
                     (BlockEntityRendererProvider) ElectricBlockEntityRenderer::new);
         }
+        if (CIOModules.isEnabled(ImmersiveVehiclesModule.REQUIRES)) {
+            event.registerBlockEntityRenderer((BlockEntityType) ImmersiveVehiclesModule.MTS_AA_POWER_NODE_BE.get(),
+                    (BlockEntityRendererProvider) ElectricBlockEntityRenderer::new);
+        }
+        // Immersive Vehicles' shared tile type: only poles / Signal Controllers are
+        // nodes (IvTileNodeMixin), so draw just those — never a road or pump.
+        registerFilteredNodeRenderer(event, "mts:builder_base");
         registerForeignNodeRenderer(event, "beachparty:radio");
         registerForeignNodeRenderer(event, "beachparty:mini_fridge");
     }
@@ -50,6 +64,30 @@ public final class CrayfishClient {
         if (type != null) {
             event.registerBlockEntityRenderer((BlockEntityType) type,
                     (BlockEntityRendererProvider) ElectricBlockEntityRenderer::new);
+        }
+    }
+
+    /**
+     * Crayfish's node box + wires on a foreign block entity type that is only
+     * sometimes a node (IV's one tile type behind poles, roads, pumps...): drawn
+     * only for instances that currently have link slots. For a type with no
+     * renderer of its own.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private static void registerFilteredNodeRenderer(EntityRenderersEvent.RegisterRenderers event, String beTypeId) {
+        BlockEntityType<?> type = BuiltInRegistries.BLOCK_ENTITY_TYPE.get(ResourceLocation.parse(beTypeId));
+        if (type != null) {
+            event.registerBlockEntityRenderer((BlockEntityType) type,
+                    (BlockEntityRendererProvider) context -> new FilteredNodeRenderer());
+        }
+    }
+
+    private static final class FilteredNodeRenderer implements BlockEntityRenderer<BlockEntity> {
+        @Override
+        public void render(BlockEntity be, float partialTick, PoseStack pose, MultiBufferSource buffers, int light, int overlay) {
+            if (be instanceof ApplianceNode node && node.applianceConnectionLimit() > 0) {
+                drawNodeOverlayIfNode(be);
+            }
         }
     }
 

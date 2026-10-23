@@ -1,5 +1,6 @@
 package com.cio.createinteroperable.grid;
 
+import com.cio.createinteroperable.compat.Mods;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 
@@ -46,7 +47,7 @@ public final class ApplianceGrid {
 
     /** Passive nodes fold {@code receiving} into {@code powered} once per tick, then clear it. */
     public void tick() {
-        if (this.level.isClientSide || CrayfishCompat.present()) {
+        if (this.level.isClientSide || Mods.REFURBISHED_FURNITURE.present()) {
             return;
         }
         Iterator<BlockPos> it = this.nodes.keySet().iterator();

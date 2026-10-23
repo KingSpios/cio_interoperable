@@ -1,10 +1,10 @@
 package com.cio.createinteroperable.letsdo;
 
 import com.cio.createinteroperable.CIOBlockEntities;
-import com.cio.createinteroperable.deb.MeteredAppliance;
+import com.cio.createinteroperable.grid.MeteredAppliance;
 import com.cio.createinteroperable.grid.ApplianceGrid;
 import com.cio.createinteroperable.grid.ApplianceNode;
-import com.cio.createinteroperable.grid.CrayfishCompat;
+import com.cio.createinteroperable.compat.Mods;
 import com.cio.createinteroperable.grid.GridConnection;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -236,7 +236,7 @@ public class LetsDoLampBlockEntity extends BlockEntity implements ApplianceNode,
         tag.putBoolean("SwitchedOn", this.switchedOn);
         tag.putBoolean("NodePowered", this.nodePowered);
         // Native links; the Crayfish adapter owns the same keys when it is active.
-        if (!CrayfishCompat.present()) {
+        if (!Mods.REFURBISHED_FURNITURE.present()) {
             this.writeApplianceNbt(tag);
         }
     }
@@ -246,7 +246,7 @@ public class LetsDoLampBlockEntity extends BlockEntity implements ApplianceNode,
         super.loadAdditional(tag, provider);
         this.switchedOn = !tag.contains("SwitchedOn") || tag.getBoolean("SwitchedOn");
         this.nodePowered = tag.getBoolean("NodePowered");
-        if (!CrayfishCompat.present()) {
+        if (!Mods.REFURBISHED_FURNITURE.present()) {
             this.readApplianceNbt(tag);
         }
     }
@@ -255,7 +255,7 @@ public class LetsDoLampBlockEntity extends BlockEntity implements ApplianceNode,
     @Override
     public void setLevel(Level level) {
         super.setLevel(level);
-        if (!CrayfishCompat.present()) {
+        if (!Mods.REFURBISHED_FURNITURE.present()) {
             ApplianceGrid.get(level).addNode(this);
         }
     }
@@ -266,7 +266,7 @@ public class LetsDoLampBlockEntity extends BlockEntity implements ApplianceNode,
     @Override
     public void saveToItem(net.minecraft.world.item.ItemStack stack, HolderLookup.Provider provider) {
         super.saveToItem(stack, provider);
-        if (!CrayfishCompat.present()) {
+        if (!Mods.REFURBISHED_FURNITURE.present()) {
             this.saveApplianceNbtToItem(stack, provider);
         }
     }

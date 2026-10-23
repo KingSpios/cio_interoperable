@@ -1,6 +1,6 @@
 package com.cio.createinteroperable.mixin;
 
-import com.cio.createinteroperable.SteamOutletBlock;
+import com.cio.createinteroperable.thermal.SteamOutletBlock;
 import com.simibubi.create.content.fluids.tank.BoilerData;
 import com.simibubi.create.content.fluids.tank.FluidTankBlock;
 import com.simibubi.create.content.fluids.tank.FluidTankBlockEntity;

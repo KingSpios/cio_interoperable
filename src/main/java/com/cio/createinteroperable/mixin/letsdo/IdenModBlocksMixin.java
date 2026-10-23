@@ -1,7 +1,7 @@
 package com.cio.createinteroperable.mixin.letsdo;
 
 import com.cio.createinteroperable.iden.IdenFluorescentLightBlock;
-import com.cio.createinteroperable.iden.IdenTelephones;
+import com.cio.createinteroperable.telephone.iden.IdenTelephones;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.spongepowered.asm.mixin.Mixin;

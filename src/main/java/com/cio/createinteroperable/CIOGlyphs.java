@@ -32,17 +32,18 @@ public final class CIOGlyphs {
     }
 
     /** {@code count} snowflakes, a space, then the word. */
-    public static String snow(int count, String word) {
-        return SNOW.repeat(count) + " " + word;
+    public static String snow(int count, String wordKey) {
+        return SNOW.repeat(count) + " " + Lang.component(wordKey).getString();
     }
 
-    /** Heavy X, a space, then the word. */
-    public static String off(String word) {
-        return CROSS + " " + word;
+    /** Heavy X, a space, then the word ({@code wordKey} is a lang key, see {@link Lang}). */
+    public static String off(String wordKey) {
+        return CROSS + " " + Lang.component(wordKey).getString();
     }
 
     /** Check + ON, or X + OFF. */
     public static String onOff(boolean on) {
-        return on ? CHECK + " ON" : CROSS + " OFF";
+        return on ? CHECK + " " + Lang.component("common.on_caps").getString()
+                : CROSS + " " + Lang.component("common.off_caps").getString();
     }
 }

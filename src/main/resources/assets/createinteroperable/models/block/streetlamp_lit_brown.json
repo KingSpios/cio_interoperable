@@ -1,0 +1,6 @@
+{
+  "parent": "createinteroperable:block/streetlamp_lit",
+  "textures": {
+    "lit": "createinteroperable:block/streetlight_brown"
+  }
+}

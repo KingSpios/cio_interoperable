@@ -31,7 +31,7 @@ import net.neoforged.neoforge.fluids.FluidStack;
  * case on a PnP update is silently falling back to the coarser
  * Outlet-buffer-only gate {@code SteamOutletBlockEntity} already has, never
  * a crash. Only ever called from code already gated on
- * {@link PipesNPhysicsCompat#present()} (this class itself has a hard
+ * {@link Mods#PIPES_N_PHYSICS} (this class itself has a hard
  * compile-time reference to the PnP-only interface, so it must never be
  * touched — not even classloaded — when PnP is absent, same rule as
  * {@link PipesNPhysicsIntegration}).

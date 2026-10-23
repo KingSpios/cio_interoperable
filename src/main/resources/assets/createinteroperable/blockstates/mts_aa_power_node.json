@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "createinteroperable:block/mts_aa_power_node"
+    }
+  }
+}

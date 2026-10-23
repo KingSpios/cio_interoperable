@@ -242,8 +242,8 @@ into linked **Steam Hearth Radiator** segments.
 
 ## In development — not yet available / rough drafts and ideas
 
-Everything below is either switched off entirely (a `BRIDGE_EXTRAS` flag in `CIOBlocks` /
-`CIOItems` disables the extra connector models), still settling in, or — for the Pantographs &
+Everything below is either switched off entirely (a `BRIDGE_EXTRAS` flag in `BridgeModule`
+disables the extra connector models), still settling in, or — for the Pantographs &
 Wires bridge and the Immersive Vehicles integration — real and loadable but experimental enough
 to live only on the `experimental` branch (see [Branches](#branches)). None of it is on the
 creative menu or craftable. Documented here for context, not for use.
@@ -313,6 +313,20 @@ Standard NeoForge / Gradle. The wrapper provisions the JDK 21 toolchain itself (
 itself can run on JDK 17). Build from a **local NTFS path** — a WSL-mounted path breaks
 Gradle's file hasher. `./gradlew build` produces
 `build/libs/createinteroperable-<version>.jar`.
+
+Every optional-mod feature is a *module* (`com.cio.createinteroperable.modules`): a class
+naming the mods it needs in a `REQUIRES` constant, registered by `CIOModules` only when
+they are all loaded. Two checks keep that honest:
+
+- `./gradlew test` (part of `build`) runs `LoadSafetyTest`, which reads the compiled
+  bytecode and fails if a class touches an optional mod it isn't gated on, or if common
+  code references a client-only class.
+- `./gradlew smokeTest -PcioSmokeAcceptEula=true` boots a real dedicated server once per
+  mod set in `src/smoke/profiles.txt` (CIO alone, PG only, CEE only, both, + Crayfish, …)
+  and checks each comes up clean with exactly the expected modules enabled. It installs a
+  NeoForge server into `runs/smoke-server` on first use; the flag accepts the Minecraft
+  EULA for that test server. `-PcioSmokeModsDir=<dir>` picks where the mod jars come
+  from and `-PcioSmokeProfiles=a,b` runs a subset.
 
 ---
 

@@ -1,7 +1,7 @@
 package com.cio.createinteroperable.mixin.letsdo;
 
 import com.cio.createinteroperable.CIOConfig;
-import com.cio.createinteroperable.grid.CrayfishCompat;
+import com.cio.createinteroperable.compat.Mods;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -38,7 +38,7 @@ public abstract class IdenLightDefaultModeMixin {
 
     @Inject(method = "<init>", at = @At("TAIL"), remap = false)
     private void cio$defaultToRefurbishedMode(CallbackInfo ci) {
-        if (CrayfishCompat.present() && CIOConfig.LETSDO_LAMPS_REQUIRE_POWER.get()) {
+        if (Mods.REFURBISHED_FURNITURE.present() && CIOConfig.LETSDO_LAMPS_REQUIRE_POWER.get()) {
             this.activationMode = CIO$REFURBISHED_MODE;
         }
     }

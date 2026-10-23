@@ -1,6 +1,9 @@
 package com.cio.createinteroperable.compat;
 
 import com.cio.createinteroperable.CIOBlocks;
+import com.cio.createinteroperable.modules.CIOModules;
+import com.cio.createinteroperable.modules.ElectroEnergeticsModule;
+import com.cio.createinteroperable.modules.PowerGridModule;
 import de.devin.pipesnphysics.api.FluidHandlerApi;
 import de.devin.pipesnphysics.api.FluidHandlerRole;
 import net.neoforged.bus.api.IEventBus;
@@ -39,10 +42,13 @@ import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
  * treatment as the rest of the family.
  */
 public final class PipesNPhysicsIntegration {
+    /** Module gate, read by CIOModules (see its doc). */
+    public static final String REQUIRES = Mods.Id.PIPES_N_PHYSICS;
+
     private PipesNPhysicsIntegration() {
     }
 
-    /** Call only when {@link PipesNPhysicsCompat#present()} — see CreateInteroperable's constructor. */
+    /** Called by CIOModules only with Pipes n Physics loaded. */
     public static void register(IEventBus modEventBus) {
         modEventBus.addListener(PipesNPhysicsIntegration::commonSetup);
     }
@@ -57,17 +63,17 @@ public final class PipesNPhysicsIntegration {
             // outside any PnP-mediated transfer (cold_air/water production,
             // local cold->hot conversion), same "spontaneous gain" reasoning
             // as the rest of this family.
-            if (CIOBlocks.AIRCON_MOTOR_BOTTOM != null) {
-                FluidHandlerApi.setRole(CIOBlocks.AIRCON_MOTOR_BOTTOM.get(), FluidHandlerRole.RESERVOIR);
+            if (CIOModules.isEnabled(PowerGridModule.REQUIRES)) {
+                FluidHandlerApi.setRole(PowerGridModule.AIRCON_MOTOR_BOTTOM.get(), FluidHandlerRole.RESERVOIR);
             }
-            if (CIOBlocks.AIRCON_MOTOR_BOTTOM_240 != null) {
-                FluidHandlerApi.setRole(CIOBlocks.AIRCON_MOTOR_BOTTOM_240.get(), FluidHandlerRole.RESERVOIR);
+            if (CIOModules.isEnabled(PowerGridModule.REQUIRES)) {
+                FluidHandlerApi.setRole(PowerGridModule.AIRCON_MOTOR_BOTTOM_240.get(), FluidHandlerRole.RESERVOIR);
             }
-            if (CIOBlocks.CEE_AIRCON_MOTOR_BOTTOM != null) {
-                FluidHandlerApi.setRole(CIOBlocks.CEE_AIRCON_MOTOR_BOTTOM.get(), FluidHandlerRole.RESERVOIR);
+            if (CIOModules.isEnabled(ElectroEnergeticsModule.REQUIRES)) {
+                FluidHandlerApi.setRole(ElectroEnergeticsModule.CEE_AIRCON_MOTOR_BOTTOM.get(), FluidHandlerRole.RESERVOIR);
             }
-            if (CIOBlocks.CEE_AIRCON_MOTOR_BOTTOM_240 != null) {
-                FluidHandlerApi.setRole(CIOBlocks.CEE_AIRCON_MOTOR_BOTTOM_240.get(), FluidHandlerRole.RESERVOIR);
+            if (CIOModules.isEnabled(ElectroEnergeticsModule.REQUIRES)) {
+                FluidHandlerApi.setRole(ElectroEnergeticsModule.CEE_AIRCON_MOTOR_BOTTOM_240.get(), FluidHandlerRole.RESERVOIR);
             }
             FluidHandlerApi.setRole(CIOBlocks.AIRCON_VENTER.get(), FluidHandlerRole.RESERVOIR);
         });

@@ -3,7 +3,7 @@ package com.cio.createinteroperable.mixin.crn;
 import com.cio.createinteroperable.CIOConfig;
 import com.cio.createinteroperable.grid.ApplianceGrid;
 import com.cio.createinteroperable.grid.ApplianceNode;
-import com.cio.createinteroperable.grid.CrayfishCompat;
+import com.cio.createinteroperable.compat.Mods;
 import com.cio.createinteroperable.grid.GridConnection;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -72,7 +72,7 @@ public abstract class CrnDisplayNodeMixin implements ApplianceNode {
     /** Foreign BEs can't self-register from {@code setLevel}; hook every path that has a live level instead. */
     @Unique
     private void cioNode$ensureRegistered() {
-        if (this.cioNode$registered || CrayfishCompat.present()
+        if (this.cioNode$registered || Mods.REFURBISHED_FURNITURE.present()
                 || !CIOConfig.CRN_DISPLAYS_REQUIRE_POWER.get()) {
             return;
         }
@@ -250,7 +250,7 @@ public abstract class CrnDisplayNodeMixin implements ApplianceNode {
     @Inject(method = "write(Lnet/minecraft/nbt/CompoundTag;Lnet/minecraft/core/HolderLookup$Provider;Z)V",
             at = @At("TAIL"))
     private void cioNode$write(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket, CallbackInfo ci) {
-        if (!CrayfishCompat.present()) {
+        if (!Mods.REFURBISHED_FURNITURE.present()) {
             // Connection graph is Crayfish's when it is installed; ours otherwise.
             writeApplianceNbt(tag);
         }
@@ -265,7 +265,7 @@ public abstract class CrnDisplayNodeMixin implements ApplianceNode {
     @Inject(method = "read(Lnet/minecraft/nbt/CompoundTag;Lnet/minecraft/core/HolderLookup$Provider;Z)V",
             at = @At("TAIL"))
     private void cioNode$read(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket, CallbackInfo ci) {
-        if (!CrayfishCompat.present()) {
+        if (!Mods.REFURBISHED_FURNITURE.present()) {
             readApplianceNbt(tag);
         }
         if (tag.contains("CioPowered")) {

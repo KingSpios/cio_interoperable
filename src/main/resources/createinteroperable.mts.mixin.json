@@ -1,0 +1,20 @@
+{
+  "required": false,
+  "package": "com.cio.createinteroperable.mixin.mts",
+  "compatibilityLevel": "JAVA_21",
+  "plugin": "com.cio.createinteroperable.mixin.mts.MtsMixinPlugin",
+  "mixins": [
+    "IvBlockStateChangeMixin",
+    "IvPolePowerMixin",
+    "IvStreetLightMixin",
+    "IvTileNodeMixin",
+    "MtsDefinableMixin",
+    "MtsInteractPacketMixin",
+    "MtsPartGunMixin",
+    "MtsPartTickMixin",
+    "WrapperEntityAccessor",
+    "WrapperWorldAccessor"
+  ],
+  "client": [],
+  "minVersion": "0.8"
+}
