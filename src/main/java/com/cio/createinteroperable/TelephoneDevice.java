@@ -3,11 +3,20 @@ package com.cio.createinteroperable;
 import com.george_vi.electroenergetics.devices.device.DevicesSavedData;
 import com.george_vi.electroenergetics.devices.device.SimulatedDeviceType;
 import com.george_vi.electroenergetics.foundation.device.SimpleElectricalDevice;
+import com.george_vi.electroenergetics.foundation.nodes.InWorldNode;
+import com.george_vi.electroenergetics.foundation.nodes.InWorldNodeConnection;
+import com.george_vi.electroenergetics.simulation.infrastructure.InfrastructureSavedData;
 import com.george_vi.electroenergetics.simulation.BridgeCollector;
 import com.george_vi.electroenergetics.simulation.SimulationResults;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
+
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * The Electro Energetics side of the Telephone's positive/negative nubs —
@@ -91,5 +100,44 @@ public class TelephoneDevice extends SimpleElectricalDevice {
     @Override
     public void write(CompoundTag tag) {
         tag.putDouble("LastVoltage", lastVoltage);
+    }
+
+    /** Hop cap for {@link #tapReaches}; a real telephone network is never anywhere near this deep. */
+    private static final int MAX_TAP_HOPS = 256;
+
+    /**
+     * Whether the CEE tap node (id 2) of the phone at {@code from} reaches the
+     * one at {@code to} through any chain of CEE wires. CEE has no
+     * PG-ElectricalNetwork-style "which network is this node in" query
+     * (Network/CircuitGraph are internal solver machinery, not a public API),
+     * so this walks InfrastructureSavedData's own connection list outward.
+     * MAX_TAP_HOPS bounds the walk against a pathological/cyclic wire layout.
+     * Shared by the Interoperable and CEE telephones.
+     */
+    static boolean tapReaches(ServerLevel level, BlockPos from, BlockPos to) {
+        InWorldNode start = new InWorldNode(2, from);
+        InWorldNode goal = new InWorldNode(2, to);
+        if (start.equals(goal)) {
+            return true;
+        }
+        InfrastructureSavedData sd = InfrastructureSavedData.load(level);
+        Set<InWorldNode> visited = new HashSet<>();
+        Deque<InWorldNode> queue = new ArrayDeque<>();
+        visited.add(start);
+        queue.add(start);
+        int hops = 0;
+        while (!queue.isEmpty() && hops++ < MAX_TAP_HOPS) {
+            InWorldNode current = queue.poll();
+            for (InWorldNodeConnection connection : sd.getConnections(current)) {
+                InWorldNode next = connection.node1().equals(current) ? connection.node2() : connection.node1();
+                if (next.equals(goal)) {
+                    return true;
+                }
+                if (visited.add(next)) {
+                    queue.add(next);
+                }
+            }
+        }
+        return false;
     }
 }
