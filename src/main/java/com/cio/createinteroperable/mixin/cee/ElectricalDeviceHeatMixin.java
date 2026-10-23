@@ -1,7 +1,7 @@
 package com.cio.createinteroperable.mixin.cee;
 
 import com.cio.createinteroperable.thermal.cee.CeeDeviceTemperature;
-import com.cio.createinteroperable.compat.Mods;
+import com.cio.createinteroperable.thermal.TemperatureMods;
 import com.cio.createinteroperable.thermal.coldsweat.ColdSweatWorldTemp;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
@@ -27,13 +27,15 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
  * Equivalent to PG's model (absolute overheat limit, ambient + rise), and
  * consistent with the Thermometer readout ({@code ambient + heat/300}).
  * <p>
- * Inert without Cold Sweat.
+ * Inert without Cold Sweat, or while the {@code temperatureMods.affectGridDevices}
+ * config option is off (the default).
  */
 @Mixin(targets = "com.george_vi.electroenergetics.foundation.device.ElectricalDevice")
 public interface ElectricalDeviceHeatMixin {
     @ModifyVariable(method = "handleTemp", at = @At("HEAD"), argsOnly = true, ordinal = 0)
     private static float createinteroperable$ambientShift(float temp, Level level, BlockPos pos) {
-        if (!Mods.COLD_SWEAT.present()) {
+        // Off by default (config temperatureMods.affectGridDevices).
+        if (!TemperatureMods.affectGridDevices()) {
             return temp;
         }
         double ambientC = ColdSweatWorldTemp.getWorldTemperatureC(level, pos);

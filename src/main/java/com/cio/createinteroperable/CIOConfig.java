@@ -184,6 +184,15 @@ public final class CIOConfig {
      */
     public static final ModConfigSpec.DoubleValue AIRCON_PUMP_RPM;
 
+    /**
+     * Off by default. Whether a temperature mod's ambient temperature (today:
+     * Cold Sweat) reaches Power Grid and Electro Energetics devices' own heat
+     * model: PG components cool toward it instead of PG's biome formula, and
+     * CEE devices warn / burn out sooner in hot spots. Read through
+     * {@link com.cio.createinteroperable.thermal.TemperatureMods#affectGridDevices()}.
+     */
+    public static final ModConfigSpec.BooleanValue TEMPERATURE_MODS_AFFECT_GRID_DEVICES;
+
     static {
         ModConfigSpec.Builder b = new ModConfigSpec.Builder();
         b.push("refurbishedFurniture");
@@ -354,6 +363,18 @@ public final class CIOConfig {
                         "scale (256 = the fastest a Mechanical Pump turns). It scales down with the",
                         "motor's power. 0 disables it and leaves the motor as a plain tank.")
                 .defineInRange("motorPumpRpm", 256.0, 0.0, 256.0);
+        b.pop();
+
+        b.push("temperatureMods");
+        TEMPERATURE_MODS_AFFECT_GRID_DEVICES = b
+                .comment("Temperature Mods should affect Power Grid and Electro Energetics devices.",
+                        "OFF by default. When on, and a temperature mod (Cold Sweat) is installed, the",
+                        "temperature around a Power Grid or Electro Energetics device is the temperature",
+                        "mod's: devices in hot places overheat sooner and devices in cold places have",
+                        "more headroom (Power Grid's Thermometer shows the same). When off, both mods",
+                        "use their own heat models as if no temperature mod were installed. Cold",
+                        "Sweat's effects on players (heaters, radiators, aircon) are not affected.")
+                .define("affectGridDevices", false);
         b.pop();
 
         b.push("telephoneVoice");
