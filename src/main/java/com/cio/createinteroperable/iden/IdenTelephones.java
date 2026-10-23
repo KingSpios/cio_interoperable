@@ -1,7 +1,6 @@
 package com.cio.createinteroperable.iden;
 
-import com.cio.createinteroperable.compat.ElectroEnergeticsCompat;
-import com.cio.createinteroperable.compat.PowerGridCompat;
+import com.cio.createinteroperable.compat.Mods;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
@@ -30,8 +29,8 @@ public final class IdenTelephones {
 
     @Nullable
     public static Supplier<? extends Block> blockSupplier() {
-        boolean pg = PowerGridCompat.present();
-        boolean cee = ElectroEnergeticsCompat.present();
+        boolean pg = Mods.POWER_GRID.present();
+        boolean cee = Mods.ELECTRO_ENERGETICS.present();
         if (pg && cee) {
             return interop();
         }

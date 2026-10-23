@@ -1,7 +1,7 @@
 package com.cio.createinteroperable;
 
 import com.cio.createinteroperable.compat.PnwTerminalDevice;
-import com.cio.createinteroperable.compat.PowerGridCompat;
+import com.cio.createinteroperable.compat.Mods;
 import com.cio.createinteroperable.deb.DebCeeDevice;
 import com.cio.createinteroperable.deb.RedstoneSwitchCeeDevice;
 import com.george_vi.electroenergetics.CEERegistries;
@@ -23,16 +23,19 @@ import net.neoforged.neoforge.registries.DeferredRegister;
  * Coupler, the interim Small block, the assembled multiblock), which only
  * ever register when Power Grid is ALSO present (see CIOBlocks/
  * CIOBlockEntities) — so that entry is additionally gated here on
- * {@link PowerGridCompat#present()}. TELEPHONE backs both the Interoperable
+ * {@link Mods#POWER_GRID}. TELEPHONE backs both the Interoperable
  * Telephone (needs both) AND the CEE-only Telephone (needs only CEE), so —
  * like POWER_KIT — it's unconditional in this already-CEE-gated file.</p>
  */
 public class CIODevices {
+    /** Registered by ElectroEnergeticsModule; this gate is what LoadSafetyTest checks it against. */
+    public static final String REQUIRES = com.cio.createinteroperable.compat.Mods.Id.ELECTRO_ENERGETICS;
+
     private static final DeferredRegister<SimulatedDeviceType<?>> DEVICES =
             DeferredRegister.create(CEERegistries.SIMULATED_DEVICE_TYPE, CreateInteroperable.ID);
 
     public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<InteroperableDevice>> INTEROPERABLE =
-            PowerGridCompat.present() ? DEVICES.register("interoperable", () -> new SimulatedDeviceType<>(CreateInteroperable.rl("interoperable"),
+            Mods.POWER_GRID.present() ? DEVICES.register("interoperable", () -> new SimulatedDeviceType<>(CreateInteroperable.rl("interoperable"),
                     ((type, level, pos, sd) -> new InteroperableDevice(level, pos, sd, type)))) : null;
 
     public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<TelephoneDevice>> TELEPHONE =

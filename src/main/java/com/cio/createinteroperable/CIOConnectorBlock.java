@@ -1,5 +1,6 @@
 package com.cio.createinteroperable;
 
+import com.cio.createinteroperable.modules.PowerGridModule;
 import net.createmod.catnip.math.VoxelShaper;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -24,7 +25,7 @@ import org.patryk3211.powergrid.electricity.wireconnector.ConnectorBlockEntity;
  * (PG's own WIRE_CONNECTOR/HEAVY_WIRE_CONNECTOR blocks only), so a
  * different Block instance placed there would fail BlockEntityType's own
  * validity check. Overriding getBlockEntityType() to point at CIO's own
- * CIOBlockEntities.CONNECTOR (registered with THIS block in its validBlocks)
+ * PowerGridModule.CONNECTOR_BE (registered with THIS block in its validBlocks)
  * sidesteps that while still using the exact same ConnectorBlockEntity class.
  * <p>
  * Terminal geometry is NOT inherited from ConnectorBlock's own TERMINAL_DOWN
@@ -83,6 +84,6 @@ public class CIOConnectorBlock extends ConnectorBlock {
 
     @Override
     public BlockEntityType<? extends ConnectorBlockEntity> getBlockEntityType() {
-        return CIOBlockEntities.CONNECTOR.get();
+        return PowerGridModule.CONNECTOR_BE.get();
     }
 }

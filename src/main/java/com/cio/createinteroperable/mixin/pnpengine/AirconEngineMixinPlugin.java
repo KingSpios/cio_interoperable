@@ -1,12 +1,7 @@
 package com.cio.createinteroperable.mixin.pnpengine;
 
-import com.cio.createinteroperable.compat.PipesNPhysicsCompat;
-import org.objectweb.asm.tree.ClassNode;
-import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
-import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
-
-import java.util.List;
-import java.util.Set;
+import com.cio.createinteroperable.compat.ModGatedMixinPlugin;
+import com.cio.createinteroperable.compat.Mods;
 
 /**
  * Gates the Aircon Motor pump mixins, which patch Pipes n Physics' INTERNAL solver classes (its
@@ -14,20 +9,16 @@ import java.util.Set;
  * written against; any other version leaves the motor a plain tank rather than risking a broken
  * solver.
  */
-public class AirconEngineMixinPlugin implements IMixinConfigPlugin {
+public class AirconEngineMixinPlugin extends ModGatedMixinPlugin {
     private static final String TESTED_VERSION_PREFIX = "3.2.";
-    private boolean enabled;
 
-    @Override
-    public void onLoad(String mixinPackage) {
-        String version = PipesNPhysicsCompat.version();
-        enabled = version != null && version.startsWith(TESTED_VERSION_PREFIX);
+    public AirconEngineMixinPlugin() {
+        super(Mods.PIPES_N_PHYSICS);
     }
 
-    @Override public boolean shouldApplyMixin(String targetClassName, String mixinClassName) { return enabled; }
-    @Override public String getRefMapperConfig() { return null; }
-    @Override public void acceptTargets(Set<String> myTargets, Set<String> otherTargets) { }
-    @Override public List<String> getMixins() { return null; }
-    @Override public void preApply(String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) { }
-    @Override public void postApply(String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) { }
+    @Override
+    protected boolean extraCondition() {
+        String version = Mods.PIPES_N_PHYSICS.version();
+        return version != null && version.startsWith(TESTED_VERSION_PREFIX);
+    }
 }

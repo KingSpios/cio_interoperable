@@ -17,7 +17,7 @@ import net.minecraft.world.entity.LivingEntity;
  * isolated the same way as {@link ColdSweatWorldTemp}/{@link ColdSweatHeatTemp}
  * so always-loaded classes (like RadiatorValveNorthBlockEntity) never touch a
  * Cold-Sweat-only type directly. Callers MUST check
- * {@link ColdSweatCompat#present()} before calling in; this class is only
+ * {@link Mods#COLD_SWEAT} before calling in; this class is only
  * ever actually loaded once that's true.
  * <p>
  * Originally this only did the first half below (apply the mob effect) on the

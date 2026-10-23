@@ -25,7 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * <p>
  * <b>Must only be referenced when Electro Energetics is present</b> (this
  * class imports its types directly); callers gate on
- * {@link ElectroEnergeticsCompat#present()}.
+ * {@link Mods#ELECTRO_ENERGETICS}.
  */
 public final class CeeDeviceTemperature {
 

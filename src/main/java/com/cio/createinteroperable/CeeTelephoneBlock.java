@@ -1,5 +1,6 @@
 package com.cio.createinteroperable;
 
+import com.cio.createinteroperable.modules.ElectroEnergeticsModule;
 import com.george_vi.electroenergetics.devices.device.SimulatedDeviceType;
 import com.george_vi.electroenergetics.foundation.base.SimpleElectricalDeviceBlock;
 import com.simibubi.create.AllSoundEvents;
@@ -334,6 +335,6 @@ public class CeeTelephoneBlock extends SimpleElectricalDeviceBlock<TelephoneDevi
 
     @Override
     public BlockEntityType<? extends CeeTelephoneBlockEntity> getBlockEntityType() {
-        return CIOBlockEntities.CEE_TELEPHONE.get();
+        return ElectroEnergeticsModule.CEE_TELEPHONE_BE.get();
     }
 }

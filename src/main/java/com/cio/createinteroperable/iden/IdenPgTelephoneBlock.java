@@ -1,6 +1,6 @@
 package com.cio.createinteroperable.iden;
 
-import com.cio.createinteroperable.CIOBlockEntities;
+import com.cio.createinteroperable.modules.IdenDecorModule;
 import com.simibubi.create.foundation.block.IBE;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -131,6 +131,6 @@ public class IdenPgTelephoneBlock extends ElectricBlock implements IBE<IdenPgTel
 
     @Override
     public BlockEntityType<? extends IdenPgTelephoneBlockEntity> getBlockEntityType() {
-        return CIOBlockEntities.IDEN_PG_TELEPHONE.get();
+        return IdenDecorModule.PgTelephone.BLOCK_ENTITY.get();
     }
 }

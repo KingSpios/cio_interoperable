@@ -1,5 +1,6 @@
 package com.cio.createinteroperable;
 
+import com.cio.createinteroperable.modules.BridgeModule;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
@@ -65,29 +66,29 @@ public class InteroperableAssembly {
         BlockPos pgTop = pgBottom.above();
         BlockPos ceeTop = ceeBottom.above();
 
-        if (!isMarker(level, pgBottom, CIOBlocks.PG_KEYSTONE.get())) return false;
-        if (!isMarker(level, pgTop, CIOBlocks.PG_KEYSTONE.get())) return false;
-        if (!isMarker(level, ceeBottom, CIOBlocks.CEE_KEYSTONE.get())) return false;
-        if (!isMarker(level, ceeTop, CIOBlocks.CEE_KEYSTONE.get())) return false;
-        if (!isMarker(level, middleBottom, CIOBlocks.FILLER.get())) return false;
-        if (!isMarker(level, middleTop, CIOBlocks.FILLER.get())) return false;
+        if (!isMarker(level, pgBottom, BridgeModule.PG_KEYSTONE.get())) return false;
+        if (!isMarker(level, pgTop, BridgeModule.PG_KEYSTONE.get())) return false;
+        if (!isMarker(level, ceeBottom, BridgeModule.CEE_KEYSTONE.get())) return false;
+        if (!isMarker(level, ceeTop, BridgeModule.CEE_KEYSTONE.get())) return false;
+        if (!isMarker(level, middleBottom, BridgeModule.FILLER.get())) return false;
+        if (!isMarker(level, middleTop, BridgeModule.FILLER.get())) return false;
 
         if (level.isClientSide)
             return true;
 
-        level.setBlockAndUpdate(pgBottom, CIOBlocks.PG_ASSEMBLED.get().defaultBlockState()
+        level.setBlockAndUpdate(pgBottom, BridgeModule.PG_ASSEMBLED.get().defaultBlockState()
                 .setValue(CIOProperties.PG_FACING, pgDir).setValue(CIOProperties.TOP, false));
-        level.setBlockAndUpdate(pgTop, CIOBlocks.PG_ASSEMBLED.get().defaultBlockState()
+        level.setBlockAndUpdate(pgTop, BridgeModule.PG_ASSEMBLED.get().defaultBlockState()
                 .setValue(CIOProperties.PG_FACING, pgDir).setValue(CIOProperties.TOP, true));
 
-        level.setBlockAndUpdate(ceeBottom, CIOBlocks.CEE_ASSEMBLED.get().defaultBlockState()
+        level.setBlockAndUpdate(ceeBottom, BridgeModule.CEE_ASSEMBLED.get().defaultBlockState()
                 .setValue(CIOProperties.PG_FACING, pgDir).setValue(CIOProperties.TOP, false));
-        level.setBlockAndUpdate(ceeTop, CIOBlocks.CEE_ASSEMBLED.get().defaultBlockState()
+        level.setBlockAndUpdate(ceeTop, BridgeModule.CEE_ASSEMBLED.get().defaultBlockState()
                 .setValue(CIOProperties.PG_FACING, pgDir).setValue(CIOProperties.TOP, true));
 
-        level.setBlockAndUpdate(middleBottom, CIOBlocks.CORE_ASSEMBLED.get().defaultBlockState()
+        level.setBlockAndUpdate(middleBottom, BridgeModule.CORE_ASSEMBLED.get().defaultBlockState()
                 .setValue(CIOProperties.PG_FACING, pgDir).setValue(CIOProperties.TOP, false));
-        level.setBlockAndUpdate(middleTop, CIOBlocks.CORE_ASSEMBLED.get().defaultBlockState()
+        level.setBlockAndUpdate(middleTop, BridgeModule.CORE_ASSEMBLED.get().defaultBlockState()
                 .setValue(CIOProperties.PG_FACING, pgDir).setValue(CIOProperties.TOP, true));
 
         return true;

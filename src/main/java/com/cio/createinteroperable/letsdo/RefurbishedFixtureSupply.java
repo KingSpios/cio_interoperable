@@ -1,5 +1,6 @@
 package com.cio.createinteroperable.letsdo;
 
+import com.cio.createinteroperable.compat.Mods;
 import com.mrcrayfish.furniture.refurbished.blockentity.fluid.IFluidContainerBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -22,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
  * {@code mixin.crayfish} package: a non-mixin helper class in a declared mixin
  * package throws {@code IllegalClassLoadError} when referenced from transformed
  * code. It still only classloads when Crayfish is present, because its sole
- * caller is a mixin gated on {@code CrayfishCompat#present()}.
+ * caller is a mixin gated on {@code Mods.REFURBISHED_FURNITURE#present()}.
  */
 public final class RefurbishedFixtureSupply {
     private RefurbishedFixtureSupply() {

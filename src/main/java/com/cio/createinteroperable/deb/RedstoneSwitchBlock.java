@@ -1,6 +1,6 @@
 package com.cio.createinteroperable.deb;
 
-import com.cio.createinteroperable.CIOBlockEntities;
+import com.cio.createinteroperable.modules.PowerGridModule;
 import com.simibubi.create.foundation.block.IBE;
 import net.createmod.catnip.math.VoxelShaper;
 import net.minecraft.core.BlockPos;
@@ -117,6 +117,6 @@ public class RedstoneSwitchBlock extends DirectionalElectricBlock implements IBE
 
     @Override
     public BlockEntityType<? extends RedstoneSwitchBlockEntity> getBlockEntityType() {
-        return CIOBlockEntities.REDSTONE_SWITCH.get();
+        return PowerGridModule.REDSTONE_SWITCH_BE.get();
     }
 }

@@ -1,5 +1,6 @@
 package com.cio.createinteroperable;
 
+import com.cio.createinteroperable.modules.PowerGridModule;
 import net.createmod.catnip.math.VoxelShaper;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -70,6 +71,6 @@ public class CIOConnectorGlassBlock extends HeavyConnectorBlock {
 
     @Override
     public BlockEntityType<? extends ConnectorBlockEntity> getBlockEntityType() {
-        return CIOBlockEntities.CONNECTOR.get();
+        return PowerGridModule.CONNECTOR_BE.get();
     }
 }

@@ -5,7 +5,7 @@ import com.cio.createinteroperable.grid.ApplianceGrid;
 import com.cio.createinteroperable.grid.ApplianceGridTags;
 import com.cio.createinteroperable.grid.ApplianceNode;
 import com.cio.createinteroperable.grid.ApplianceRaycast;
-import com.cio.createinteroperable.grid.CrayfishCompat;
+import com.cio.createinteroperable.compat.Mods;
 import com.cio.createinteroperable.grid.GridAffinity;
 import com.cio.createinteroperable.grid.GridConnection;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -47,7 +47,7 @@ public final class ApplianceGridClientEvents {
 
     @SubscribeEvent
     static void onRenderLevelStage(RenderLevelStageEvent event) {
-        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_TRANSLUCENT_BLOCKS || CrayfishCompat.present()) {
+        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_TRANSLUCENT_BLOCKS || Mods.REFURBISHED_FURNITURE.present()) {
             return;
         }
         Minecraft mc = Minecraft.getInstance();

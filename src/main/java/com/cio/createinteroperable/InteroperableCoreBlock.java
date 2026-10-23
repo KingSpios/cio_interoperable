@@ -1,7 +1,7 @@
 package com.cio.createinteroperable;
 
-import com.cio.createinteroperable.compat.ElectroEnergeticsCompat;
-import com.cio.createinteroperable.compat.PowerGridCompat;
+import com.cio.createinteroperable.compat.Mods;
+import com.cio.createinteroperable.modules.BridgeModule;
 import com.simibubi.create.content.equipment.wrench.IWrenchable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionResult;
@@ -47,7 +47,7 @@ public class InteroperableCoreBlock extends Block implements IWrenchable {
         // SMALL (the wrench-formed result) needs both Power Grid and Electro
         // Energetics — silently no-op with only one installed, same as an
         // unpaired lone core.
-        if (!PowerGridCompat.present() || !ElectroEnergeticsCompat.present()) {
+        if (!Mods.POWER_GRID.present() || !Mods.ELECTRO_ENERGETICS.present()) {
             return InteractionResult.PASS;
         }
 
@@ -66,7 +66,7 @@ public class InteroperableCoreBlock extends Block implements IWrenchable {
 
         if (!level.isClientSide) {
             level.setBlockAndUpdate(bottomPos, Blocks.AIR.defaultBlockState());
-            level.setBlockAndUpdate(topPos, CIOBlocks.SMALL.get().defaultBlockState()
+            level.setBlockAndUpdate(topPos, BridgeModule.SMALL.get().defaultBlockState()
                     .setValue(CIOProperties.PG_FACING, context.getHorizontalDirection()));
         }
         IWrenchable.playRotateSound(level, topPos);

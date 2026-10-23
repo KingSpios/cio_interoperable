@@ -1,7 +1,7 @@
 package com.cio.createinteroperable.mixin.cee;
 
 import com.cio.createinteroperable.compat.CeeDeviceTemperature;
-import com.cio.createinteroperable.compat.ColdSweatCompat;
+import com.cio.createinteroperable.compat.Mods;
 import com.cio.createinteroperable.compat.ColdSweatWorldTemp;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
@@ -33,7 +33,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 public interface ElectricalDeviceHeatMixin {
     @ModifyVariable(method = "handleTemp", at = @At("HEAD"), argsOnly = true, ordinal = 0)
     private static float createinteroperable$ambientShift(float temp, Level level, BlockPos pos) {
-        if (!ColdSweatCompat.present()) {
+        if (!Mods.COLD_SWEAT.present()) {
             return temp;
         }
         double ambientC = ColdSweatWorldTemp.getWorldTemperatureC(level, pos);

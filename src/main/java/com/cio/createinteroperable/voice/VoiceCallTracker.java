@@ -3,6 +3,7 @@ package com.cio.createinteroperable.voice;
 import com.cio.createinteroperable.CIOConfig;
 import com.cio.createinteroperable.TelephoneNode;
 import com.cio.createinteroperable.TelephoneRegistry;
+import com.cio.createinteroperable.compat.Mods;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
@@ -25,6 +26,9 @@ import java.util.List;
  * telephones and Iden's two) are covered by the one code path.</p>
  */
 public final class VoiceCallTracker {
+
+    /** Module gate, read by CIOModules (see its doc). */
+    public static final String REQUIRES = Mods.Id.SIMPLE_VOICE_CHAT;
 
     private static final int REFRESH_TICKS = 2;
 

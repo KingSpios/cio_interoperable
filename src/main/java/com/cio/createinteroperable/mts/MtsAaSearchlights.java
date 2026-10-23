@@ -1,9 +1,11 @@
 package com.cio.createinteroperable.mts;
 
-import com.cio.createinteroperable.CIOBlocks;
+import com.cio.createinteroperable.compat.Mods;
 import com.cio.createinteroperable.CIOConfig;
 import com.cio.createinteroperable.mixin.mts.WrapperEntityAccessor;
 import com.cio.createinteroperable.mixin.mts.WrapperWorldAccessor;
+import com.cio.createinteroperable.modules.CIOModules;
+import com.cio.createinteroperable.modules.ImmersiveVehiclesModule;
 import minecrafttransportsimulator.baseclasses.BoundingBox;
 import minecrafttransportsimulator.baseclasses.ComputedVariable;
 import minecrafttransportsimulator.baseclasses.Point3D;
@@ -56,7 +58,7 @@ import java.util.WeakHashMap;
  * the ammo crate), are left alone. Only ever loaded with Immersive Vehicles
  * present: its callers are the {@code mixin.mts} mixins
  * ({@code MtsMixinPlugin}-gated) and the client HUD registered behind
- * {@code ImmersiveVehiclesCompat.present()}.</p>
+ * {@code Mods.IMMERSIVE_VEHICLES.present()}.</p>
  */
 public final class MtsAaSearchlights {
 
@@ -211,7 +213,7 @@ public final class MtsAaSearchlights {
      */
     @Nullable
     private static MtsAaPowerNodeBlockEntity findOrPlaceNode(Level level, APart base) {
-        if (CIOBlocks.MTS_AA_POWER_NODE == null) {
+        if (!CIOModules.isEnabled(ImmersiveVehiclesModule.REQUIRES)) {
             return null;
         }
         BlockPos baseCell = BlockPos.containing(base.position.x, base.position.y + 0.01, base.position.z);
@@ -252,7 +254,7 @@ public final class MtsAaSearchlights {
             if (!(state.isAir() || state.canBeReplaced()) || !state.getFluidState().isEmpty()) {
                 continue;
             }
-            level.setBlock(cell, CIOBlocks.MTS_AA_POWER_NODE.get().defaultBlockState(), Block.UPDATE_ALL);
+            level.setBlock(cell, ImmersiveVehiclesModule.MTS_AA_POWER_NODE.get().defaultBlockState(), Block.UPDATE_ALL);
             if (level.getBlockEntity(cell) instanceof MtsAaPowerNodeBlockEntity node) {
                 node.bind(baseCell, nubs[i][0], nubs[i][1]);
                 NODE_CACHE.put(base, cell);

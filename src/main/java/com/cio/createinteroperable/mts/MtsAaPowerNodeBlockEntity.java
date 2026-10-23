@@ -1,12 +1,12 @@
 package com.cio.createinteroperable.mts;
 
-import com.cio.createinteroperable.CIOBlockEntities;
 import com.cio.createinteroperable.deb.MeteredAppliance;
 import com.cio.createinteroperable.deb.ScalableAppliance;
 import com.cio.createinteroperable.grid.ApplianceGrid;
 import com.cio.createinteroperable.grid.ApplianceNode;
-import com.cio.createinteroperable.grid.CrayfishCompat;
+import com.cio.createinteroperable.compat.Mods;
 import com.cio.createinteroperable.grid.GridConnection;
+import com.cio.createinteroperable.modules.ImmersiveVehiclesModule;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -80,7 +80,7 @@ public class MtsAaPowerNodeBlockEntity extends BlockEntity implements ApplianceN
     private int age;
 
     public MtsAaPowerNodeBlockEntity(BlockPos pos, BlockState state) {
-        super(CIOBlockEntities.MTS_AA_POWER_NODE.get(), pos, state);
+        super(ImmersiveVehiclesModule.MTS_AA_POWER_NODE_BE.get(), pos, state);
     }
 
     // --- plate -> node ---------------------------------------------------
@@ -260,7 +260,7 @@ public class MtsAaPowerNodeBlockEntity extends BlockEntity implements ApplianceN
         tag.putDouble("NubZ", this.nubZ);
         tag.putBoolean("NodePowered", this.nodePowered);
         // Native links; the Crayfish adapter owns the same keys when it is active.
-        if (!CrayfishCompat.present()) {
+        if (!Mods.REFURBISHED_FURNITURE.present()) {
             this.writeApplianceNbt(tag);
         }
     }
@@ -274,7 +274,7 @@ public class MtsAaPowerNodeBlockEntity extends BlockEntity implements ApplianceN
             this.nubZ = tag.getDouble("NubZ");
         }
         this.nodePowered = tag.getBoolean("NodePowered");
-        if (!CrayfishCompat.present()) {
+        if (!Mods.REFURBISHED_FURNITURE.present()) {
             this.readApplianceNbt(tag);
         }
     }
@@ -283,7 +283,7 @@ public class MtsAaPowerNodeBlockEntity extends BlockEntity implements ApplianceN
     @Override
     public void setLevel(Level level) {
         super.setLevel(level);
-        if (!CrayfishCompat.present()) {
+        if (!Mods.REFURBISHED_FURNITURE.present()) {
             ApplianceGrid.get(level).addNode(this);
         }
     }

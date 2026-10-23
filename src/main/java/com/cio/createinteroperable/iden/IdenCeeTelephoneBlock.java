@@ -1,8 +1,8 @@
 package com.cio.createinteroperable.iden;
 
-import com.cio.createinteroperable.CIOBlockEntities;
 import com.cio.createinteroperable.CIODevices;
 import com.cio.createinteroperable.compat.PnwTerminalDevice;
+import com.cio.createinteroperable.modules.IdenDecorModule;
 import com.george_vi.electroenergetics.devices.device.SimulatedDeviceType;
 import com.george_vi.electroenergetics.foundation.base.SimpleElectricalDeviceBlock;
 import com.simibubi.create.foundation.block.IBE;
@@ -146,6 +146,6 @@ public class IdenCeeTelephoneBlock extends SimpleElectricalDeviceBlock<PnwTermin
 
     @Override
     public BlockEntityType<? extends IdenCeeTelephoneBlockEntity> getBlockEntityType() {
-        return CIOBlockEntities.IDEN_CEE_TELEPHONE.get();
+        return IdenDecorModule.CeeTelephone.BLOCK_ENTITY.get();
     }
 }

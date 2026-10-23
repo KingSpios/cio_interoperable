@@ -1,6 +1,6 @@
 package com.cio.createinteroperable;
 
-import com.cio.createinteroperable.compat.PipesNPhysicsCompat;
+import com.cio.createinteroperable.compat.Mods;
 import com.cio.createinteroperable.compat.PipesNPhysicsPipeContent;
 import com.simibubi.create.content.fluids.FluidPropagator;
 import com.simibubi.create.content.fluids.FluidTransportBehaviour;
@@ -94,7 +94,7 @@ final class SteamOpenEndScanner {
                     // one case worth suppressing on). Absent PnP — or if the
                     // guarded read can't confirm emptiness — this falls back
                     // to venting, exactly as before.
-                    boolean confirmedEmpty = PipesNPhysicsCompat.present()
+                    boolean confirmedEmpty = Mods.PIPES_N_PHYSICS.present()
                             && PipesNPhysicsPipeContent.isDefinitelyEmpty(pipe);
                     if (!confirmedEmpty) {
                         CIOOpenPipeEffects.ventAt(level, pos, direction, valveFraction);

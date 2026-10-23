@@ -1,6 +1,10 @@
 package com.cio.createinteroperable.grid;
 
+import com.cio.createinteroperable.compat.Mods;
 import com.cio.createinteroperable.CIOBlockEntities;
+import com.cio.createinteroperable.modules.CIOModules;
+import com.cio.createinteroperable.modules.IdenDecorModule;
+import com.cio.createinteroperable.modules.ImmersiveVehiclesModule;
 import com.mrcrayfish.furniture.refurbished.client.renderer.blockentity.ElectricBlockEntityRenderer;
 import com.mrcrayfish.furniture.refurbished.electricity.IElectricityNode;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -17,7 +21,7 @@ import net.neoforged.neoforge.client.event.EntityRenderersEvent;
  * Client-side Crayfish glue, kept out of {@code CIOClient} and
  * {@code DebRectifierRenderer} so neither has a hard {@code com.mrcrayfish.*}
  * reference. Every entry point is called only from behind a
- * {@link CrayfishCompat#present()} check, so this class never classloads when
+ * {@link Mods#REFURBISHED_FURNITURE} check, so this class never classloads when
  * Refurbished Furniture is absent.
  *
  * <p>Raw casts throughout: the CIO block entities gain Crayfish's
@@ -39,12 +43,12 @@ public final class CrayfishClient {
     public static void registerApplianceNodeRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerBlockEntityRenderer((BlockEntityType) CIOBlockEntities.LETSDO_LAMP.get(),
                 (BlockEntityRendererProvider) ElectricBlockEntityRenderer::new);
-        if (CIOBlockEntities.ELECTRIC_SWITCH != null) {
-            event.registerBlockEntityRenderer((BlockEntityType) CIOBlockEntities.ELECTRIC_SWITCH.get(),
+        if (CIOModules.isEnabled(IdenDecorModule.REQUIRES)) {
+            event.registerBlockEntityRenderer((BlockEntityType) IdenDecorModule.ELECTRIC_SWITCH_BE.get(),
                     (BlockEntityRendererProvider) ElectricBlockEntityRenderer::new);
         }
-        if (CIOBlockEntities.MTS_AA_POWER_NODE != null) {
-            event.registerBlockEntityRenderer((BlockEntityType) CIOBlockEntities.MTS_AA_POWER_NODE.get(),
+        if (CIOModules.isEnabled(ImmersiveVehiclesModule.REQUIRES)) {
+            event.registerBlockEntityRenderer((BlockEntityType) ImmersiveVehiclesModule.MTS_AA_POWER_NODE_BE.get(),
                     (BlockEntityRendererProvider) ElectricBlockEntityRenderer::new);
         }
         // Immersive Vehicles' shared tile type: only poles / Signal Controllers are

@@ -1,5 +1,6 @@
 package com.cio.createinteroperable;
 
+import com.cio.createinteroperable.modules.PowerGridModule;
 import com.simibubi.create.content.equipment.wrench.IWrenchable;
 import com.simibubi.create.foundation.block.IBE;
 import net.minecraft.core.BlockPos;
@@ -207,6 +208,6 @@ public class AirconMotorBottomBlock extends ElectricBlock
 
     @Override
     public BlockEntityType<? extends AirconMotorBottomBlockEntity> getBlockEntityType() {
-        return CIOBlockEntities.AIRCON_MOTOR_BOTTOM.get();
+        return PowerGridModule.AIRCON_MOTOR_BOTTOM_BE.get();
     }
 }

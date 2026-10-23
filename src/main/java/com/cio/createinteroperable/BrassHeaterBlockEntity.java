@@ -1,6 +1,6 @@
 package com.cio.createinteroperable;
 
-import com.cio.createinteroperable.compat.ColdSweatCompat;
+import com.cio.createinteroperable.compat.Mods;
 import com.cio.createinteroperable.compat.ColdSweatWorldTemp;
 import com.simibubi.create.content.kinetics.base.KineticBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
@@ -249,7 +249,7 @@ public class BrassHeaterBlockEntity extends KineticBlockEntity {
      * Cold-Sweat-less install.
      */
     static boolean isCold(net.minecraft.world.level.Level level, BlockPos pos) {
-        if (ColdSweatCompat.present()) {
+        if (Mods.COLD_SWEAT.present()) {
             return ColdSweatWorldTemp.getWorldTemperatureC(level, pos) < 0;
         }
         return level.getBiome(pos).value().getBaseTemperature() < 0f;

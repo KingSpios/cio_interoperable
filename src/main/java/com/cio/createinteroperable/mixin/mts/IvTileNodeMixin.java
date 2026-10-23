@@ -5,7 +5,7 @@ import com.cio.createinteroperable.deb.MeteredAppliance;
 import com.cio.createinteroperable.deb.ScalableAppliance;
 import com.cio.createinteroperable.grid.ApplianceGrid;
 import com.cio.createinteroperable.grid.ApplianceNode;
-import com.cio.createinteroperable.grid.CrayfishCompat;
+import com.cio.createinteroperable.compat.Mods;
 import com.cio.createinteroperable.grid.GridConnection;
 import com.cio.createinteroperable.mts.IvCrayfishBridge;
 import com.cio.createinteroperable.mts.IvNodeState;
@@ -131,7 +131,7 @@ public abstract class IvTileNodeMixin implements ApplianceNode, MeteredAppliance
         }
         double lampWatts = IvPoleLights.lampWatts(this.tileEntity);
         this.cio$needsPower = lampWatts > 0.0;
-        if (!this.cio$registered && !CrayfishCompat.present()) {
+        if (!this.cio$registered && !Mods.REFURBISHED_FURNITURE.present()) {
             ApplianceGrid.get(level).addNode(this);
             this.cio$registered = true;
         }
@@ -158,7 +158,7 @@ public abstract class IvTileNodeMixin implements ApplianceNode, MeteredAppliance
     @Unique
     private void cio$dropAllConnections() {
         boolean changed;
-        if (CrayfishCompat.present()) {
+        if (Mods.REFURBISHED_FURNITURE.present()) {
             changed = IvCrayfishBridge.removeAllConnections(cio$be());
         } else {
             changed = !this.cio$conns.isEmpty();
@@ -283,7 +283,7 @@ public abstract class IvTileNodeMixin implements ApplianceNode, MeteredAppliance
         CompoundTag tag = new CompoundTag();
         tag.putBoolean(SYNC_MARKER, true);
         tag.putBoolean("CioLit", this.cio$lit);
-        if (CrayfishCompat.present()) {
+        if (Mods.REFURBISHED_FURNITURE.present()) {
             IvCrayfishBridge.writeNodeNbt(cio$be(), tag);
         } else {
             writeApplianceNbt(tag);
@@ -302,7 +302,7 @@ public abstract class IvTileNodeMixin implements ApplianceNode, MeteredAppliance
             return;
         }
         this.cio$lit = tag.getBoolean("CioLit");
-        if (CrayfishCompat.present()) {
+        if (Mods.REFURBISHED_FURNITURE.present()) {
             IvCrayfishBridge.readNodeNbt(cio$be(), tag);
         } else if (tag.contains(ApplianceNode.NBT_CONNECTIONS)) {
             readApplianceNbt(tag);
@@ -317,14 +317,14 @@ public abstract class IvTileNodeMixin implements ApplianceNode, MeteredAppliance
 
     @Inject(method = "saveAdditional", at = @At("TAIL"), remap = false)
     private void cio$saveNode(CompoundTag tag, HolderLookup.Provider provider, CallbackInfo ci) {
-        if (!CrayfishCompat.present()) {
+        if (!Mods.REFURBISHED_FURNITURE.present()) {
             writeApplianceNbt(tag);
         }
     }
 
     @Inject(method = "loadAdditional", at = @At("TAIL"), remap = false)
     private void cio$loadNode(CompoundTag tag, HolderLookup.Provider provider, CallbackInfo ci) {
-        if (!CrayfishCompat.present() && tag.contains(ApplianceNode.NBT_CONNECTIONS)) {
+        if (!Mods.REFURBISHED_FURNITURE.present() && tag.contains(ApplianceNode.NBT_CONNECTIONS)) {
             readApplianceNbt(tag);
         }
     }

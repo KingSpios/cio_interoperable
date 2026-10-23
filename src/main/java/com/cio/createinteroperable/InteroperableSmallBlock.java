@@ -1,5 +1,6 @@
 package com.cio.createinteroperable;
 
+import com.cio.createinteroperable.modules.BridgeModule;
 import com.george_vi.electroenergetics.devices.device.SimulatedDeviceType;
 import com.george_vi.electroenergetics.foundation.device.ElectricalDeviceBlock;
 import com.george_vi.electroenergetics.simulation.infrastructure.InfrastructureSavedData;
@@ -321,7 +322,7 @@ public class InteroperableSmallBlock extends ElectricBlock
 
     @Override
     public BlockEntityType<? extends InteroperableSmallBlockEntity> getBlockEntityType() {
-        return CIOBlockEntities.SMALL.get();
+        return BridgeModule.SMALL_BE.get();
     }
 
     @Override

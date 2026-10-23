@@ -1,5 +1,6 @@
 package com.cio.createinteroperable;
 
+import com.cio.createinteroperable.modules.ElectroEnergeticsModule;
 import com.george_vi.electroenergetics.devices.device.SimulatedDeviceType;
 import com.george_vi.electroenergetics.foundation.base.SimpleElectricalDeviceBlock;
 import com.simibubi.create.foundation.block.IBE;
@@ -185,6 +186,6 @@ public class CeeCompactTransformerBlock extends SimpleElectricalDeviceBlock<CeeC
 
     @Override
     public BlockEntityType<? extends CeeCompactTransformerBlockEntity> getBlockEntityType() {
-        return CIOBlockEntities.CEE_COMPACT_TRANSFORMER.get();
+        return ElectroEnergeticsModule.CEE_COMPACT_TRANSFORMER_BE.get();
     }
 }

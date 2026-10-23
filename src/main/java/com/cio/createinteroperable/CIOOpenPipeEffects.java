@@ -1,6 +1,6 @@
 package com.cio.createinteroperable;
 
-import com.cio.createinteroperable.compat.ColdSweatCompat;
+import com.cio.createinteroperable.compat.Mods;
 import com.cio.createinteroperable.compat.ColdSweatWarmthEffect;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -102,7 +102,7 @@ final class CIOOpenPipeEffects {
             serverLevel.sendParticles(underwater ? ParticleTypes.BUBBLE : CIOParticles.RADIATOR_SMOKE.get(),
                     x, y, z, 0, 0.0, riseSpeed, 0.0, 1.0);
         }
-        if (ColdSweatCompat.present()) {
+        if (Mods.COLD_SWEAT.present()) {
             AABB warmArea = new AABB(mouth).inflate(WARMTH_RADIUS);
             for (LivingEntity entity : serverLevel.getEntitiesOfClass(LivingEntity.class, warmArea)) {
                 ColdSweatWarmthEffect.apply(entity, WARMTH_AMPLIFIER, WARMTH_DURATION_TICKS, true);

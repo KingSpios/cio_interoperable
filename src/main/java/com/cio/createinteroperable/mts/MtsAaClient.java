@@ -1,6 +1,6 @@
 package com.cio.createinteroperable.mts;
 
-import com.cio.createinteroperable.grid.CrayfishCompat;
+import com.cio.createinteroperable.compat.Mods;
 import mcinterface1211.WrapperWorld;
 import minecrafttransportsimulator.baseclasses.EntityInteractResult;
 import minecrafttransportsimulator.baseclasses.Point3D;
@@ -32,7 +32,7 @@ import org.jetbrains.annotations.Nullable;
 public final class MtsAaClient {
 
     private static final ResourceLocation CRAYFISH_ICONS =
-            ResourceLocation.fromNamespaceAndPath(CrayfishCompat.MOD_ID, "textures/gui/icons.png");
+            ResourceLocation.fromNamespaceAndPath(Mods.Id.REFURBISHED_FURNITURE, "textures/gui/icons.png");
 
     private static boolean showLabel;
     private static int ticks;
@@ -98,7 +98,7 @@ public final class MtsAaClient {
 
     /** Crayfish's {@code NodeIndicatorOverlay} label, drawn identically. */
     private static void drawLabel(Minecraft mc, GuiGraphics graphics, Component label) {
-        boolean icon = CrayfishCompat.present();
+        boolean icon = Mods.REFURBISHED_FURNITURE.present();
         int padding = 3;
         int iconSize = icon ? 10 : 0;
         int iconGap = icon ? padding : 0;

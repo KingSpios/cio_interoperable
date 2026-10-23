@@ -1,5 +1,6 @@
 package com.cio.createinteroperable;
 
+import com.cio.createinteroperable.modules.BridgeModule;
 import com.george_vi.electroenergetics.devices.device.SimulatedDeviceType;
 import com.george_vi.electroenergetics.foundation.device.ElectricalDeviceBlock;
 import com.george_vi.electroenergetics.simulation.infrastructure.InfrastructureSavedData;
@@ -620,7 +621,7 @@ public class TelephoneBlock extends ElectricBlock
 
     @Override
     public BlockEntityType<? extends TelephoneBlockEntity> getBlockEntityType() {
-        return CIOBlockEntities.TELEPHONE.get();
+        return BridgeModule.TELEPHONE_BE.get();
     }
 
     @Override

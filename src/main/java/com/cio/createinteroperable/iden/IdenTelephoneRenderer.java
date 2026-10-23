@@ -1,10 +1,8 @@
 package com.cio.createinteroperable.iden;
 
 import com.cio.createinteroperable.CreateInteroperable;
-import com.cio.createinteroperable.compat.ElectroEnergeticsCompat;
-import com.cio.createinteroperable.compat.PowerGridCompat;
+import com.cio.createinteroperable.compat.Mods;
 import com.cio.createinteroperable.grid.CrayfishClient;
-import com.cio.createinteroperable.grid.CrayfishCompat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.renderer.SafeBlockEntityRenderer;
@@ -35,14 +33,14 @@ public class IdenTelephoneRenderer<T extends SmartBlockEntity & IdenPhone> exten
 
     @Override
     protected void renderSafe(T be, float partialTicks, PoseStack ms, MultiBufferSource buffer, int light, int overlay) {
-        if (CrayfishCompat.present()) {
+        if (Mods.REFURBISHED_FURNITURE.present()) {
             CrayfishClient.drawNodeOverlayIfNode(be);
         }
         float yaw = (float) Math.toRadians(-IdenPhoneBlocks.angleFor(be.getBlockState()));
-        if (PowerGridCompat.present()) {
+        if (Mods.POWER_GRID.present()) {
             renderNub(CPG_TAP, be, yaw, ms, buffer, light);
         }
-        if (ElectroEnergeticsCompat.present()) {
+        if (Mods.ELECTRO_ENERGETICS.present()) {
             renderNub(CEE_TAP, be, yaw, ms, buffer, light);
         }
     }

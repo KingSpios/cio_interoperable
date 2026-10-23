@@ -1,6 +1,6 @@
 package com.cio.createinteroperable.deb;
 
-import com.cio.createinteroperable.CIOBlockEntities;
+import com.cio.createinteroperable.modules.PowerGridModule;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.patryk3211.powergrid.electricity.base.DirectionalElectricBlock;
@@ -49,6 +49,6 @@ public class PowerKitTier1Block extends DebRectifierBlock {
 
     @Override
     public BlockEntityType<? extends DebRectifierBlockEntity> getBlockEntityType() {
-        return CIOBlockEntities.DEB_RECTIFIER_TIER1.get();
+        return PowerGridModule.DEB_RECTIFIER_TIER1_BE.get();
     }
 }

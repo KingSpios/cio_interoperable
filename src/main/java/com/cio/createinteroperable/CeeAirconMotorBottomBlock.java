@@ -1,5 +1,6 @@
 package com.cio.createinteroperable;
 
+import com.cio.createinteroperable.modules.ElectroEnergeticsModule;
 import com.george_vi.electroenergetics.devices.device.SimulatedDeviceType;
 import com.george_vi.electroenergetics.foundation.base.SimpleElectricalDeviceBlock;
 import com.simibubi.create.content.equipment.wrench.IWrenchable;
@@ -189,7 +190,7 @@ public class CeeAirconMotorBottomBlock extends SimpleElectricalDeviceBlock<Airco
 
     @Override
     public BlockEntityType<? extends CeeAirconMotorBottomBlockEntity> getBlockEntityType() {
-        return CIOBlockEntities.CEE_AIRCON_MOTOR_BOTTOM.get();
+        return ElectroEnergeticsModule.CEE_AIRCON_MOTOR_BOTTOM_BE.get();
     }
 
     private static Map<Integer, Vec3> nodeMap(double[][] centres16) {

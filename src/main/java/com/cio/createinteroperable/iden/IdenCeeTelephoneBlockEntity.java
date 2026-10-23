@@ -2,7 +2,7 @@ package com.cio.createinteroperable.iden;
 
 import com.cio.createinteroperable.TelephoneRegistry;
 import com.cio.createinteroperable.grid.ApplianceGrid;
-import com.cio.createinteroperable.grid.CrayfishCompat;
+import com.cio.createinteroperable.compat.Mods;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
@@ -75,7 +75,7 @@ public class IdenCeeTelephoneBlockEntity extends SmartBlockEntity implements Ide
     public void setLevel(Level level) {
         super.setLevel(level);
         TelephoneRegistry.add(this);
-        if (!CrayfishCompat.present()) {
+        if (!Mods.REFURBISHED_FURNITURE.present()) {
             ApplianceGrid.get(level).addNode(this);
         }
     }
@@ -90,7 +90,7 @@ public class IdenCeeTelephoneBlockEntity extends SmartBlockEntity implements Ide
     protected void write(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket) {
         super.write(tag, registries, clientPacket);
         core.write(tag);
-        if (!CrayfishCompat.present()) {
+        if (!Mods.REFURBISHED_FURNITURE.present()) {
             writeApplianceNbt(tag);
         }
     }
@@ -99,7 +99,7 @@ public class IdenCeeTelephoneBlockEntity extends SmartBlockEntity implements Ide
     protected void read(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket) {
         super.read(tag, registries, clientPacket);
         core.read(tag);
-        if (!CrayfishCompat.present()) {
+        if (!Mods.REFURBISHED_FURNITURE.present()) {
             readApplianceNbt(tag);
         }
     }

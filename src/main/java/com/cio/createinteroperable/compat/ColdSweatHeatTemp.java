@@ -15,7 +15,7 @@ import java.util.function.Function;
 /**
  * One heat-tier's worth of Cold Sweat radiation for the steam-heating family
  * (Brass Heater, Multi Radiator) — see {@link ColdSweatIntegration} for where
- * these get built and registered, and {@link ColdSweatCompat} for why this is
+ * these get built and registered, and {@link Mods#COLD_SWEAT} for why this is
  * plain Java rather than the {@code block_temp} datapack JSON this project
  * originally tried (confirmed not to load third-party data at all).
  * <p>

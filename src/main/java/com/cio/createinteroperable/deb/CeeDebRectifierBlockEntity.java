@@ -309,7 +309,7 @@ public class CeeDebRectifierBlockEntity extends SmartBlockEntity implements Appl
             return;
         }
 
-        if (!com.cio.createinteroperable.grid.CrayfishCompat.present()) {
+        if (!com.cio.createinteroperable.compat.Mods.REFURBISHED_FURNITURE.present()) {
             distributeAppliancePower();
         }
 
@@ -673,7 +673,7 @@ public class CeeDebRectifierBlockEntity extends SmartBlockEntity implements Appl
         faultTicks = tag.getInt("FaultTicks");
         temperatureC = tag.getFloat("TemperatureC");
         networkConflict = tag.getBoolean("NetworkConflict");
-        if (!com.cio.createinteroperable.grid.CrayfishCompat.present()) {
+        if (!com.cio.createinteroperable.compat.Mods.REFURBISHED_FURNITURE.present()) {
             readApplianceNbt(tag);
         }
     }
@@ -693,7 +693,7 @@ public class CeeDebRectifierBlockEntity extends SmartBlockEntity implements Appl
         tag.putInt("FaultTicks", faultTicks);
         tag.putFloat("TemperatureC", temperatureC);
         tag.putBoolean("NetworkConflict", networkConflict);
-        if (!com.cio.createinteroperable.grid.CrayfishCompat.present()) {
+        if (!com.cio.createinteroperable.compat.Mods.REFURBISHED_FURNITURE.present()) {
             writeApplianceNbt(tag);
         }
     }
@@ -703,7 +703,7 @@ public class CeeDebRectifierBlockEntity extends SmartBlockEntity implements Appl
     @Override
     public void setLevel(Level level) {
         super.setLevel(level);
-        if (!com.cio.createinteroperable.grid.CrayfishCompat.present()) {
+        if (!com.cio.createinteroperable.compat.Mods.REFURBISHED_FURNITURE.present()) {
             com.cio.createinteroperable.grid.ApplianceGrid.get(level).addNode(this);
         }
     }

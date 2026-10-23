@@ -1,6 +1,6 @@
 package com.cio.createinteroperable;
 
-import com.cio.createinteroperable.compat.PowerGridCompat;
+import com.cio.createinteroperable.compat.Mods;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -32,7 +32,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
  * {@link AirconMotorBottomMarker} interface, and the one genuinely Power
  * Grid-specific step (wire-connection refresh) is routed through
  * {@link PgAirconMotorSupport}, called only from behind
- * {@link PowerGridCompat#present()}.
+ * {@link Mods#POWER_GRID}.
  */
 public final class AirconMotorAssembly {
     private AirconMotorAssembly() {
@@ -70,7 +70,7 @@ public final class AirconMotorAssembly {
         if (!level.isClientSide) {
             level.setBlockAndUpdate(bottomPos, bottomState.setValue(CIOProperties.AIRCON_ASSEMBLED, true));
             level.setBlockAndUpdate(topPos, topState.setValue(CIOProperties.AIRCON_ASSEMBLED, true));
-            if (PowerGridCompat.present()) {
+            if (Mods.POWER_GRID.present()) {
                 Block bottomBlock = bottomState.getBlock();
                 PgAirconMotorSupport.refreshIfPgBottom(level, bottomPos, bottomBlock);
             }

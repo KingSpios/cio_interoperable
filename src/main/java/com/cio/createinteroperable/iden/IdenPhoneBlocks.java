@@ -3,8 +3,7 @@ package com.cio.createinteroperable.iden;
 import com.cio.createinteroperable.CIOProperties;
 import com.cio.createinteroperable.TelephoneNumbers;
 import com.cio.createinteroperable.TelephoneRedstone;
-import com.cio.createinteroperable.compat.ElectroEnergeticsCompat;
-import com.cio.createinteroperable.compat.PowerGridCompat;
+import com.cio.createinteroperable.compat.Mods;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -95,10 +94,10 @@ public final class IdenPhoneBlocks {
                 for (AABB box : BODY_BOXES) {
                     shape = Shapes.or(shape, Shapes.create(rotate(box, i * 90)));
                 }
-                if (PowerGridCompat.present()) {
+                if (Mods.POWER_GRID.present()) {
                     shape = Shapes.or(shape, Shapes.create(rotate(CPG_TAP_BOX, i * 90)));
                 }
-                if (ElectroEnergeticsCompat.present()) {
+                if (Mods.ELECTRO_ENERGETICS.present()) {
                     shape = Shapes.or(shape, Shapes.create(rotate(CEE_TAP_BOX, i * 90)));
                 }
                 out[i][phone] = shape;

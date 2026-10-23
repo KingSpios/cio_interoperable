@@ -14,7 +14,7 @@ import net.neoforged.bus.api.SubscribeEvent;
  * real Create integration does it (see its bundled {@code CreateFluidTankTemp}) —
  * a plain {@code BlockTemp} per {@link BlockTempRegisterEvent}, NOT the
  * {@code block_temp} datapack JSON this project tried first (see
- * {@link ColdSweatCompat}'s doc for why that never worked at all).
+ * {@link Mods#COLD_SWEAT}'s doc for why that never worked at all).
  * <p>
  * Deliberately NOT annotated {@code @EventBusSubscriber} — that would let
  * NeoForge's classpath scanner discover and load this class unconditionally
@@ -22,7 +22,7 @@ import net.neoforged.bus.api.SubscribeEvent;
  * Cold-Sweat-only class) in this class's own method signature and would
  * throw on a Cold-Sweat-absent install. Instead {@link #register()} is only
  * ever called from {@code CreateInteroperable}'s constructor, itself gated on
- * {@link ColdSweatCompat#present()} — same pattern already proven in this
+ * {@link Mods#COLD_SWEAT} — same pattern already proven in this
  * project for {@code InteroperableDoubleCouplerRenderer.init()} (PG+CEE-gated).
  * <p>
  * The Multi Radiator gets BOTH mechanisms now, deliberately layered rather
@@ -38,10 +38,13 @@ import net.neoforged.bus.api.SubscribeEvent;
  * first kind.
  */
 public final class ColdSweatIntegration {
+    /** Module gate, read by CIOModules (see its doc). */
+    public static final String REQUIRES = Mods.Id.COLD_SWEAT;
+
     private ColdSweatIntegration() {
     }
 
-    /** Call only when {@link ColdSweatCompat#present()} — see class doc. */
+    /** Called by CIOModules only with Cold Sweat loaded — see class doc. */
     public static void register() {
         net.neoforged.neoforge.common.NeoForge.EVENT_BUS.register(ColdSweatIntegration.class);
     }

@@ -14,8 +14,8 @@ import net.minecraft.world.level.Level;
  * without ever forcing the JVM to resolve/link a Cold-Sweat-only type — the
  * same class-loading isolation this project already relies on for
  * {@link ColdSweatIntegration}/{@link ColdSweatHeatTemp} (see
- * {@link ColdSweatCompat}'s doc). Callers MUST check
- * {@link ColdSweatCompat#present()} first; this class is only ever actually
+ * {@link Mods#COLD_SWEAT}'s doc). Callers MUST check
+ * {@link Mods#COLD_SWEAT} first; this class is only ever actually
  * loaded (by the JVM resolving the first real call into it) once that's true.
  * <p>
  * Replaces an earlier, wrong approach that approximated ambient °C straight

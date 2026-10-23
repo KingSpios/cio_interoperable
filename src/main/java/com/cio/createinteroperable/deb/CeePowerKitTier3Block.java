@@ -1,6 +1,6 @@
 package com.cio.createinteroperable.deb;
 
-import com.cio.createinteroperable.CIOBlockEntities;
+import com.cio.createinteroperable.modules.ElectroEnergeticsModule;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -47,6 +47,6 @@ public class CeePowerKitTier3Block extends CeeDebRectifierBlock {
 
     @Override
     public BlockEntityType<? extends CeeDebRectifierBlockEntity> getBlockEntityType() {
-        return CIOBlockEntities.CEE_DEB_RECTIFIER_TIER3.get();
+        return ElectroEnergeticsModule.CEE_DEB_RECTIFIER_TIER3_BE.get();
     }
 }

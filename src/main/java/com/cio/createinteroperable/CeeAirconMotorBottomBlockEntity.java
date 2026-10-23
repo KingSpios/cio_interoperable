@@ -1,6 +1,6 @@
 package com.cio.createinteroperable;
 
-import com.cio.createinteroperable.compat.ColdSweatCompat;
+import com.cio.createinteroperable.compat.Mods;
 import com.cio.createinteroperable.compat.ColdSweatWorldTemp;
 import com.george_vi.electroenergetics.devices.device.DevicesSavedData;
 import com.google.common.collect.ImmutableList;
@@ -251,7 +251,7 @@ public class CeeAirconMotorBottomBlockEntity extends SmartBlockEntity
         if (level == null) {
             return AMBIENT_NEUTRAL_C;
         }
-        if (ColdSweatCompat.present()) {
+        if (Mods.COLD_SWEAT.present()) {
             return (float) ColdSweatWorldTemp.getWorldTemperatureC(level, worldPosition);
         }
         return BrassHeaterBlockEntity.ambientTemperatureC(level, worldPosition);

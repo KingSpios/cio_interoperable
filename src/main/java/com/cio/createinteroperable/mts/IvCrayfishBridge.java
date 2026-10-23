@@ -1,5 +1,6 @@
 package com.cio.createinteroperable.mts;
 
+import com.cio.createinteroperable.compat.Mods;
 import com.mrcrayfish.furniture.refurbished.electricity.IElectricityNode;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -10,7 +11,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
  * {@code IvTileNodeMixin} gives IV's block entity (IV ships no vanilla BE sync
  * of its own, and Crayfish's wire sync goes through {@code getUpdateTag()}),
  * and drops every link of a pole that lost its last lamp. Only ever called
- * behind {@code CrayfishCompat.present()}, so it never classloads without
+ * behind {@code Mods.REFURBISHED_FURNITURE.present()}, so it never classloads without
  * Refurbished Furniture.
  */
 public final class IvCrayfishBridge {

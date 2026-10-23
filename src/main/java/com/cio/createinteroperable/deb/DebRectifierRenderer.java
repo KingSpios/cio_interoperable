@@ -1,7 +1,7 @@
 package com.cio.createinteroperable.deb;
 
 import com.cio.createinteroperable.CreateInteroperable;
-import com.cio.createinteroperable.grid.CrayfishCompat;
+import com.cio.createinteroperable.compat.Mods;
 import com.cio.createinteroperable.grid.CrayfishClient;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
@@ -77,7 +77,7 @@ public class DebRectifierRenderer extends SafeBlockEntityRenderer<DebRectifierBl
                               MultiBufferSource buffer, int light, int overlay) {
         // Crayfish's own node box + connection lines. The native grid draws its
         // cubes/wires from ApplianceGridClientEvents instead, so nothing here.
-        if (CrayfishCompat.present()) {
+        if (Mods.REFURBISHED_FURNITURE.present()) {
             CrayfishClient.drawDebNodeOverlay(be);
         }
 

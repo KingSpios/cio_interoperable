@@ -1,7 +1,7 @@
 package com.cio.createinteroperable.mixin.powergrid;
 
 import com.cio.createinteroperable.CreateInteroperable;
-import com.cio.createinteroperable.compat.ColdSweatCompat;
+import com.cio.createinteroperable.compat.Mods;
 import com.cio.createinteroperable.compat.ColdSweatWorldTemp;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
@@ -126,9 +126,9 @@ public abstract class ThermalBehaviourMixin {
             // this method doing the minimum necessary).
             CreateInteroperable.LOGGER.info(
                     "[Create: Interoperable] PG ThermalBehaviour ambient-temperature mixin active (Cold Sweat present: {})",
-                    ColdSweatCompat.present());
+                    Mods.COLD_SWEAT.present());
         }
-        if (!ColdSweatCompat.present()) {
+        if (!Mods.COLD_SWEAT.present()) {
             return;
         }
         cir.setReturnValue((float) ColdSweatWorldTemp.getWorldTemperatureC(level, pos));

@@ -2,7 +2,7 @@ package com.cio.createinteroperable.deb;
 
 import com.cio.createinteroperable.CreateInteroperable;
 import com.cio.createinteroperable.grid.CrayfishClient;
-import com.cio.createinteroperable.grid.CrayfishCompat;
+import com.cio.createinteroperable.compat.Mods;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import com.simibubi.create.foundation.blockEntity.renderer.SafeBlockEntityRenderer;
@@ -55,7 +55,7 @@ public class CeeDebRectifierRenderer extends SafeBlockEntityRenderer<CeeDebRecti
         // at runtime via CeeDebSourceNodeMixin (mirroring DebSourceNodeMixin on
         // the PG-rooted family) — same wrench-link node box + connection lines
         // as the CPG-wired Power Kit.
-        if (CrayfishCompat.present()) {
+        if (Mods.REFURBISHED_FURNITURE.present()) {
             CrayfishClient.drawDebNodeOverlay(be);
         }
 

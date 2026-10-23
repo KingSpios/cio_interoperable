@@ -1,9 +1,8 @@
 package com.cio.createinteroperable.iden;
 
 import com.cio.createinteroperable.TelephoneRegistry;
-import com.cio.createinteroperable.compat.ElectroEnergeticsCompat;
+import com.cio.createinteroperable.compat.Mods;
 import com.cio.createinteroperable.grid.ApplianceGrid;
-import com.cio.createinteroperable.grid.CrayfishCompat;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -73,7 +72,7 @@ public class IdenPgTelephoneBlockEntity extends ElectricBlockEntity implements I
 
     @Override
     public boolean ceeTapReaches(BlockPos otherPos) {
-        return ElectroEnergeticsCompat.present() && IdenPhoneCeeTaps.reaches(level, worldPosition, otherPos);
+        return Mods.ELECTRO_ENERGETICS.present() && IdenPhoneCeeTaps.reaches(level, worldPosition, otherPos);
     }
 
     @Override
@@ -83,14 +82,14 @@ public class IdenPgTelephoneBlockEntity extends ElectricBlockEntity implements I
 
     @Override
     public boolean ceeTapConnected() {
-        return ElectroEnergeticsCompat.present() && IdenPhoneCeeTaps.wired(level, worldPosition);
+        return Mods.ELECTRO_ENERGETICS.present() && IdenPhoneCeeTaps.wired(level, worldPosition);
     }
 
     @Override
     public void setLevel(Level level) {
         super.setLevel(level);
         TelephoneRegistry.add(this);
-        if (!CrayfishCompat.present()) {
+        if (!Mods.REFURBISHED_FURNITURE.present()) {
             ApplianceGrid.get(level).addNode(this);
         }
     }
@@ -106,7 +105,7 @@ public class IdenPgTelephoneBlockEntity extends ElectricBlockEntity implements I
         super.write(tag, registries, clientPacket);
         core.write(tag);
         // Native links; the Crayfish adapter owns the same keys when it is active.
-        if (!CrayfishCompat.present()) {
+        if (!Mods.REFURBISHED_FURNITURE.present()) {
             writeApplianceNbt(tag);
         }
     }
@@ -115,7 +114,7 @@ public class IdenPgTelephoneBlockEntity extends ElectricBlockEntity implements I
     protected void read(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket) {
         super.read(tag, registries, clientPacket);
         core.read(tag);
-        if (!CrayfishCompat.present()) {
+        if (!Mods.REFURBISHED_FURNITURE.present()) {
             readApplianceNbt(tag);
         }
     }

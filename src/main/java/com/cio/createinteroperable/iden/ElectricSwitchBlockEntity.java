@@ -1,11 +1,11 @@
 package com.cio.createinteroperable.iden;
 
-import com.cio.createinteroperable.CIOBlockEntities;
 import com.cio.createinteroperable.deb.MeteredAppliance;
 import com.cio.createinteroperable.grid.ApplianceGrid;
 import com.cio.createinteroperable.grid.ApplianceNode;
-import com.cio.createinteroperable.grid.CrayfishCompat;
+import com.cio.createinteroperable.compat.Mods;
 import com.cio.createinteroperable.grid.GridConnection;
+import com.cio.createinteroperable.modules.IdenDecorModule;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -47,7 +47,7 @@ public class ElectricSwitchBlockEntity extends BlockEntity implements ApplianceN
     private final Set<GridConnection> connections = new HashSet<>();
 
     public ElectricSwitchBlockEntity(BlockPos pos, BlockState state) {
-        super(CIOBlockEntities.ELECTRIC_SWITCH.get(), pos, state);
+        super(IdenDecorModule.ELECTRIC_SWITCH_BE.get(), pos, state);
     }
 
     /** True while the switch's contacts are closed (lever on / button pressed). */
@@ -121,7 +121,7 @@ public class ElectricSwitchBlockEntity extends BlockEntity implements ApplianceN
         super.saveAdditional(tag, provider);
         tag.putBoolean("NodePowered", this.nodePowered);
         // Native links; the Crayfish adapter owns the same keys when it is active.
-        if (!CrayfishCompat.present()) {
+        if (!Mods.REFURBISHED_FURNITURE.present()) {
             this.writeApplianceNbt(tag);
         }
     }
@@ -130,7 +130,7 @@ public class ElectricSwitchBlockEntity extends BlockEntity implements ApplianceN
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.loadAdditional(tag, provider);
         this.nodePowered = tag.getBoolean("NodePowered");
-        if (!CrayfishCompat.present()) {
+        if (!Mods.REFURBISHED_FURNITURE.present()) {
             this.readApplianceNbt(tag);
         }
     }
@@ -138,7 +138,7 @@ public class ElectricSwitchBlockEntity extends BlockEntity implements ApplianceN
     @Override
     public void setLevel(Level level) {
         super.setLevel(level);
-        if (!CrayfishCompat.present()) {
+        if (!Mods.REFURBISHED_FURNITURE.present()) {
             ApplianceGrid.get(level).addNode(this);
         }
     }
@@ -146,7 +146,7 @@ public class ElectricSwitchBlockEntity extends BlockEntity implements ApplianceN
     @Override
     public void saveToItem(ItemStack stack, HolderLookup.Provider provider) {
         super.saveToItem(stack, provider);
-        if (!CrayfishCompat.present()) {
+        if (!Mods.REFURBISHED_FURNITURE.present()) {
             this.saveApplianceNbtToItem(stack, provider);
         }
     }

@@ -1,5 +1,6 @@
 package com.cio.createinteroperable.grid;
 
+import com.cio.createinteroperable.compat.Mods;
 import com.cio.createinteroperable.CreateInteroperable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
@@ -31,7 +32,7 @@ public final class ApplianceGridEvents {
 
     /** null = don't act; otherwise the node pos to act on. */
     private static BlockPos targetNode(Player player) {
-        if (CrayfishCompat.present() || player.isSpectator()) {
+        if (Mods.REFURBISHED_FURNITURE.present() || player.isSpectator()) {
             return null;
         }
         if (ApplianceGridTags.heldConnectorGrid(player) == null) {
@@ -81,14 +82,14 @@ public final class ApplianceGridEvents {
 
     @SubscribeEvent
     static void onPlayerTick(PlayerTickEvent.Post event) {
-        if (!CrayfishCompat.present() && event.getEntity() instanceof ServerPlayer sp) {
+        if (!Mods.REFURBISHED_FURNITURE.present() && event.getEntity() instanceof ServerPlayer sp) {
             ApplianceLinkManager.get(sp.server).onPlayerTick(sp);
         }
     }
 
     @SubscribeEvent
     static void onLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
-        if (!CrayfishCompat.present() && event.getEntity() instanceof ServerPlayer sp) {
+        if (!Mods.REFURBISHED_FURNITURE.present() && event.getEntity() instanceof ServerPlayer sp) {
             ApplianceLinkManager.get(sp.server).onPlayerLoggedOut(sp);
         }
     }

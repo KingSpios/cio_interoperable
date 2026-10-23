@@ -1,7 +1,7 @@
 package com.cio.createinteroperable.deb;
 
-import com.cio.createinteroperable.CIOBlockEntities;
 import com.cio.createinteroperable.CIODevices;
+import com.cio.createinteroperable.modules.ElectroEnergeticsModule;
 import com.george_vi.electroenergetics.devices.device.SimulatedDeviceType;
 import com.george_vi.electroenergetics.foundation.base.SimpleElectricalDeviceBlock;
 import com.simibubi.create.foundation.block.IBE;
@@ -125,7 +125,7 @@ public class CeeRedstoneSwitchBlock extends SimpleElectricalDeviceBlock<Redstone
 
     @Override
     public BlockEntityType<? extends CeeRedstoneSwitchBlockEntity> getBlockEntityType() {
-        return CIOBlockEntities.CEE_REDSTONE_SWITCH.get();
+        return ElectroEnergeticsModule.CEE_REDSTONE_SWITCH_BE.get();
     }
 
     private static Map<Integer, Vec3> nodeMap(double[][] centres16) {

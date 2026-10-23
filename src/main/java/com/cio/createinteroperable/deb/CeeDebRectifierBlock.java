@@ -1,7 +1,7 @@
 package com.cio.createinteroperable.deb;
 
-import com.cio.createinteroperable.CIOBlockEntities;
 import com.cio.createinteroperable.CIODevices;
+import com.cio.createinteroperable.modules.ElectroEnergeticsModule;
 import com.george_vi.electroenergetics.devices.device.SimulatedDeviceType;
 import com.george_vi.electroenergetics.foundation.base.SimpleElectricalDeviceBlock;
 import com.simibubi.create.foundation.block.IBE;
@@ -165,7 +165,7 @@ public class CeeDebRectifierBlock extends SimpleElectricalDeviceBlock<DebCeeDevi
 
     @Override
     public BlockEntityType<? extends CeeDebRectifierBlockEntity> getBlockEntityType() {
-        return CIOBlockEntities.CEE_DEB_RECTIFIER.get();
+        return ElectroEnergeticsModule.CEE_DEB_RECTIFIER_BE.get();
     }
 
     // --- helpers ----------------------------------------------

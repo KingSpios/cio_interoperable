@@ -1,6 +1,6 @@
 package com.cio.createinteroperable.deb;
 
-import com.cio.createinteroperable.CIOBlockEntities;
+import com.cio.createinteroperable.modules.PowerGridModule;
 import com.simibubi.create.foundation.block.IBE;
 import net.createmod.catnip.math.VoxelShaper;
 import net.minecraft.ChatFormatting;
@@ -148,6 +148,6 @@ public class DebRectifierBlock extends DirectionalElectricBlock implements IBE<D
 
     @Override
     public BlockEntityType<? extends DebRectifierBlockEntity> getBlockEntityType() {
-        return CIOBlockEntities.DEB_RECTIFIER.get();
+        return PowerGridModule.DEB_RECTIFIER_BE.get();
     }
 }

@@ -1,5 +1,6 @@
 package com.cio.createinteroperable;
 
+import com.cio.createinteroperable.modules.BridgeModule;
 import com.george_vi.electroenergetics.devices.device.SimulatedDeviceType;
 import com.george_vi.electroenergetics.foundation.device.ElectricalDeviceBlock;
 import com.george_vi.electroenergetics.simulation.infrastructure.InfrastructureSavedData;
@@ -185,7 +186,7 @@ public class InteroperableCouplerBlock extends ElectricBlock
 
     @Override
     public BlockEntityType<? extends InteroperableCouplerBlockEntity> getBlockEntityType() {
-        return CIOBlockEntities.COUPLER.get();
+        return BridgeModule.COUPLER_BE.get();
     }
 
     @Override

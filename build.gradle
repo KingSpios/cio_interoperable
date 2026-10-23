@@ -77,6 +77,8 @@ repositories {
     maven { url = "https://jitpack.io" }
     // Simple Voice Chat's API artifact (compileOnly below).
     maven { url = "https://maven.maxhenkel.de/repository/public" }
+    // JUnit / ASM / Gson for the load-safety bytecode test (test scope only).
+    mavenCentral()
 }
 
 dependencies {
@@ -132,7 +134,7 @@ dependencies {
 
     // --- Cold Sweat -----------------------------------------------------
     // com.momosoftworks.coldsweat, mod id "cold_sweat". Soft (optional)
-    // dependency — see ColdSweatCompat/ColdSweatIntegration and the note in
+    // dependency — see Mods.COLD_SWEAT/ColdSweatIntegration and the note in
     // gradle.properties on why this is real Java registration (via the
     // public BlockTempRegisterEvent), not a datapack JSON. Cold Sweat 2.4.3
     // (2026-09-13) deleted BlockTemp's old static-value constructor outright
@@ -150,7 +152,7 @@ dependencies {
 
     // --- Create: Pipes n Physics -----------------------------------------
     // de.devin.pipesnphysics, mod id "pipesnphysics". Soft (optional) dependency:
-    // compileOnly so it's never required at runtime — see PnpCompat/PnpIntegration.
+    // compileOnly so it's never required at runtime — see Mods.PIPES_N_PHYSICS/PipesNPhysicsIntegration.
     // Built by JitPack straight from the GitHub tag (see the repositories block
     // above), matching the exact jar this addon's code was verified against
     // (pipesnphysics-3.2.1.jar, z_reference_mods/create-pipes-n-physics-main).
@@ -169,8 +171,78 @@ dependencies {
     // Modrinth's maven (repository above) at the exact jar installed for
     // testing. Only com.cio.createinteroperable.mts.MtsAaSearchlights and the
     // mixin.mts package touch its classes, and both only ever load with it
-    // present (MtsMixinPlugin / ImmersiveVehiclesCompat gates).
+    // present (MtsMixinPlugin / Mods.IMMERSIVE_VEHICLES gates).
     compileOnly "maven.modrinth:immersive-vehicles:${immersive_vehicles_version}"
+
+    // --- Load-safety test (src/test) ------------------------------------
+    // Reads CIO's compiled bytecode plus the compile classpath with ASM; it
+    // never loads a Minecraft class, so no game environment is needed.
+    testImplementation platform("org.junit:junit-bom:5.10.1")
+    testImplementation "org.junit.jupiter:junit-jupiter"
+    testRuntimeOnly "org.junit.platform:junit-platform-launcher"
+    testImplementation "org.ow2.asm:asm:9.8"
+    testImplementation "com.google.code.gson:gson:2.10.1"
+}
+
+// --- Dedicated-server smoke test --------------------------------------------
+// ./gradlew smokeTest boots a real NeoForge dedicated server once per mod set
+// in src/smoke/profiles.txt (CIO alone, PG only, CEE only, both, + Crayfish,
+// + Iden, ...) and fails unless each reaches "Done" with no crash, no
+// CIO-related class-loading/mixin error, and exactly the expected CIO modules
+// enabled. Not part of `build` (it takes minutes). Options:
+//   -PcioSmokeAcceptEula=true   required: accepts the Minecraft EULA for the test server
+//   -PcioSmokeModsDir=<dir>     where the mod jars come from (default: the Testing instance)
+//   -PcioSmokeProfiles=a,b      run only these profiles
+//   -PcioSmokeNeoForge=<ver>    server NeoForge version (default: the Testing instance's;
+//                               some mods, e.g. Iden's Decor, need newer than neo_version)
+// The server is installed once into runs/smoke-server (gitignored, survives clean).
+sourceSets {
+    smoke {
+        java.srcDir "src/smoke/java"
+    }
+}
+
+tasks.register("smokeTest", JavaExec) {
+    group = "verification"
+    description = "Boots dedicated servers on reduced mod sets to check CIO's optional-mod gating."
+    dependsOn tasks.named("jar")
+    classpath = sourceSets.smoke.runtimeClasspath
+    mainClass = "com.cio.createinteroperable.smoke.SmokeRunner"
+    javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(21) }
+    def jarFile = tasks.named("jar").flatMap { it.archiveFile }
+    def modsDir = providers.gradleProperty("cioSmokeModsDir").orElse("E:/Minecraft Neoforge Builds/1.21.1 Testing/mods")
+    def profiles = providers.gradleProperty("cioSmokeProfiles").orElse("")
+    def eula = providers.gradleProperty("cioSmokeAcceptEula").orElse("false")
+    def serverDir = file("runs/smoke-server")
+    def profilesFile = file("src/smoke/profiles.txt")
+    def neo = providers.gradleProperty("cioSmokeNeoForge").orElse("21.1.248")
+    argumentProviders.add({
+        ["--server-dir=${serverDir.absolutePath}",
+         "--mods-dir=${modsDir.get()}",
+         "--cio-jar=${jarFile.get().asFile.absolutePath}",
+         "--neoforge-version=${neo.get()}",
+         "--profiles=${profilesFile.absolutePath}",
+         "--only=${profiles.get()}",
+         "--accept-eula=${eula.get()}"].collect { it.toString() }
+    } as CommandLineArgumentProvider)
+}
+
+// LoadSafetyTest checks, from bytecode alone, the rule that keeps CIO loadable
+// on any mod set: optional-mod types are only touched by classes gated on that
+// mod, and common classes never touch client-only types. See the test's doc.
+tasks.named("test", Test) {
+    useJUnitPlatform()
+    def mainClasses = sourceSets.main.output.classesDirs
+    def mainCompileClasspath = sourceSets.main.compileClasspath
+    def mainResources = file("src/main/resources")
+    inputs.files(mainClasses).withPropertyName("cioClasses")
+    inputs.files(mainCompileClasspath).withPropertyName("cioCompileClasspath")
+    inputs.dir(mainResources).withPropertyName("cioResources")
+    jvmArgumentProviders.add({
+        ["-Dcio.classes=${mainClasses.asPath}",
+         "-Dcio.compileClasspath=${mainCompileClasspath.asPath}",
+         "-Dcio.resources=${mainResources.absolutePath}"].collect { it.toString() }
+    } as CommandLineArgumentProvider)
 }
 
 var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {

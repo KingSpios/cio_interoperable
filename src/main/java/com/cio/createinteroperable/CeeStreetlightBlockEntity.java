@@ -1,5 +1,6 @@
 package com.cio.createinteroperable;
 
+import com.cio.createinteroperable.modules.ElectroEnergeticsModule;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
@@ -165,7 +166,7 @@ public class CeeStreetlightBlockEntity extends SmartBlockEntity implements IHave
                         level.setBlock(pos, below.setValue(CeeStreetlightLightBlock.LEVEL, light), Block.UPDATE_ALL);
                     }
                 } else if (below.isAir()) {
-                    level.setBlock(pos, CIOBlocks.CEE_STREETLIGHT_LIGHT.get().defaultBlockState()
+                    level.setBlock(pos, ElectroEnergeticsModule.CEE_STREETLIGHT_LIGHT.get().defaultBlockState()
                             .setValue(CeeStreetlightLightBlock.LEVEL, light), Block.UPDATE_ALL);
                 } else {
                     return;

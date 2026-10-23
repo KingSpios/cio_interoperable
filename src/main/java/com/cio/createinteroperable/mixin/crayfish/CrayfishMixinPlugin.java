@@ -1,12 +1,7 @@
 package com.cio.createinteroperable.mixin.crayfish;
 
-import com.cio.createinteroperable.grid.CrayfishCompat;
-import org.objectweb.asm.tree.ClassNode;
-import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
-import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
-
-import java.util.List;
-import java.util.Set;
+import com.cio.createinteroperable.compat.ModGatedMixinPlugin;
+import com.cio.createinteroperable.compat.Mods;
 
 /**
  * Gate for {@code createinteroperable.crayfish.mixin.json}: every mixin in that
@@ -21,39 +16,8 @@ import java.util.Set;
  * still needing Crayfish's node interface &mdash; there the target can be present
  * while Crayfish is not.</p>
  */
-public class CrayfishMixinPlugin implements IMixinConfigPlugin {
-
-    private boolean crayfishPresent;
-
-    @Override
-    public void onLoad(String mixinPackage) {
-        this.crayfishPresent = CrayfishCompat.present();
-    }
-
-    @Override
-    public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-        return this.crayfishPresent;
-    }
-
-    @Override
-    public String getRefMapperConfig() {
-        return null;
-    }
-
-    @Override
-    public void acceptTargets(Set<String> myTargets, Set<String> otherTargets) {
-    }
-
-    @Override
-    public List<String> getMixins() {
-        return null;
-    }
-
-    @Override
-    public void preApply(String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {
-    }
-
-    @Override
-    public void postApply(String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {
+public class CrayfishMixinPlugin extends ModGatedMixinPlugin {
+    public CrayfishMixinPlugin() {
+        super(Mods.REFURBISHED_FURNITURE);
     }
 }

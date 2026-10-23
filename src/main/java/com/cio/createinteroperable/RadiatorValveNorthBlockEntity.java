@@ -1,7 +1,7 @@
 package com.cio.createinteroperable;
 
 import com.cio.createinteroperable.compat.ColdSweatChillEffect;
-import com.cio.createinteroperable.compat.ColdSweatCompat;
+import com.cio.createinteroperable.compat.Mods;
 import com.cio.createinteroperable.compat.ColdSweatWarmthEffect;
 import com.cio.createinteroperable.compat.ColdSweatWorldTemp;
 import com.simibubi.create.AllSoundEvents;
@@ -266,7 +266,7 @@ public class RadiatorValveNorthBlockEntity extends KineticBlockEntity {
 
         if (level instanceof ServerLevel serverLevel) {
             tickSmokeParticles(serverLevel, newTier);
-            if (ColdSweatCompat.present()) {
+            if (Mods.COLD_SWEAT.present()) {
                 // Same smoothed tier as the visible model/pipe texture, not
                 // the raw instant one — this is meant to be a continuous
                 // status, exactly like the real Cold Sweat Hearth's own
@@ -1132,7 +1132,7 @@ public class RadiatorValveNorthBlockEntity extends KineticBlockEntity {
         // unnoticed for this long: the effect LOOKED like it was working
         // (goggles showed Heat: BLAZING) while the room it was supposed to be
         // warming silently stayed empty the entire time.
-        if (ColdSweatCompat.present()) {
+        if (Mods.COLD_SWEAT.present()) {
             int roomSize = roomCache.size();
             int seedCount = middlePositions.size() + (southPos != null ? 2 : 1);
             if (roomSize > seedCount) {

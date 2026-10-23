@@ -4,8 +4,7 @@ import com.cio.createinteroperable.TelephoneNode;
 import com.cio.createinteroperable.TelephoneNumbers;
 import com.cio.createinteroperable.TelephoneRedstone;
 import com.cio.createinteroperable.TelephoneRegistry;
-import com.cio.createinteroperable.compat.ElectroEnergeticsCompat;
-import com.cio.createinteroperable.compat.PowerGridCompat;
+import com.cio.createinteroperable.compat.Mods;
 import com.cio.createinteroperable.grid.GridConnection;
 import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
@@ -447,11 +446,11 @@ public final class IdenPhoneCore {
                 .withStyle(autoAnswer ? ChatFormatting.GREEN : ChatFormatting.GRAY));
 
         StringBuilder taps = new StringBuilder("Tap: ");
-        if (PowerGridCompat.present()) {
+        if (Mods.POWER_GRID.present()) {
             taps.append("CPG ").append(pgTap ? "✔" : "✘");
         }
-        if (ElectroEnergeticsCompat.present()) {
-            if (PowerGridCompat.present()) {
+        if (Mods.ELECTRO_ENERGETICS.present()) {
+            if (Mods.POWER_GRID.present()) {
                 taps.append("  ");
             }
             taps.append("CEE ").append(ceeTap ? "✔" : "✘");

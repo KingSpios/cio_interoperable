@@ -1,5 +1,6 @@
 package com.cio.createinteroperable;
 
+import com.cio.createinteroperable.compat.Mods;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -21,13 +22,13 @@ import org.patryk3211.powergrid.electricity.base.ElectricBlock;
  * being paired is actually the CEE variant. Routing through this dedicated
  * class defers that resolution to the moment THIS class's own method
  * actually runs, which {@link AirconMotorAssembly} only ever calls from
- * inside a {@code PowerGridCompat.present()}-gated branch.
+ * inside a {@code Mods.POWER_GRID.present()}-gated branch.
  */
 final class PgAirconMotorSupport {
     private PgAirconMotorSupport() {
     }
 
-    /** Refreshes wire connections at {@code pos} if (and only if) the block there is genuinely the Power Grid Aircon Motor bottom — a no-op otherwise. Caller must already have confirmed {@code PowerGridCompat.present()} before calling this at all. */
+    /** Refreshes wire connections at {@code pos} if (and only if) the block there is genuinely the Power Grid Aircon Motor bottom — a no-op otherwise. Caller must already have confirmed {@code Mods.POWER_GRID.present()} before calling this at all. */
     static void refreshIfPgBottom(Level level, BlockPos pos, Block block) {
         if (block instanceof AirconMotorBottomBlock) {
             ElectricBlock.refreshConnectionEntities(level, pos);

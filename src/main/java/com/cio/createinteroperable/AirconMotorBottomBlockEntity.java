@@ -1,6 +1,6 @@
 package com.cio.createinteroperable;
 
-import com.cio.createinteroperable.compat.ColdSweatCompat;
+import com.cio.createinteroperable.compat.Mods;
 import com.cio.createinteroperable.compat.ColdSweatWorldTemp;
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -539,7 +539,7 @@ public class AirconMotorBottomBlockEntity extends ElectricBlockEntity
         if (level == null) {
             return AMBIENT_NEUTRAL_C;
         }
-        if (ColdSweatCompat.present()) {
+        if (Mods.COLD_SWEAT.present()) {
             return (float) ColdSweatWorldTemp.getWorldTemperatureC(level, worldPosition);
         }
         return BrassHeaterBlockEntity.ambientTemperatureC(level, worldPosition);

@@ -1,7 +1,7 @@
 package com.cio.createinteroperable;
 
 import com.cio.createinteroperable.compat.ColdSweatChillEffect;
-import com.cio.createinteroperable.compat.ColdSweatCompat;
+import com.cio.createinteroperable.compat.Mods;
 import com.cio.createinteroperable.compat.ColdSweatWarmthEffect;
 import com.cio.createinteroperable.compat.ColdSweatWorldTemp;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
@@ -379,7 +379,7 @@ public class AirconVenterBlockEntity extends SmartBlockEntity implements IAirCur
             }
             tickHum(activity);
             tickExtraParticles(serverLevel, activity);
-            if (ColdSweatCompat.present()) {
+            if (Mods.COLD_SWEAT.present()) {
                 tickHearthEffect(serverLevel);
             }
         }
@@ -1111,7 +1111,7 @@ public class AirconVenterBlockEntity extends SmartBlockEntity implements IAirCur
                         .style(receivingSupply ? ChatFormatting.GREEN : ChatFormatting.DARK_GRAY))
                 .forGoggles(tooltip, 1);
 
-        if (ColdSweatCompat.present()) {
+        if (Mods.COLD_SWEAT.present()) {
             CreateLang.text("Cooling Strength: ")
                     .style(ChatFormatting.GRAY)
                     .add(CreateLang.number(currentDropC()).text("°C max (from nearby motor setting)").style(ChatFormatting.LIGHT_PURPLE))

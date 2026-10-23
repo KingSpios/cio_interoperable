@@ -1,5 +1,6 @@
 package com.cio.createinteroperable;
 
+import com.cio.createinteroperable.modules.ElectroEnergeticsModule;
 import com.george_vi.electroenergetics.devices.device.DevicesSavedData;
 import com.george_vi.electroenergetics.devices.device.SimulatedDeviceType;
 import com.george_vi.electroenergetics.foundation.base.SimpleElectricalDeviceBlock;
@@ -287,6 +288,6 @@ public class CeeStreetlightBlock extends SimpleElectricalDeviceBlock<CeeStreetli
 
     @Override
     public BlockEntityType<? extends CeeStreetlightBlockEntity> getBlockEntityType() {
-        return CIOBlockEntities.CEE_STREETLIGHT.get();
+        return ElectroEnergeticsModule.CEE_STREETLIGHT_BE.get();
     }
 }

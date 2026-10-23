@@ -1,5 +1,6 @@
 package com.cio.createinteroperable;
 
+import com.cio.createinteroperable.modules.PowerGridModule;
 import com.simibubi.create.content.equipment.wrench.IWrenchable;
 import net.createmod.catnip.math.VoxelShaper;
 import net.minecraft.core.BlockPos;
@@ -146,6 +147,6 @@ public class CIODoubleConnectorBlock extends AbstractConnectorBlock {
 
     @Override
     public BlockEntityType<? extends ConnectorBlockEntity> getBlockEntityType() {
-        return CIOBlockEntities.DOUBLE_CONNECTOR.get();
+        return PowerGridModule.DOUBLE_CONNECTOR_BE.get();
     }
 }

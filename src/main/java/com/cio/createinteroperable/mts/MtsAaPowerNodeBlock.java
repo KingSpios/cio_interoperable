@@ -1,6 +1,6 @@
 package com.cio.createinteroperable.mts;
 
-import com.cio.createinteroperable.CIOBlockEntities;
+import com.cio.createinteroperable.modules.ImmersiveVehiclesModule;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -70,7 +70,7 @@ public class MtsAaPowerNodeBlock extends Block implements EntityBlock {
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        if (level.isClientSide || type != CIOBlockEntities.MTS_AA_POWER_NODE.get()) {
+        if (level.isClientSide || type != ImmersiveVehiclesModule.MTS_AA_POWER_NODE_BE.get()) {
             return null;
         }
         return (lvl, pos, st, be) -> ((MtsAaPowerNodeBlockEntity) be).serverTick();

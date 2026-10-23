@@ -6,7 +6,7 @@ import com.cio.createinteroperable.deb.MeteredAppliance;
 import com.cio.createinteroperable.deb.ScalableAppliance;
 import com.cio.createinteroperable.grid.ApplianceGrid;
 import com.cio.createinteroperable.grid.ApplianceNode;
-import com.cio.createinteroperable.grid.CrayfishCompat;
+import com.cio.createinteroperable.compat.Mods;
 import com.cio.createinteroperable.grid.GridConnection;
 import com.cio.createinteroperable.vista.VistaTvSupport;
 import net.minecraft.core.BlockPos;
@@ -94,7 +94,7 @@ public abstract class VistaTvNodeMixin implements ApplianceNode, MeteredApplianc
     /** Foreign BEs can't self-register from {@code setLevel}; the ticker below hooks it instead. */
     @Unique
     private static void cioNode$ensureRegistered(Level level, ApplianceNode node) {
-        if (level.isClientSide || CrayfishCompat.present() || !CIOConfig.VISTA_TVS_REQUIRE_POWER.get()) {
+        if (level.isClientSide || Mods.REFURBISHED_FURNITURE.present() || !CIOConfig.VISTA_TVS_REQUIRE_POWER.get()) {
             return;
         }
         ApplianceGrid.get(level).addNode(node);
@@ -378,7 +378,7 @@ public abstract class VistaTvNodeMixin implements ApplianceNode, MeteredApplianc
 
     @Inject(method = "saveAdditional", at = @At("TAIL"))
     private void cioNode$save(CompoundTag tag, HolderLookup.Provider provider, CallbackInfo ci) {
-        if (!CrayfishCompat.present()) {
+        if (!Mods.REFURBISHED_FURNITURE.present()) {
             writeApplianceNbt(tag);
             tag.putBoolean("CioPowered", this.cioNode$powered);
         }
@@ -386,7 +386,7 @@ public abstract class VistaTvNodeMixin implements ApplianceNode, MeteredApplianc
 
     @Inject(method = "loadAdditional", at = @At("TAIL"))
     private void cioNode$load(CompoundTag tag, HolderLookup.Provider provider, CallbackInfo ci) {
-        if (!CrayfishCompat.present()) {
+        if (!Mods.REFURBISHED_FURNITURE.present()) {
             readApplianceNbt(tag);
             this.cioNode$powered = tag.getBoolean("CioPowered");
         }

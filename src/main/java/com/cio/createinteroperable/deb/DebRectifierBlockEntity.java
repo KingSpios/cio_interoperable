@@ -423,7 +423,7 @@ public class DebRectifierBlockEntity extends ElectricBlockEntity implements Appl
         // Native appliance grid: run our own distribution pass (search the linked
         // network, bill recognised appliances, energise live pools). With Crayfish
         // installed its ElectricityTicker calls the adapter instead, so skip.
-        if (!com.cio.createinteroperable.grid.CrayfishCompat.present()) {
+        if (!com.cio.createinteroperable.compat.Mods.REFURBISHED_FURNITURE.present()) {
             distributeAppliancePower();
             if ((server.getGameTime() % 40L) == 0L && !applianceConnections().isEmpty()) {
                 com.cio.createinteroperable.CreateInteroperable.LOGGER.info(
@@ -889,7 +889,7 @@ public class DebRectifierBlockEntity extends ElectricBlockEntity implements Appl
         faultTicks = tag.getInt("FaultTicks");
         temperatureC = tag.getFloat("TemperatureC");
         networkConflict = tag.getBoolean("NetworkConflict");
-        if (!com.cio.createinteroperable.grid.CrayfishCompat.present()) {
+        if (!com.cio.createinteroperable.compat.Mods.REFURBISHED_FURNITURE.present()) {
             readApplianceNbt(tag);
         }
     }
@@ -909,7 +909,7 @@ public class DebRectifierBlockEntity extends ElectricBlockEntity implements Appl
         tag.putInt("FaultTicks", faultTicks);
         tag.putFloat("TemperatureC", temperatureC);
         tag.putBoolean("NetworkConflict", networkConflict);
-        if (!com.cio.createinteroperable.grid.CrayfishCompat.present()) {
+        if (!com.cio.createinteroperable.compat.Mods.REFURBISHED_FURNITURE.present()) {
             writeApplianceNbt(tag);
         }
     }
@@ -919,7 +919,7 @@ public class DebRectifierBlockEntity extends ElectricBlockEntity implements Appl
     @Override
     public void setLevel(Level level) {
         super.setLevel(level);
-        if (!com.cio.createinteroperable.grid.CrayfishCompat.present()) {
+        if (!com.cio.createinteroperable.compat.Mods.REFURBISHED_FURNITURE.present()) {
             com.cio.createinteroperable.grid.ApplianceGrid.get(level).addNode(this);
         }
     }

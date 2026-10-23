@@ -1,5 +1,6 @@
 package com.cio.createinteroperable;
 
+import com.cio.createinteroperable.modules.BridgeModule;
 import com.simibubi.create.foundation.block.IBE;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.Block;
@@ -85,6 +86,6 @@ public class InteroperablePgAssembledBlock extends ElectricBlock implements IBE<
 
     @Override
     public BlockEntityType<? extends InteroperablePgAssembledBlockEntity> getBlockEntityType() {
-        return CIOBlockEntities.PG_ASSEMBLED.get();
+        return BridgeModule.PG_ASSEMBLED_BE.get();
     }
 }

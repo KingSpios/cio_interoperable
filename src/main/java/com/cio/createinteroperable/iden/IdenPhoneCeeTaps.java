@@ -1,5 +1,6 @@
 package com.cio.createinteroperable.iden;
 
+import com.cio.createinteroperable.compat.Mods;
 import com.george_vi.electroenergetics.foundation.nodes.InWorldNode;
 import com.george_vi.electroenergetics.foundation.nodes.InWorldNodeConnection;
 import com.george_vi.electroenergetics.simulation.infrastructure.InfrastructureSavedData;
@@ -15,7 +16,7 @@ import java.util.Set;
 /**
  * Electro Energetics side of an Iden's Decor telephone's tap: the only class
  * in its integration that names a CEE type, and only ever called behind
- * {@code ElectroEnergeticsCompat.present()}, so it never loads without CEE.
+ * {@code Mods.ELECTRO_ENERGETICS.present()}, so it never loads without CEE.
  * The walk is the same one CIO's own telephones do ({@code ceeTapReaches}),
  * from tap node 2 to tap node 2, so an Iden phone and a CIO phone on one tap
  * line reach each other.

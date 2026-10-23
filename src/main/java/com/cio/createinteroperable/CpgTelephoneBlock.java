@@ -1,5 +1,6 @@
 package com.cio.createinteroperable;
 
+import com.cio.createinteroperable.modules.PowerGridModule;
 import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.foundation.block.IBE;
 import net.minecraft.core.BlockPos;
@@ -376,6 +377,6 @@ public class CpgTelephoneBlock extends ElectricBlock implements IBE<CpgTelephone
 
     @Override
     public BlockEntityType<? extends CpgTelephoneBlockEntity> getBlockEntityType() {
-        return CIOBlockEntities.CPG_TELEPHONE.get();
+        return PowerGridModule.CPG_TELEPHONE_BE.get();
     }
 }

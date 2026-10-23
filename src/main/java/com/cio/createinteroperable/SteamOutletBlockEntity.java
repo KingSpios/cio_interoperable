@@ -1,6 +1,6 @@
 package com.cio.createinteroperable;
 
-import com.cio.createinteroperable.compat.ColdSweatCompat;
+import com.cio.createinteroperable.compat.Mods;
 import com.cio.createinteroperable.compat.ColdSweatWarmthEffect;
 import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.api.stress.BlockStressValues;
@@ -459,7 +459,7 @@ public class SteamOutletBlockEntity extends KineticBlockEntity {
             serverLevel.sendParticles(underwater ? ParticleTypes.BUBBLE : CIOParticles.RADIATOR_SMOKE.get(),
                     x, y, z, 0, 0.0, riseSpeed, 0.0, 1.0);
         }
-        if (ColdSweatCompat.present()) {
+        if (Mods.COLD_SWEAT.present()) {
             applyLeakWarmth(serverLevel, leakPos);
         }
     }

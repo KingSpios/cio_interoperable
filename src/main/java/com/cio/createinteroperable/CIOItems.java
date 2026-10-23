@@ -1,49 +1,16 @@
 package com.cio.createinteroperable;
 
-import com.cio.createinteroperable.compat.ElectroEnergeticsCompat;
-import com.cio.createinteroperable.compat.IdenDecorCompat;
-import com.cio.createinteroperable.compat.PowerGridCompat;
 import net.minecraft.world.item.BlockItem;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
+/**
+ * Items that exist on every install. Items for optional-mod content live in
+ * their module (see {@link com.cio.createinteroperable.modules.CIOModules}).
+ */
 public class CIOItems {
     private static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(CreateInteroperable.ID);
-
-    // Mirrors CIOBlocks' PG/CEE/BOTH gates exactly — an item entry is only
-    // ever registered when its backing block was.
-    private static final boolean PG = PowerGridCompat.present();
-    private static final boolean CEE = ElectroEnergeticsCompat.present();
-    private static final boolean BOTH = PG && CEE;
-
-    // Mirrors CIOBlocks.BRIDGE_EXTRAS exactly — see that field's doc.
-    private static final boolean BRIDGE_EXTRAS = false;
-
-    // Only the 3 placeable markers get items — the 3 assembled blocks are
-    // never placed directly by a player (produced only by wrench assembly),
-    // same as Power Grid's own TransformerMediumBlock has no item.
-    public static final DeferredItem<BlockItem> PG_KEYSTONE = BRIDGE_EXTRAS && BOTH ? ITEMS.registerSimpleBlockItem(
-            "pg_keystone", CIOBlocks.PG_KEYSTONE) : null;
-
-    public static final DeferredItem<BlockItem> CEE_KEYSTONE = BRIDGE_EXTRAS && BOTH ? ITEMS.registerSimpleBlockItem(
-            "cee_keystone", CIOBlocks.CEE_KEYSTONE) : null;
-
-    public static final DeferredItem<BlockItem> FILLER = BRIDGE_EXTRAS && BOTH ? ITEMS.registerSimpleBlockItem(
-            "filler", CIOBlocks.FILLER) : null;
-
-    // --- Interim 1x1 bridge (see CIOBlocks) ---
-
-    public static final DeferredItem<BlockItem> CORE = BRIDGE_EXTRAS ? ITEMS.registerSimpleBlockItem(
-            "core", CIOBlocks.CORE) : null;
-
-    // --- Interoperable Coupler ---
-
-    public static final DeferredItem<BlockItem> COUPLER = BRIDGE_EXTRAS && BOTH ? ITEMS.registerSimpleBlockItem(
-            "coupler", CIOBlocks.COUPLER) : null;
-
-    public static final DeferredItem<BlockItem> DOUBLE_COUPLER = BOTH ? ITEMS.registerSimpleBlockItem(
-            "double_coupler", CIOBlocks.DOUBLE_COUPLER) : null;
 
     // --- Steam heating loop (unrelated to PG/CEE, always registered) ---
 
@@ -63,120 +30,13 @@ public class CIOItems {
     public static final DeferredItem<BlockItem> RADIATOR_VALVE_SOUTH = ITEMS.registerSimpleBlockItem(
             "multi_radiator_south", CIOBlocks.RADIATOR_VALVE_SOUTH);
 
-    // --- Telephone — Interoperable (both), CPG-only, CEE-only ---
-
-    public static final DeferredItem<BlockItem> TELEPHONE = BOTH ? ITEMS.registerSimpleBlockItem(
-            "telephone", CIOBlocks.TELEPHONE) : null;
-
-    public static final DeferredItem<BlockItem> CPG_TELEPHONE = PG ? ITEMS.registerSimpleBlockItem(
-            "cpg_telephone", CIOBlocks.CPG_TELEPHONE) : null;
-
-    public static final DeferredItem<BlockItem> CEE_TELEPHONE = CEE ? ITEMS.registerSimpleBlockItem(
-            "cee_telephone", CIOBlocks.CEE_TELEPHONE) : null;
-
-    // --- Compact Transformer (CEE-only) ---
-
-    public static final DeferredItem<BlockItem> CEE_COMPACT_TRANSFORMER = CEE ? ITEMS.registerSimpleBlockItem(
-            "cee_mini_transformer", CIOBlocks.CEE_COMPACT_TRANSFORMER) : null;
-
-    // --- Streetlight (CEE-only) ---
-
-    public static final DeferredItem<BlockItem> CEE_STREETLIGHT = CEE ? ITEMS.registerSimpleBlockItem(
-            "cee_streetlight", CIOBlocks.CEE_STREETLIGHT) : null;
-
-    // --- Mini Double Connector (CEE-only) ---
-
-    public static final DeferredItem<BlockItem> CEE_MINI_CONNECTOR = CEE ? ITEMS.registerSimpleBlockItem(
-            "cee_mini_connector", CIOBlocks.CEE_MINI_CONNECTOR) : null;
-
-    // --- Aesthetic PG connector reskins (PG-only) ---
-
-    public static final DeferredItem<BlockItem> CIO_CONNECTOR = BRIDGE_EXTRAS && PG ? ITEMS.registerSimpleBlockItem(
-            "cio_connector", CIOBlocks.CIO_CONNECTOR) : null;
-
-    public static final DeferredItem<BlockItem> CIO_CONNECTOR_GLASS = BRIDGE_EXTRAS && PG ? ITEMS.registerSimpleBlockItem(
-            "cio_connector_glass", CIOBlocks.CIO_CONNECTOR_GLASS) : null;
-
-    public static final DeferredItem<BlockItem> CIO_DOUBLE_CONNECTOR = PG ? ITEMS.registerSimpleBlockItem(
-            "cpg_double_connector", CIOBlocks.CIO_DOUBLE_CONNECTOR) : null;
-
-    // --- Domestic Electrical Board (PG-only) ---
-
-    public static final DeferredItem<BlockItem> DEB_RECTIFIER = PG ? ITEMS.registerSimpleBlockItem(
-            "deb_rectifier", CIOBlocks.DEB_RECTIFIER) : null;
-
-    public static final DeferredItem<BlockItem> DEB_RECTIFIER_TIER1 = PG ? ITEMS.registerSimpleBlockItem(
-            "deb_rectifier_tier1", CIOBlocks.DEB_RECTIFIER_TIER1) : null;
-
-    public static final DeferredItem<BlockItem> DEB_RECTIFIER_TIER3 = PG ? ITEMS.registerSimpleBlockItem(
-            "deb_rectifier_tier3", CIOBlocks.DEB_RECTIFIER_TIER3) : null;
-
-    public static final DeferredItem<BlockItem> DEB_RECTIFIER_TIER4 = PG ? ITEMS.registerSimpleBlockItem(
-            "deb_rectifier_tier4", CIOBlocks.DEB_RECTIFIER_TIER4) : null;
-
-    public static final DeferredItem<BlockItem> REDSTONE_SWITCH = PG ? ITEMS.registerSimpleBlockItem(
-            "redstone_switch", CIOBlocks.REDSTONE_SWITCH) : null;
-
-    // CEE-wired Power Kits (CEE-only).
-    public static final DeferredItem<BlockItem> CEE_DEB_RECTIFIER = CEE ? ITEMS.registerSimpleBlockItem(
-            "cee_deb_rectifier", CIOBlocks.CEE_DEB_RECTIFIER) : null;
-
-    public static final DeferredItem<BlockItem> CEE_DEB_RECTIFIER_TIER1 = CEE ? ITEMS.registerSimpleBlockItem(
-            "cee_deb_rectifier_tier1", CIOBlocks.CEE_DEB_RECTIFIER_TIER1) : null;
-
-    public static final DeferredItem<BlockItem> CEE_DEB_RECTIFIER_TIER3 = CEE ? ITEMS.registerSimpleBlockItem(
-            "cee_deb_rectifier_tier3", CIOBlocks.CEE_DEB_RECTIFIER_TIER3) : null;
-
-    public static final DeferredItem<BlockItem> CEE_DEB_RECTIFIER_TIER4 = CEE ? ITEMS.registerSimpleBlockItem(
-            "cee_deb_rectifier_tier4", CIOBlocks.CEE_DEB_RECTIFIER_TIER4) : null;
-
-    public static final DeferredItem<BlockItem> CEE_REDSTONE_SWITCH = CEE ? ITEMS.registerSimpleBlockItem(
-            "cee_redstone_switch", CIOBlocks.CEE_REDSTONE_SWITCH) : null;
-
-    // --- Aircon (PG- and CEE-gated motor bottoms, unconditional top/venter — see CIOBlocks) ---
-
-    public static final DeferredItem<BlockItem> AIRCON_MOTOR_BOTTOM = PG ? ITEMS.registerSimpleBlockItem(
-            "aircon_motor_bottom", CIOBlocks.AIRCON_MOTOR_BOTTOM) : null;
-
-    public static final DeferredItem<BlockItem> CEE_AIRCON_MOTOR_BOTTOM = CEE ? ITEMS.registerSimpleBlockItem(
-            "cee_aircon_motor_bottom", CIOBlocks.CEE_AIRCON_MOTOR_BOTTOM) : null;
-
-    public static final DeferredItem<BlockItem> AIRCON_MOTOR_BOTTOM_240 = PG ? ITEMS.registerSimpleBlockItem(
-            "aircon_motor_bottom_240", CIOBlocks.AIRCON_MOTOR_BOTTOM_240) : null;
-
-    public static final DeferredItem<BlockItem> CEE_AIRCON_MOTOR_BOTTOM_240 = CEE ? ITEMS.registerSimpleBlockItem(
-            "cee_aircon_motor_bottom_240", CIOBlocks.CEE_AIRCON_MOTOR_BOTTOM_240) : null;
+    // --- Aircon top + venter (the motor bottoms are in the PG / CEE modules) ---
 
     public static final DeferredItem<BlockItem> AIRCON_MOTOR_TOP = ITEMS.registerSimpleBlockItem(
             "aircon_motor_top", CIOBlocks.AIRCON_MOTOR_TOP);
 
     public static final DeferredItem<BlockItem> AIRCON_VENTER = ITEMS.registerSimpleBlockItem(
             "aircon_venter", CIOBlocks.AIRCON_VENTER);
-
-    // --- Iden's Decor Electric buttons & switches (Iden-only — see CIOBlocks) ---
-
-    private static final boolean IDEN = IdenDecorCompat.present();
-
-    public static final DeferredItem<BlockItem> ELECTRIC_HEAVY_BUTTON = IDEN ? ITEMS.registerSimpleBlockItem(
-            "electric_heavy_button", CIOBlocks.ELECTRIC_HEAVY_BUTTON) : null;
-    public static final DeferredItem<BlockItem> ELECTRIC_GATE_BUTTON = IDEN ? ITEMS.registerSimpleBlockItem(
-            "electric_gate_button", CIOBlocks.ELECTRIC_GATE_BUTTON) : null;
-    public static final DeferredItem<BlockItem> ELECTRIC_HEAVY_LEVER = IDEN ? ITEMS.registerSimpleBlockItem(
-            "electric_heavy_lever", CIOBlocks.ELECTRIC_HEAVY_LEVER) : null;
-    public static final DeferredItem<BlockItem> ELECTRIC_EMERGENCY_LEVER = IDEN ? ITEMS.registerSimpleBlockItem(
-            "electric_emergency_lever", CIOBlocks.ELECTRIC_EMERGENCY_LEVER) : null;
-    public static final DeferredItem<BlockItem> ELECTRIC_LIGHT_SWITCH = IDEN ? ITEMS.registerSimpleBlockItem(
-            "electric_light_switch", CIOBlocks.ELECTRIC_LIGHT_SWITCH) : null;
-    public static final DeferredItem<BlockItem> ELECTRIC_POWER_SWITCH = IDEN ? ITEMS.registerSimpleBlockItem(
-            "electric_power_switch", CIOBlocks.ELECTRIC_POWER_SWITCH) : null;
-    public static final DeferredItem<BlockItem> ELECTRIC_VALVE_SWITCH = IDEN ? ITEMS.registerSimpleBlockItem(
-            "electric_valve_switch", CIOBlocks.ELECTRIC_VALVE_SWITCH) : null;
-    public static final DeferredItem<BlockItem> ELECTRIC_BLAST_LEVER = IDEN ? ITEMS.registerSimpleBlockItem(
-            "electric_blast_lever", CIOBlocks.ELECTRIC_BLAST_LEVER) : null;
-    public static final DeferredItem<BlockItem> ELECTRIC_CORE_BUTTON_CONTROL_PANEL = IDEN ? ITEMS.registerSimpleBlockItem(
-            "electric_core_button_control_panel", CIOBlocks.ELECTRIC_CORE_BUTTON_CONTROL_PANEL) : null;
-    public static final DeferredItem<BlockItem> ELECTRIC_CORE_LEVER_CONTROL_PANEL = IDEN ? ITEMS.registerSimpleBlockItem(
-            "electric_core_lever_control_panel", CIOBlocks.ELECTRIC_CORE_LEVER_CONTROL_PANEL) : null;
 
     public static void register(IEventBus modEventBus) {
         ITEMS.register(modEventBus);

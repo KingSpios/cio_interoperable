@@ -3,7 +3,7 @@ package com.cio.createinteroperable.mixin.letsdo;
 import com.cio.createinteroperable.CIOConfig;
 import com.cio.createinteroperable.grid.ApplianceNode;
 import com.cio.createinteroperable.grid.CrayfishClient;
-import com.cio.createinteroperable.grid.CrayfishCompat;
+import com.cio.createinteroperable.compat.Mods;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -32,7 +32,7 @@ public abstract class IdenComputerRendererMixin {
             at = @At("HEAD"), cancellable = true, require = 0, remap = false)
     private void cio$gateOnPower(@Coerce BlockEntity blockEntity, float partialTick, PoseStack poseStack,
                                  MultiBufferSource buffer, int light, int overlay, CallbackInfo ci) {
-        if (CrayfishCompat.present()) {
+        if (Mods.REFURBISHED_FURNITURE.present()) {
             CrayfishClient.drawNodeOverlayIfNode(blockEntity);
         }
         if (CIOConfig.IDEN_COMPUTER_REQUIRE_POWER.get()
