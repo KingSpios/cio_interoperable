@@ -20,19 +20,19 @@ import java.util.Set;
  *
  * <p>The sink block class is Farm &amp; Charm's {@code SinkBlock}; Candlelight
  * and Bakery (via {@code BrickSinkBlock}) register instances of that same class
- * under their own ids, and Alpine Whispers ships a byte-for-byte copy of it as
- * {@code net.satisfy.alpinewhispers.core.block.SinkBlock} (its
- * {@code arolla_pine_sink} / {@code arolla_pine_washbasin}), extending vanilla
- * {@code Block} directly rather than Farm &amp; Charm's class. We therefore match
- * on <em>any</em> {@code net.satisfy.*.core.block.SinkBlock} in the class chain
- * that also carries the {@code filled} + {@code half} properties, and read every
- * property by name — so CIO needs no compile- or run-time dependency on any of
- * those mods.
+ * under their own ids. We match on <em>any</em>
+ * {@code net.satisfy.*.core.block.SinkBlock} in the class chain that also
+ * carries the {@code filled} + {@code half} properties, and read every property
+ * by name — so CIO needs no compile- or run-time dependency on any of those
+ * mods. Alpine Whispers' {@code arolla_pine_sink} / {@code arolla_pine_washbasin}
+ * matched too until 1.0.4 dropped {@code filled} for a block entity with a
+ * staged water level; those are plumbed through {@link AlpineFixture} instead.
  *
  * <p>Alpine Whispers' bathtub is a different shape again
  * ({@code net.satisfy.alpinewhispers.core.block.BathtubBlock}: {@code full} +
  * {@code part} + {@code facing}, its own block entity) and is recognised
- * separately by {@link #bathtubBlocks()}.
+ * separately by {@link #bathtubBlocks()}; it is plumbed through
+ * {@link AlpineFixture} as well.
  */
 public final class SinkStates {
     /** Fully-qualified name of the shared sink block class shipped by Farm &amp; Charm. */
@@ -84,7 +84,7 @@ public final class SinkStates {
 
     /**
      * True for Farm &amp; Charm's {@code SinkBlock}, anything extending it, and any
-     * standalone {@code net.satisfy.*.core.block.SinkBlock} copy (Alpine Whispers)
+     * standalone {@code net.satisfy.*.core.block.SinkBlock} copy (Alpine Whispers before 1.0.4)
      * that carries the {@code filled} + {@code half} properties.
      */
     public static boolean isSinkClass(Block block) {

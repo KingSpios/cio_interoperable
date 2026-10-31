@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  *     touches a module after checking those mods are loaded.</li>
  *     <li><b>Package gates</b> (any other class): a package named after a mod
  *     ({@link #PACKAGE_GATES}: {@code cpg}, {@code cee}, {@code coldsweat},
- *     {@code interop}, {@code bridge}) may need only that mod; the top level of a
+ *     {@code interop}, {@code bridge}, {@code ccee}) may need only that mod; the top level of a
  *     feature package ({@link #NEUTRAL_FEATURE_PACKAGES}, e.g. {@code telephone}
  *     with {@code TelephoneCore}) may need none, so logic shared by a PG and a
  *     CEE twin can't quietly start needing one of them.</li>
@@ -72,7 +72,8 @@ class LoadSafetyTest {
     /** Mods that are always present when the key mod is (hard dependencies of it). */
     private static final Map<String, Set<String>> IMPLIES = Map.of(
             "refurbished_furniture", Set.of("framework"),
-            "powergrid", Set.of("architectury"));
+            "powergrid", Set.of("architectury"),
+            "computercraft_cee_addon", Set.of("computercraft", "electroenergetics"));
 
     static {
         OPTIONAL_NAMESPACES.put("org/patryk3211/powergrid/", "powergrid");
@@ -84,12 +85,14 @@ class LoadSafetyTest {
         OPTIONAL_NAMESPACES.put("de/maxhenkel/voicechat/", "voicechat");
         OPTIONAL_NAMESPACES.put("minecrafttransportsimulator/", "mts");
         OPTIONAL_NAMESPACES.put("dev/architectury/", "architectury");
+        OPTIONAL_NAMESPACES.put("dan200/computercraft/", "computercraft");
+        OPTIONAL_NAMESPACES.put("com/newclear/ccceaddon/", "computercraft_cee_addon");
     }
 
     /** Core classes loaded on every install (besides the auto-detected ones). Nested classes included. */
     private static final Set<String> ALWAYS_LOADED = Set.of(
             "CIOBlocks", "CIOBlockEntities", "CIOItems", "CIOCreativeTab", "modules/CIOModules",
-            "CIOConfig", "CIOFluids", "CIOParticles", "compat/Mods", "compat/ModGatedMixinPlugin");
+            "CIOConfig", "CIOConditions", "CIOFluids", "CIOParticles", "compat/Mods", "compat/ModGatedMixinPlugin");
 
     /** Package segment -> the mods a class in such a package may need (the deepest matching segment wins). */
     private static final Map<String, Set<String>> PACKAGE_GATES = Map.of(
@@ -97,13 +100,20 @@ class LoadSafetyTest {
             "cee", Set.of("electroenergetics"),
             "coldsweat", Set.of("cold_sweat"),
             "interop", Set.of("powergrid", "electroenergetics"),
-            "bridge", Set.of("powergrid", "electroenergetics"));
+            "bridge", Set.of("powergrid", "electroenergetics"),
+            "ccee", Set.of("computercraft", "computercraft_cee_addon", "electroenergetics"));
 
     /**
      * Feature packages whose own top level is shared by every variant (the
      * mod-specific variants live in sub-packages), so it may need no optional mod.
      */
-    private static final Set<String> NEUTRAL_FEATURE_PACKAGES = Set.of("telephone", "thermal", "powerkit", "experimental");
+    private static final Set<String> NEUTRAL_FEATURE_PACKAGES = Set.of("telephone", "thermal", "powerkit", "experimental", "pole", "streetlight", "embedded", "computer", "goggles", "radio");
+
+    /**
+     * Feature packages whose sub-packages are neutral too unless named after a mod
+     * ({@code radio.message}, {@code radio.reception}... but {@code radio.ccee} is gated).
+     */
+    private static final Set<String> NEUTRAL_TREES = Set.of("radio");
 
     /** The presence enum; mixin plugins name their mods by its constants. */
     private static final String MODS = BytecodeModel.CIO + "compat/Mods";
@@ -279,6 +289,10 @@ class LoadSafetyTest {
         }
         if (segments.length == 1 && NEUTRAL_FEATURE_PACKAGES.contains(segments[0])) {
             return new Gate(Set.of(), false, "package " + segments[0]);
+        }
+        // Feature packages neutral all the way down: every sub-package not named after a mod.
+        if (NEUTRAL_TREES.contains(segments[0])) {
+            return new Gate(Set.of(), false, "package " + String.join(".", segments));
         }
         return null;
     }

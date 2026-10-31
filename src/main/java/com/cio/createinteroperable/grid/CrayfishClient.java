@@ -1,5 +1,10 @@
 package com.cio.createinteroperable.grid;
 
+import com.cio.createinteroperable.letsdo.BeachpartyRadioRenderer;
+import com.cio.createinteroperable.urbandecor.UrbanColdRenderer;
+import com.cio.createinteroperable.urbandecor.UrbanMachineLampRenderer;
+import com.cio.createinteroperable.urbandecor.UrbanSpeakerRenderer;
+import com.cio.createinteroperable.urbandecor.UrbanWashingMachineBlockEntity;
 import com.cio.createinteroperable.compat.Mods;
 import com.cio.createinteroperable.CIOBlockEntities;
 import com.cio.createinteroperable.modules.CIOModules;
@@ -47,6 +52,26 @@ public final class CrayfishClient {
             event.registerBlockEntityRenderer((BlockEntityType) IdenDecorModule.ELECTRIC_SWITCH_BE.get(),
                     (BlockEntityRendererProvider) ElectricBlockEntityRenderer::new);
         }
+        // The Urban Decor washing machine node (a type with no blocks without Urban Decor).
+        // With its indicator lamps (UrbanMachineLampRenderer) in the same renderer: a type has one.
+        event.registerBlockEntityRenderer((BlockEntityType) CIOBlockEntities.URBAN_WASHER.get(),
+                (BlockEntityRendererProvider) context -> new UrbanMachineNodeRenderer());
+        // ...and its dryer and dishwasher, the desk fan, and (filtered: Urban Decor's smoker block entity is
+        // also the microwave's, which is never a node) the oven.
+        event.registerBlockEntityRenderer((BlockEntityType) CIOBlockEntities.URBAN_DRYER.get(),
+                (BlockEntityRendererProvider) context -> new UrbanMachineNodeRenderer());
+        event.registerBlockEntityRenderer((BlockEntityType) CIOBlockEntities.URBAN_DISHWASHER.get(),
+                (BlockEntityRendererProvider) context -> new UrbanMachineNodeRenderer());
+        event.registerBlockEntityRenderer((BlockEntityType) CIOBlockEntities.URBAN_FAN.get(),
+                (BlockEntityRendererProvider) ElectricBlockEntityRenderer::new);
+        registerFilteredNodeRenderer(event, "urban_decor:smoker_decor");
+        registerFilteredNodeRenderer(event, "urban_decor:furnace_decor"); // the microwave (and the stove, which is no node)
+        // Urban Decor's fridge and freezer (the storage type its cupboards share): node, plus the light inside.
+        BlockEntityType<?> storage = BuiltInRegistries.BLOCK_ENTITY_TYPE.get(ResourceLocation.parse("urban_decor:storage_decor"));
+        if (storage != null) {
+            event.registerBlockEntityRenderer((BlockEntityType) storage,
+                    (BlockEntityRendererProvider) context -> new UrbanColdNodeRenderer());
+        }
         if (CIOModules.isEnabled(ImmersiveVehiclesModule.REQUIRES)) {
             event.registerBlockEntityRenderer((BlockEntityType) ImmersiveVehiclesModule.MTS_AA_POWER_NODE_BE.get(),
                     (BlockEntityRendererProvider) ElectricBlockEntityRenderer::new);
@@ -54,8 +79,17 @@ public final class CrayfishClient {
         // Immersive Vehicles' shared tile type: only poles / Signal Controllers are
         // nodes (IvTileNodeMixin), so draw just those — never a road or pump.
         registerFilteredNodeRenderer(event, "mts:builder_base");
-        registerForeignNodeRenderer(event, "beachparty:radio");
+        // The radio's own CIO parts (antenna pin, lit visor) in the same renderer: a type has one.
+        BlockEntityType<?> radio = BuiltInRegistries.BLOCK_ENTITY_TYPE.get(ResourceLocation.parse("beachparty:radio"));
+        if (radio != null) {
+            event.registerBlockEntityRenderer((BlockEntityType) radio, (BlockEntityRendererProvider) context -> new RadioRenderer());
+        }
         registerForeignNodeRenderer(event, "beachparty:mini_fridge");
+        // Urban Decor's speaker: its node, and its radio pin in the same renderer.
+        BlockEntityType<?> speaker = BuiltInRegistries.BLOCK_ENTITY_TYPE.get(ResourceLocation.parse("urban_decor:speaker"));
+        if (speaker != null) {
+            event.registerBlockEntityRenderer((BlockEntityType) speaker, (BlockEntityRendererProvider) context -> new UrbanSpeakerNodeRenderer());
+        }
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
@@ -79,6 +113,51 @@ public final class CrayfishClient {
         if (type != null) {
             event.registerBlockEntityRenderer((BlockEntityType) type,
                     (BlockEntityRendererProvider) context -> new FilteredNodeRenderer());
+        }
+    }
+
+    /** Crayfish's node box + wires, and {@link BeachpartyRadioRenderer}'s parts, on Beachparty's radio. */
+    private static final class RadioRenderer implements BlockEntityRenderer<BlockEntity> {
+        @Override
+        public void render(BlockEntity be, float partialTick, PoseStack pose, MultiBufferSource buffers, int light, int overlay) {
+            BeachpartyRadioRenderer.draw(be, pose, buffers, light);
+            drawNodeOverlayIfNode(be);
+        }
+    }
+
+    /** Crayfish's node box + wires, and {@link UrbanSpeakerRenderer}'s pin, on Urban Decor's speaker. */
+    private static final class UrbanSpeakerNodeRenderer implements BlockEntityRenderer<BlockEntity> {
+        @Override
+        public void render(BlockEntity be, float partialTick, PoseStack pose, MultiBufferSource buffers, int light, int overlay) {
+            UrbanSpeakerRenderer.draw(be, pose, buffers, light);
+            drawNodeOverlayIfNode(be);
+        }
+    }
+
+    /** Crayfish's node box + wires, and the indicator lamps, on the Urban Decor washer / dryer / dishwasher. */
+    private static final class UrbanMachineNodeRenderer implements BlockEntityRenderer<BlockEntity> {
+        @Override
+        public void render(BlockEntity be, float partialTick, PoseStack pose, MultiBufferSource buffers, int light, int overlay) {
+            if (be instanceof UrbanWashingMachineBlockEntity machine) {
+                UrbanMachineLampRenderer.draw(machine, pose, buffers);
+            }
+            drawNodeOverlayIfNode(be);
+        }
+    }
+
+    /** Crayfish's node box + wires on a fridge or freezer (never a cupboard), and the light inside. */
+    private static final class UrbanColdNodeRenderer implements BlockEntityRenderer<BlockEntity> {
+        @Override
+        public void render(BlockEntity be, float partialTick, PoseStack pose, MultiBufferSource buffers, int light, int overlay) {
+            UrbanColdRenderer.draw(be, pose, buffers);
+            if (be instanceof ApplianceNode node && node.applianceConnectionLimit() > 0) {
+                drawNodeOverlayIfNode(be);
+            }
+        }
+
+        @Override
+        public boolean shouldRenderOffScreen(BlockEntity be) {
+            return true;
         }
     }
 

@@ -179,6 +179,66 @@
     "bulb=broken,facing=west,style=angled": {
       "model": "createinteroperable:block/streetlamp_angled_22h_broken",
       "y": 270
+    },
+    "bulb=off,facing=north,style=pole": {
+      "model": "createinteroperable:block/streetlamp_pole_arms"
+    },
+    "bulb=brown,facing=north,style=pole": {
+      "model": "createinteroperable:block/streetlamp_pole_arms_brown"
+    },
+    "bulb=on,facing=north,style=pole": {
+      "model": "createinteroperable:block/streetlamp_pole_arms_on"
+    },
+    "bulb=broken,facing=north,style=pole": {
+      "model": "createinteroperable:block/streetlamp_pole_arms_broken"
+    },
+    "bulb=off,facing=east,style=pole": {
+      "model": "createinteroperable:block/streetlamp_pole_arms",
+      "y": 90
+    },
+    "bulb=brown,facing=east,style=pole": {
+      "model": "createinteroperable:block/streetlamp_pole_arms_brown",
+      "y": 90
+    },
+    "bulb=on,facing=east,style=pole": {
+      "model": "createinteroperable:block/streetlamp_pole_arms_on",
+      "y": 90
+    },
+    "bulb=broken,facing=east,style=pole": {
+      "model": "createinteroperable:block/streetlamp_pole_arms_broken",
+      "y": 90
+    },
+    "bulb=off,facing=south,style=pole": {
+      "model": "createinteroperable:block/streetlamp_pole_arms",
+      "y": 180
+    },
+    "bulb=brown,facing=south,style=pole": {
+      "model": "createinteroperable:block/streetlamp_pole_arms_brown",
+      "y": 180
+    },
+    "bulb=on,facing=south,style=pole": {
+      "model": "createinteroperable:block/streetlamp_pole_arms_on",
+      "y": 180
+    },
+    "bulb=broken,facing=south,style=pole": {
+      "model": "createinteroperable:block/streetlamp_pole_arms_broken",
+      "y": 180
+    },
+    "bulb=off,facing=west,style=pole": {
+      "model": "createinteroperable:block/streetlamp_pole_arms",
+      "y": 270
+    },
+    "bulb=brown,facing=west,style=pole": {
+      "model": "createinteroperable:block/streetlamp_pole_arms_brown",
+      "y": 270
+    },
+    "bulb=on,facing=west,style=pole": {
+      "model": "createinteroperable:block/streetlamp_pole_arms_on",
+      "y": 270
+    },
+    "bulb=broken,facing=west,style=pole": {
+      "model": "createinteroperable:block/streetlamp_pole_arms_broken",
+      "y": 270
     }
   }
 }

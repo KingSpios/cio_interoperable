@@ -6,11 +6,27 @@
   "mixins": [
     "ApplianceGridHolder",
     "FluidTankBlockEntityAccessor",
+    "LevelChunkAppliancesMixin",
+    "AbstractFurnaceAccessor",
+    "BlockDefaultStateInvoker",
     "BlockDescriptionIdAccessor",
+    "BlockStateOffsetAccessor",
+    "BlockDynamicShapeAccessor",
+    "BlockEntityTypeValidBlocksAccessor",
     "BoilerDataMixin",
+    "SteamEngineBlockMixin",
+    "SteamEngineBlockEntityMixin",
+    "FluidTankBoilerSyncMixin",
     "LampEmissiveMixin",
-    "FluidNetworkSteamFlowMixin"
+    "FluidNetworkSteamFlowMixin",
+    "ServerLevelSongMixin"
   ],
-  "client": [],
+  "client": [
+    "SoundBufferLibraryMixin",
+    "ClientPacketListenerSoundMixin",
+    "SoundManagerAccessor",
+    "SoundEngineAccessor",
+    "ChannelAccessor"
+  ],
   "minVersion": "0.8"
 }

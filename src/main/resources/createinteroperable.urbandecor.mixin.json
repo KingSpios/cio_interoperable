@@ -3,7 +3,24 @@
   "package": "com.cio.createinteroperable.mixin.urbandecor",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "UrbanDecorWaterToggleMixin"
+    "UrbanDecorWaterToggleMixin",
+    "UrbanFixtureBlockMixin",
+    "UrbanToiletBlockMixin",
+    "UrbanBathtubBlockMixin",
+    "UrbanWashingMachineBlockMixin",
+    "UrbanRadiatorBlockMixin",
+    "UrbanDryerBlockMixin",
+    "UrbanDishwasherBlockMixin",
+    "UrbanFanBlockMixin",
+    "UrbanLanternBlockMixin",
+    "UrbanFurnaceBlockMixin",
+    "UrbanFurnaceNodeMixin",
+    "UrbanOvenBlockMixin",
+    "UrbanOvenNodeMixin",
+    "UrbanSpeakerNodeMixin",
+    "UrbanStoveBlockMixin",
+    "UrbanStorageBlockEntityMixin",
+    "UrbanColdNodeMixin"
   ],
   "client": [],
   "minVersion": "0.8"

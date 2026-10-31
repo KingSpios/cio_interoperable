@@ -16,11 +16,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * Two changes to every Farm &amp; Charm–style {@code SinkBlock} — Farm &amp;
- * Charm's own (also used by Candlelight and Bakery) <em>and</em> Alpine Whispers'
- * standalone copy {@code net.satisfy.alpinewhispers.core.block.SinkBlock} (the
- * Arolla Pine Sink / Washbasin), which extends vanilla {@code Block} directly
- * rather than Farm &amp; Charm's class:
+ * Two changes to Farm &amp; Charm's {@code SinkBlock} (also used by Candlelight
+ * and Bakery):
  *
  * <ol>
  *   <li>Makes it an {@link EntityBlock} so a {@link SinkBlockEntity} is attached
@@ -33,14 +30,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  * </ol>
  *
  * <p>Targeted by name and kept non-required, so this is a no-op when none of
- * those mods are installed. Each target class independently declares
- * {@code animateTick} and neither declares {@code newBlockEntity} or implements
- * {@code EntityBlock}, so one mixin applies cleanly to both.
+ * those mods are installed. Alpine Whispers' sink used to be a copy of this
+ * class and was targeted here too, until 1.0.4 gave it a block entity of its own
+ * (a tap that fills the basin in stages); it is plumbed by
+ * {@code AlpineWhispersSinkEntityMixin} / {@code AlpineWhispersSinkBlockMixin}
+ * now. This mixin's {@code newBlockEntity} would replace that block entity.
  */
-@Mixin(targets = {
-        "net.satisfy.farm_and_charm.core.block.SinkBlock",
-        "net.satisfy.alpinewhispers.core.block.SinkBlock"
-})
+@Mixin(targets = "net.satisfy.farm_and_charm.core.block.SinkBlock")
 public abstract class FarmAndCharmSinkBlockMixin implements EntityBlock {
 
     @Override

@@ -8,6 +8,8 @@ import com.cio.createinteroperable.grid.GridAffinity;
 import com.cio.createinteroperable.grid.GridConnection;
 import com.cio.createinteroperable.grid.Pool;
 import com.cio.createinteroperable.powerkit.DebTier;
+import com.cio.createinteroperable.powerkit.PowerKitReadout;
+import com.cio.createinteroperable.powerkit.PowerKitSwitch;
 import com.cio.createinteroperable.powerkit.cpg.DebRectifierBlockEntity;
 import com.george_vi.electroenergetics.devices.device.DevicesSavedData;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
@@ -145,7 +147,22 @@ public class CeeDebRectifierBlockEntity extends SmartBlockEntity implements Appl
 
     /** Regulated 12 V feed EMF: a fixed fraction of whatever the intake solved to. */
     protected double stepDownEmf() {
-        return Math.max(0.0, intakeVolts() * stepDownRatio());
+        return Math.max(0.0, DebTier.regulatedEmf(Pool.LV.nominalVoltage, intakeVolts(), primaryVolts(), tier().brownoutFraction(), poolVoltageFactor(Pool.LV)));
+    }
+
+    /** Fraction of full power this pool may deliver. See {@link DebRectifierBlockEntity#poolPowerFactor}. */
+    protected double poolPowerFactor(Pool pool) {
+        return 1.0;
+    }
+
+    /** Output voltage factor for {@link #poolPowerFactor}: its square root. */
+    protected double poolVoltageFactor(Pool pool) {
+        return Math.sqrt(poolPowerFactor(pool));
+    }
+
+    /** True while the kit's master switch is off. See {@link DebRectifierBlockEntity#isSwitchedOff}. */
+    public boolean isSwitchedOff() {
+        return PowerKitSwitch.isOff(getBlockState());
     }
 
     /** Solved voltage across the CEE intake node pair. */
@@ -178,7 +195,7 @@ public class CeeDebRectifierBlockEntity extends SmartBlockEntity implements Appl
     }
 
     protected double lvRailVolts() {
-        double emf = intakeVolts() * stepDownRatio();
+        double emf = DebTier.regulatedEmf(Pool.LV.nominalVoltage, intakeVolts(), primaryVolts(), tier().brownoutFraction(), poolVoltageFactor(Pool.LV));
         double sag = lvFeedCurrent() * tier().stepDownResistance();
         return Math.max(0.0, emf - sag);
     }
@@ -234,13 +251,14 @@ public class CeeDebRectifierBlockEntity extends SmartBlockEntity implements Appl
      * layout (tiers 1-2): {@code [0,1]} intake, an optional {@code [2,3]}
      * 120 V pass-through strap (tier 2 only), then the 12 V regulated feed
      * pair. {@link CeePowerKitTier3BlockEntity} overrides for the substation
-     * layout.
+     * layout. Switched off, every feed is removed from the circuit.
      */
     protected void configureCeeFeeds(DebCeeDevice device) {
+        boolean live = !isSwitchedOff();
         boolean mv = tier().hasMediumVoltageFeed();
         int lvIdx = mv ? 4 : 2;
-        device.setPassthrough(mv, 2, 3, FEED_PASSTHROUGH_R);
-        device.setLvFeed(lvIdx, lvIdx + 1, stepDownEmf(), tier().stepDownResistance());
+        device.setPassthrough(mv && live, 2, 3, FEED_PASSTHROUGH_R);
+        device.setLvFeed(live && poolPowerFactor(Pool.LV) > 0.0, lvIdx, lvIdx + 1, stepDownEmf(), tier().stepDownResistance());
         device.setMv120Feed(false, 0, 0, 0.0, 0.0);
     }
 
@@ -325,15 +343,22 @@ public class CeeDebRectifierBlockEntity extends SmartBlockEntity implements Appl
         syncCeeDevice(server);
         meterFeeds();
 
-        busVolts[Pool.MV.ordinal()] = (float) mvRailVolts();
-        busVolts[Pool.LV.ordinal()] = (float) lvRailVolts();
+        // Switched off: the feeds are out of the circuit and
+        // reportLinkedAppliances bills nothing, so the intake is open.
+        boolean off = isSwitchedOff();
+        if (off) {
+            java.util.Arrays.fill(externalWatts, 0f);
+        }
+
+        busVolts[Pool.MV.ordinal()] = off ? 0f : (float) mvRailVolts();
+        busVolts[Pool.LV.ordinal()] = off ? 0f : (float) lvRailVolts();
 
         boolean anyLive = false;
         boolean anyFaulted = false;
         boolean grossOverload = false;
         for (Pool pool : Pool.values()) {
             int i = pool.ordinal();
-            if (pool == Pool.MV && !tier().servesMediumVoltage()) {
+            if (off || poolPowerFactor(pool) <= 0.0 || (pool == Pool.MV && !tier().servesMediumVoltage())) {
                 railFaulted[i] = false;
                 railLive[i] = false;
                 brownoutTicks[i] = 0;
@@ -394,8 +419,9 @@ public class CeeDebRectifierBlockEntity extends SmartBlockEntity implements Appl
         return (float) (totalWatts(Pool.LV) + totalWatts(Pool.MV));
     }
 
+    /** Gates the face readouts; the intake alone counts so a switched-off kit stays lit. */
     public boolean isPowered() {
-        return busVolts[Pool.MV.ordinal()] >= 1f || busVolts[Pool.LV.ordinal()] >= 1f;
+        return intakeDisplayVolts() >= 1.0 || busVolts[Pool.MV.ordinal()] >= 1f || busVolts[Pool.LV.ordinal()] >= 1f;
     }
 
     public float getRailLoad(Pool pool) {
@@ -503,7 +529,11 @@ public class CeeDebRectifierBlockEntity extends SmartBlockEntity implements Appl
 
     @Override
     public void reportLinkedAppliances(double[] wattsByPool, int[] countByPool) {
-        System.arraycopy(wattsByPool, 0, linkedWatts, 0, linkedWatts.length);
+        boolean off = isSwitchedOff();
+        for (Pool pool : Pool.values()) {
+            int i = pool.ordinal();
+            linkedWatts[i] = off ? 0.0 : wattsByPool[i] * poolPowerFactor(pool);
+        }
         System.arraycopy(countByPool, 0, linkedCount, 0, linkedCount.length);
     }
 
@@ -564,6 +594,12 @@ public class CeeDebRectifierBlockEntity extends SmartBlockEntity implements Appl
         if (networkConflict) {
             CreateLang.builder()
                     .add(Component.translatable(GK + "network_conflict").withStyle(ChatFormatting.RED, ChatFormatting.BOLD))
+                    .forGoggles(tooltip, 1);
+        }
+
+        if (isSwitchedOff()) {
+            CreateLang.builder()
+                    .add(Component.translatable(GK + "transmission_off").withStyle(ChatFormatting.RED, ChatFormatting.BOLD))
                     .forGoggles(tooltip, 1);
         }
 
@@ -642,7 +678,7 @@ public class CeeDebRectifierBlockEntity extends SmartBlockEntity implements Appl
                 : Component.translatable(GK + "state_idle");
 
         Component value = Component.translatable(GK + "rail_value",
-                percent, Math.round(used), softCapW, stateSuffix).withStyle(loadColor);
+                PowerKitReadout.percent(getRailLoad(pool)), Math.round(used), softCapW, stateSuffix).withStyle(loadColor);
 
         CreateLang.builder()
                 .add(Component.translatable(GK + "rail", Component.translatable(railNameKey), value))

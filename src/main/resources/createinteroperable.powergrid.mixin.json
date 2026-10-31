@@ -3,9 +3,17 @@
   "package": "com.cio.createinteroperable.mixin.powergrid",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "FactoryLightProjectionMixin",
+    "LightFixtureBulbMixin",
+    "LightFixtureEmissionMixin",
+    "ResistorPlacementMixin",
     "ThermalBehaviourMixin",
-    "ThermometerBlockEntityMixin"
+    "ThermometerBlockEntityMixin",
+    "WireEntityLeverMixin"
   ],
-  "client": [],
+  "client": [
+    "CeilingTileLampRendererMixin",
+    "FactoryLightRendererMixin"
+  ],
   "minVersion": "0.8"
 }

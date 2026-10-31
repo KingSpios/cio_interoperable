@@ -1,40 +1,39 @@
 package com.cio.createinteroperable.mixin.letsdo;
 
 import com.cio.createinteroperable.CIOConfig;
+import com.cio.createinteroperable.letsdo.AlpineFixture;
 import com.cio.createinteroperable.letsdo.BathtubSupply;
-import com.cio.createinteroperable.letsdo.LetsDoBathtub;
 import com.cio.createinteroperable.letsdo.SinkStates;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * Makes Alpine Whispers' Arolla Pine Bathtub obey CIO's "needs a water supply"
- * rule, the same way Let's Do sinks do.
- *
- * <p>Alpine Whispers' bare-hand tap ({@code useItemOn}) normally calls
- * {@code startFilling(900)} and the tub then fills itself for free over 45&nbsp;s.
- * When {@link CIOConfig#SINK_REQUIRE_PIPE_SUPPLY} is on this intercepts that
- * gesture: each right-click pulls {@link CIOConfig#BATHTUB_FILL_STEP_MB} of water
- * out of a supply touching the tub and advances the fill proportionally, so
- * holding right-click fills it incrementally until full. No supply → a message,
- * nothing happens. Buckets, bottles, draining and sitting fall through to Alpine
- * Whispers untouched.
+ * The player side of the Alpine Whispers bathtub plumbing (see
+ * {@code AlpineWhispersBathtubEntityMixin}), while
+ * {@link CIOConfig#SINK_REQUIRE_PIPE_SUPPLY} is on. Alpine Whispers opens the
+ * tap on a bare-hand click (or, oddly, an empty bottle) on the head; CIO:
+ * <ul>
+ *   <li>refuses to open it with no water piped in or in a tank touching the tub;</li>
+ *   <li>closes a running tap on the same click, so the tub can be left part-full;</li>
+ *   <li>turns a hand-poured water bucket into 1000&nbsp;mB of supply for the tap
+ *       (or refuses it, per {@link CIOConfig#SINK_ALLOW_MANUAL_BUCKET_FILL})
+ *       instead of Alpine Whispers' whole free fill.</li>
+ * </ul>
+ * A full tub (sitting, draining with a bucket or bottle) stays with Alpine Whispers.
  *
  * <p>Targeted by name, non-required — a no-op without Alpine Whispers installed.
  */
@@ -45,43 +44,43 @@ public abstract class AlpineWhispersBathtubBlockMixin {
     private void createinteroperable$requireSupply(ItemStack stack, BlockState state, Level level, BlockPos pos,
                                                   Player player, InteractionHand hand, BlockHitResult hit,
                                                   CallbackInfoReturnable<ItemInteractionResult> cir) {
-        if (!CIOConfig.SINK_REQUIRE_PIPE_SUPPLY.get()) {
-            return;
-        }
-        // Only the bare-hand fill gesture on a non-underside face. Buckets,
-        // bottles, draining and sitting stay with Alpine Whispers.
-        if (!stack.isEmpty() || hit.getDirection() == Direction.DOWN) {
+        if (level.isClientSide || !CIOConfig.SINK_REQUIRE_PIPE_SUPPLY.get()) {
             return;
         }
         BlockPos head = SinkStates.bathtubHead(state, pos);
-        if (!(level.getBlockEntity(head) instanceof LetsDoBathtub tub)) {
+        if (!(level.getBlockEntity(head) instanceof AlpineFixture.Bathtub tub)) {
             return;
         }
-        if (Boolean.TRUE.equals(SinkStates.bool(level.getBlockState(head), "full")) || tub.cio$ratio() >= 0.999f) {
-            return; // already full — let Alpine Whispers handle "sit in the tub"
-        }
-        if (level.isClientSide) {
-            cir.setReturnValue(ItemInteractionResult.CONSUME);
+        if (Boolean.TRUE.equals(SinkStates.bool(level.getBlockState(head), "full")) || tub.cio$fillRatio() >= 0.999f) {
             return;
         }
 
-        IFluidHandler supply = BathtubSupply.findWater(level, head);
-        if (supply == null) {
-            player.displayClientMessage(Component.translatable("message.createinteroperable.fixture.no_supply"), true);
-            cir.setReturnValue(ItemInteractionResult.CONSUME);
+        if (stack.is(Items.WATER_BUCKET)) {
+            if (!CIOConfig.SINK_ALLOW_MANUAL_BUCKET_FILL.get()) {
+                cir.setReturnValue(ItemInteractionResult.CONSUME); // CONSUME, not SKIP: SKIP would let the bucket pour onto the block
+            } else if (!tub.cio$filling()) {
+                tub.cio$supply().add(1000); // Alpine Whispers then takes the bucket and opens the tap
+            }
             return;
         }
-        int step = Math.max(1, CIOConfig.BATHTUB_FILL_STEP_MB.get());
-        FluidStack moved = supply.drain(step, IFluidHandler.FluidAction.EXECUTE);
-        if (moved.isEmpty()) {
-            player.displayClientMessage(Component.translatable("message.createinteroperable.fixture.dry"), true);
-            cir.setReturnValue(ItemInteractionResult.CONSUME);
+
+        boolean tapGesture = stack.isEmpty()
+                ? hit.getBlockPos().equals(head) && hit.getDirection() != Direction.DOWN
+                : stack.is(Items.GLASS_BOTTLE);
+        if (!tapGesture) {
             return;
         }
-        int capacity = Math.max(1, CIOConfig.BATHTUB_CAPACITY_MB.get());
-        int ticks = Math.max(1, Math.round(moved.getAmount() * 900f / capacity));
-        tub.cio$feed(ticks);
-        level.playSound(null, head, SoundEvents.BUCKET_EMPTY, SoundSource.BLOCKS, 0.5F, 1.2F);
-        cir.setReturnValue(ItemInteractionResult.SUCCESS);
+        if (tub.cio$filling()) {
+            if (stack.isEmpty()) {
+                tub.cio$closeTap();
+                level.playSound(null, head, SoundEvents.LEVER_CLICK, SoundSource.BLOCKS, 0.4F, 0.9F);
+                cir.setReturnValue(ItemInteractionResult.CONSUME);
+            }
+            return;
+        }
+        if (!tub.cio$supply().isSupplied() && BathtubSupply.findWater(level, head) == null) {
+            AlpineFixture.refuse(level, player, tub.cio$supply(), head);
+            cir.setReturnValue(ItemInteractionResult.CONSUME);
+        }
     }
 }

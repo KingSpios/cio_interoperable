@@ -2,6 +2,7 @@ package com.cio.createinteroperable.telephone.cpg;
 
 import com.cio.createinteroperable.Lang;
 import com.cio.createinteroperable.CIOValueBox;
+import com.cio.createinteroperable.computer.ComputerLinkBehaviour;
 import com.cio.createinteroperable.telephone.CioTelephone;
 import com.cio.createinteroperable.telephone.TelephoneAutoAnswerBehaviour;
 import com.cio.createinteroperable.telephone.TelephoneCore;
@@ -66,6 +67,7 @@ public class CpgTelephoneBlockEntity extends ElectricBlockEntity implements IHav
         super.addBehaviours(behaviours);
         autoAnswerValue = new TelephoneAutoAnswerBehaviour(this, slot(12.05, 10.5, 12.5, 270));
         behaviours.add(autoAnswerValue);
+        behaviours.add(new ComputerLinkBehaviour(this));
     }
 
     /** Slider box on the face a legacy {@code baseAngle} pointed at, carried through the block's own facing (see {@link CIOValueBox}). */
@@ -87,6 +89,11 @@ public class CpgTelephoneBlockEntity extends ElectricBlockEntity implements IHav
     @Override
     public Component telephoneName() {
         return Lang.component("telephone.name.cpg");
+    }
+
+    @Override
+    public String kindId() {
+        return "cpg";
     }
 
     @Override
@@ -204,9 +211,6 @@ public class CpgTelephoneBlockEntity extends ElectricBlockEntity implements IHav
         return core.onFrontUsed(player);
     }
 
-    InteractionResult onTopUsed(Player player) {
-        return core.onTopUsed(player);
-    }
 
     InteractionResult onBackPlateUsed(Player player) {
         return core.onBackPlateUsed(player);

@@ -17,9 +17,14 @@ import java.util.Set;
  * dependency on Let's Do Furniture or Candlelight:</p>
  * <ul>
  *   <li>{@code com.berksire.furniture.core.block.LampBlock} / {@code LampWallBlock}
- *       &mdash; property {@code lit}</li>
+ *       &mdash; property {@code lit} (Let's Do Furniture 1.1.7+ repackaged these
+ *       under {@code net.satisfy.furniture}; both names are listed)</li>
  *   <li>{@code com.berksire.furniture.core.block.StreetLanternBlock} /
- *       {@code StreetLanternWallBlock} &mdash; property {@code lit}, no manual toggle</li>
+ *       {@code StreetLanternWallBlock} &mdash; property {@code lit}, no manual toggle.
+ *       Furniture 1.1.7+'s {@code IronStreetLanternBlock} (the plain
+ *       {@code furniture:street_lantern}) is excluded: it brings its own block
+ *       entity for its flower pots, so {@code FurnitureStreetLanternNodeMixin}
+ *       puts the node on that instead.</li>
  *   <li>{@code net.satisfy.candlelight.core.block.LampBlock} &mdash; property
  *       {@code luminance}</li>
  *   <li>{@code com.github.minecraftschurlimods.bibliocraft.content.fancylight.FancyLampBlock}
@@ -34,6 +39,10 @@ public final class LetsDoLampStates {
             "com.berksire.furniture.core.block.LampWallBlock",
             "com.berksire.furniture.core.block.StreetLanternBlock",
             "com.berksire.furniture.core.block.StreetLanternWallBlock",
+            "net.satisfy.furniture.core.block.LampBlock",
+            "net.satisfy.furniture.core.block.LampWallBlock",
+            "net.satisfy.furniture.core.block.StreetLanternBlock",
+            "net.satisfy.furniture.core.block.StreetLanternWallBlock",
             "net.satisfy.candlelight.core.block.LampBlock",
             // Alpine Whispers fairy lights: no 'lit'/'luminance' blockstate, so
             // isLit()/withLit() return null/unchanged and the CIO node drives
@@ -60,7 +69,17 @@ public final class LetsDoLampStates {
     private static final Set<String> TOGGLEABLE_CLASSES = Set.of(
             "com.berksire.furniture.core.block.LampBlock",
             "com.berksire.furniture.core.block.LampWallBlock",
+            "net.satisfy.furniture.core.block.LampBlock",
+            "net.satisfy.furniture.core.block.LampWallBlock",
             "net.satisfy.candlelight.core.block.LampBlock");
+
+    /**
+     * Subclasses of a {@link #LAMP_CLASSES lamp class} that keep their own block
+     * entity, so they must never get a {@link LetsDoLampBlockEntity}. Checked
+     * before {@link #LAMP_CLASSES} while walking the class chain.
+     */
+    private static final Set<String> EXCLUDED_CLASSES = Set.of(
+            "net.satisfy.furniture.core.block.IronStreetLanternBlock");
 
     /**
      * Blocks whose {@code type} blockstate property means <em>stacking position</em>
@@ -76,7 +95,11 @@ public final class LetsDoLampStates {
             "com.berksire.furniture.core.block.LampBlock",
             "com.berksire.furniture.core.block.LampWallBlock",
             "com.berksire.furniture.core.block.StreetLanternBlock",
-            "com.berksire.furniture.core.block.StreetLanternWallBlock");
+            "com.berksire.furniture.core.block.StreetLanternWallBlock",
+            "net.satisfy.furniture.core.block.LampBlock",
+            "net.satisfy.furniture.core.block.LampWallBlock",
+            "net.satisfy.furniture.core.block.StreetLanternBlock",
+            "net.satisfy.furniture.core.block.StreetLanternWallBlock");
 
     /** Candidate on/off property names, in priority order. */
     private static final String[] LIT_PROPERTIES = { "lit", "luminance" };
@@ -125,11 +148,19 @@ public final class LetsDoLampStates {
 
     public static boolean isLampClass(Block block) {
         for (Class<?> c = block.getClass(); c != null && c != Block.class; c = c.getSuperclass()) {
+            if (EXCLUDED_CLASSES.contains(c.getName())) {
+                return false;
+            }
             if (LAMP_CLASSES.contains(c.getName())) {
                 return true;
             }
         }
         return false;
+    }
+
+    /** True if {@code state}'s block takes a {@link LetsDoLampBlockEntity} (see {@link #lampBlocks()}). */
+    public static boolean isLamp(BlockState state) {
+        return lampBlocks().contains(state.getBlock());
     }
 
     public static boolean isToggleable(Block block) {

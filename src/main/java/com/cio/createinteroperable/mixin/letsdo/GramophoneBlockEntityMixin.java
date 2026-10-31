@@ -26,7 +26,10 @@ import java.util.Set;
  * state straight through to the {@link ApplianceNode} half. Applied only when
  * Refurbished Furniture is installed ({@code CrayfishMixinPlugin}).
  */
-@Mixin(targets = "com.berksire.furniture.core.block.entity.GramophoneBlockEntity")
+@Mixin(targets = {
+        "com.berksire.furniture.core.block.entity.GramophoneBlockEntity",
+        "net.satisfy.furniture.core.block.entity.GramophoneBlockEntity" // Let's Do Furniture 1.1.7+ (repackaged)
+})
 @Implements(@Interface(iface = IModuleNode.class, prefix = "imn$"))
 public abstract class GramophoneBlockEntityMixin {
 

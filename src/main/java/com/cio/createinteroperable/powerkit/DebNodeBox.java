@@ -2,8 +2,6 @@ package com.cio.createinteroperable.powerkit;
 
 import com.cio.createinteroperable.grid.ApplianceNode;
 import com.cio.createinteroperable.powerkit.cpg.DebRectifierBlockEntity;
-import net.createmod.catnip.math.VoxelShaper;
-import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.AABB;
@@ -12,7 +10,7 @@ import net.minecraft.world.phys.shapes.Shapes;
 /**
  * The DEB / Power Kit's node link box &mdash; a compact box just in front of
  * {@code body_box}'s front face (z=4 NORTH), low and centred so it clears the
- * viewer plates, rotated for all six facings. Used by both PG- and CEE-rooted
+ * viewer plates, turned for every mount ({@link PowerKitGeometry#orient}). Used by both PG- and CEE-rooted
  * grid backends: {@code DebSourceNodeMixin#getNodeInteractBox} /
  * {@code CeeDebSourceNodeMixin#getNodeInteractBox} (Crayfish) and
  * {@link DebRectifierBlockEntity#applianceNodeBox()} (native).
@@ -29,9 +27,8 @@ public final class DebNodeBox {
 
     private static final AABB NORTH =
             new AABB(6 / 16.0, 1 / 16.0, 4 / 16.0, 10 / 16.0, 4 / 16.0, 7 / 16.0);
-    private static final VoxelShaper SHAPER = VoxelShaper
-            .forDirectional(Shapes.create(NORTH), Direction.NORTH)
-            .withVerticalShapes(Shapes.create(NORTH));
+    private static final PowerKitGeometry.OrientedShape SHAPER =
+            new PowerKitGeometry.OrientedShape(Shapes.create(NORTH));
 
     private DebNodeBox() {
     }
@@ -40,6 +37,6 @@ public final class DebNodeBox {
         if (!state.hasProperty(BlockStateProperties.FACING)) {
             return ApplianceNode.APPLIANCE_NODE_BOX;
         }
-        return SHAPER.get(state.getValue(BlockStateProperties.FACING)).bounds();
+        return SHAPER.get(state).bounds();
     }
 }

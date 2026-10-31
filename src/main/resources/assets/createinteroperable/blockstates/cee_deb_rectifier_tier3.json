@@ -1,10 +1,28 @@
 {
   "variants": {
-    "facing=north": { "model": "createinteroperable:block/deb_rectifier_tier_3" },
-    "facing=south": { "model": "createinteroperable:block/deb_rectifier_tier_3", "y": 180 },
-    "facing=east":  { "model": "createinteroperable:block/deb_rectifier_tier_3", "y": 90 },
-    "facing=west":  { "model": "createinteroperable:block/deb_rectifier_tier_3", "y": -90 },
-    "facing=down":  { "model": "createinteroperable:block/deb_rectifier_tier_3", "x": 90 },
-    "facing=up":    { "model": "createinteroperable:block/deb_rectifier_tier_3", "x": -90 }
+    "facing=north,enabled=true":            {"model": "createinteroperable:block/deb_rectifier_tier_3"},
+    "facing=south,enabled=true":            {"model": "createinteroperable:block/deb_rectifier_tier_3", "y": 180},
+    "facing=east,enabled=true":             {"model": "createinteroperable:block/deb_rectifier_tier_3", "y": 90},
+    "facing=west,enabled=true":             {"model": "createinteroperable:block/deb_rectifier_tier_3", "y": -90},
+    "facing=down,enabled=true,top=north":   {"model": "createinteroperable:block/deb_rectifier_tier_3", "x": 90},
+    "facing=down,enabled=true,top=east":    {"model": "createinteroperable:block/deb_rectifier_tier_3", "x": 90, "y": 90},
+    "facing=down,enabled=true,top=south":   {"model": "createinteroperable:block/deb_rectifier_tier_3", "x": 90, "y": 180},
+    "facing=down,enabled=true,top=west":    {"model": "createinteroperable:block/deb_rectifier_tier_3", "x": 90, "y": 270},
+    "facing=up,enabled=true,top=north":     {"model": "createinteroperable:block/deb_rectifier_tier_3", "x": -90, "y": 180},
+    "facing=up,enabled=true,top=east":      {"model": "createinteroperable:block/deb_rectifier_tier_3", "x": -90, "y": 270},
+    "facing=up,enabled=true,top=south":     {"model": "createinteroperable:block/deb_rectifier_tier_3", "x": -90},
+    "facing=up,enabled=true,top=west":      {"model": "createinteroperable:block/deb_rectifier_tier_3", "x": -90, "y": 90},
+    "facing=north,enabled=false":           {"model": "createinteroperable:block/deb_rectifier_tier_3_off"},
+    "facing=south,enabled=false":           {"model": "createinteroperable:block/deb_rectifier_tier_3_off", "y": 180},
+    "facing=east,enabled=false":            {"model": "createinteroperable:block/deb_rectifier_tier_3_off", "y": 90},
+    "facing=west,enabled=false":            {"model": "createinteroperable:block/deb_rectifier_tier_3_off", "y": -90},
+    "facing=down,enabled=false,top=north":  {"model": "createinteroperable:block/deb_rectifier_tier_3_off", "x": 90},
+    "facing=down,enabled=false,top=east":   {"model": "createinteroperable:block/deb_rectifier_tier_3_off", "x": 90, "y": 90},
+    "facing=down,enabled=false,top=south":  {"model": "createinteroperable:block/deb_rectifier_tier_3_off", "x": 90, "y": 180},
+    "facing=down,enabled=false,top=west":   {"model": "createinteroperable:block/deb_rectifier_tier_3_off", "x": 90, "y": 270},
+    "facing=up,enabled=false,top=north":    {"model": "createinteroperable:block/deb_rectifier_tier_3_off", "x": -90, "y": 180},
+    "facing=up,enabled=false,top=east":     {"model": "createinteroperable:block/deb_rectifier_tier_3_off", "x": -90, "y": 270},
+    "facing=up,enabled=false,top=south":    {"model": "createinteroperable:block/deb_rectifier_tier_3_off", "x": -90},
+    "facing=up,enabled=false,top=west":     {"model": "createinteroperable:block/deb_rectifier_tier_3_off", "x": -90, "y": 90}
   }
 }

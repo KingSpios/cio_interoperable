@@ -70,7 +70,17 @@ public enum Mods {
     /** Create: Pipes n Physics ({@code de.devin.pipesnphysics}). */
     PIPES_N_PHYSICS(Id.PIPES_N_PHYSICS),
     /** Simple Voice Chat (the telephone voice relay). */
-    SIMPLE_VOICE_CHAT(Id.SIMPLE_VOICE_CHAT);
+    SIMPLE_VOICE_CHAT(Id.SIMPLE_VOICE_CHAT),
+    /** CC: Tweaked. Only of use together with {@link #CC_CEE_ADDON}. */
+    CC_TWEAKED(Id.CC_TWEAKED),
+    /**
+     * The ComputerCraft CEE Addon ({@code com.newclear.ccceaddon}): Electro
+     * Energetics-powered CC computers. With it the Telephones and Tier 2&ndash;4
+     * Power Kits become peripherals reached over its Peripheral Cable (see
+     * {@link com.cio.createinteroperable.computer}). It requires CC: Tweaked and
+     * Electro Energetics itself.
+     */
+    CC_CEE_ADDON(Id.CC_CEE_ADDON);
 
     /**
      * Mod ids as compile-time constants, for module {@code REQUIRES} strings.
@@ -89,6 +99,9 @@ public enum Mods {
         /** Confirmed via Pipes n Physics' own neoforge.mods.toml. */
         public static final String PIPES_N_PHYSICS = "pipesnphysics";
         public static final String SIMPLE_VOICE_CHAT = "voicechat";
+        public static final String CC_TWEAKED = "computercraft";
+        /** Confirmed via the addon jar's own neoforge.mods.toml. */
+        public static final String CC_CEE_ADDON = "computercraft_cee_addon";
 
         private Id() {
         }

@@ -20,6 +20,12 @@ mod(s) they need are installed:
 If a recipe isn't showing up in your recipe book, check you have the right mod(s) loaded
 before assuming something is broken.
 
+The **Steam Hearth** and **Aircon** recipes have one more condition: they exist when a
+temperature mod (Cold Sweat) is installed, or when the config option
+`temperatureMods.climateBlocksWithoutTemperatureMod` ("Enable Steam Hearth and Air
+Conditioning even without Cold Sweat") is on, which it is by default. The **Steam Outlet**
+recipe is always there.
+
 Every grid below is read like a normal 3x3 crafting table, top row first, blank cells
 empty.
 
@@ -39,6 +45,24 @@ a 3-position flow slider (`CPG → CEE` / Off / `CEE → PG`).
 | Iron Block | Item Vault | Iron Block |
 
 → **Grid Coupler**
+
+---
+
+## Mini Grid Coupler — the small, wall-mounted bridge
+
+**Requires: PG + CEE**
+
+The Grid Coupler's little sibling, rated 10 kW: the same one-way bridge with a 3-position
+flow slider (`CPG → CEE` / Neuter / `CEE → CPG`), a flip switch to turn it off, and a gauge
+showing the load. Held over 12 kW it burns out for good.
+
+| | | |
+|---|---|---|
+| Wire Connector (PG) | — | Connector (CEE) |
+| Wire Connector (PG) | Clock | Connector (CEE) |
+| Iron Ingot | Andesite Casing | Iron Ingot |
+
+→ **Mini Grid Coupler**
 
 ---
 
@@ -162,6 +186,25 @@ Connector**, or **Device Connector** (all PG).
 
 ---
 
+## Embedded Connector
+
+**CEE Embedded Connector requires: CEE · CPG Embedded Connector requires: PG**
+
+Two separate pins in a hollow block with a lid, to set into a wall. Its walls copy any
+block used on it (polished andesite until then; a wrench takes the block back off); an
+empty hand opens and shuts the lid.
+
+| | | |
+|---|---|---|
+| Polished Andesite | Iron Trapdoor | Polished Andesite |
+| Polished Andesite | Double Connector\* | Polished Andesite |
+| Polished Andesite | Polished Andesite | Polished Andesite |
+
+\* CEE's **Double Connector** for the CEE one; CIO's **CPG Double Connector** for the
+CPG one.
+
+---
+
 ## Aircon (cooling)
 
 A three-part air conditioner: a bottom motor unit (grid-specific), a fan on top, and an
@@ -247,6 +290,120 @@ You can have anywhere from 0 up to 3 radiator segments in one run.
 > game but currently has **no crafting recipe** — creative-menu / `/give` only.
 
 ---
+
+## CEE Utility Pole
+
+**Requires: CEE**
+
+| | | |
+|---|---|---|
+| Connector (CEE) | Oak Fence | Connector (CEE) |
+| — | Oak Fence | — |
+| — | Oak Fence | — |
+
+→ **3 CEE Utility Poles**
+
+## CPG Utility Pole
+
+**Requires: CPG**
+
+| | | |
+|---|---|---|
+| Wire Connector (CPG) | Oak Fence | Wire Connector (CPG) |
+| — | Oak Fence | — |
+| — | Oak Fence | — |
+
+→ **3 CPG Utility Poles**
+
+## CEE Streetlight
+
+**Requires: CEE**
+
+| | | |
+|---|---|---|
+| Iron Sheet | Daylight Detector | Iron Sheet |
+| Connector (CEE) | Bulb (CEE) | Connector (CEE) |
+
+→ **1 CEE Streetlight**
+
+## Microphone
+
+**Requires: CEE + CC: Tweaked + ComputerCraft CEE Addon**
+
+Shapeless:
+
+- Electric Speaker (ComputerCraft CEE Addon) **or** Speaker (CC: Tweaked)
+- Iron Bars
+
+→ **1 Microphone**
+
+## Radio Goggles
+
+**Requires: CEE + CC: Tweaked + ComputerCraft CEE Addon**
+
+Shapeless:
+
+- Engineer's Goggles (Create)
+- RX Antenna (ComputerCraft CEE Addon)
+
+→ **1 Radio Goggles** (Engineer's Goggles that also show rings radiating from TX antennas and dishes on the air)
+
+## CPG Streetlight
+
+**Requires: CPG**
+
+| | | |
+|---|---|---|
+| Iron Sheet | Daylight Detector | Iron Sheet |
+| Wire Connector (CPG) | Light Bulb (CPG) | Wire Connector (CPG) |
+
+→ **1 CPG Streetlight**
+
+## UV Bulb
+
+**Requires: CPG**
+
+| | |
+|---|---|
+| Light Bulb (CPG) | Powdered Obsidian **or** End Rod |
+
+(Side by side, either order, anywhere in the grid.) → **1 UV Bulb**
+
+A 240 V / 120 W bulb (the Growth Lamp's ratings) for any CPG light fixture. It barely
+glows, but while lit no hostile mob spawns naturally within 16 blocks; zombies, skeletons,
+phantoms, creepers, spiders and slimes within 14 blocks are hurt every 2 seconds, and set alight
+within 5. In a Factory Light the beam clears harmful effects (as milk would) from anything
+standing in it, stings anything that stays for 10 seconds, and grows crops below twice as
+fast as a Growth Lamp. Which mobs it hurts is the `createinteroperable:uv_sensitive` entity
+tag.
+
+## IR Bulb
+
+**Requires: CPG**
+
+| | |
+|---|---|
+| Light Bulb (CPG) | Redstone Dust **or** Blaze Powder |
+
+(Side by side, either order, anywhere in the grid.) → **1 IR Bulb**
+
+The UV Bulb's red twin: same ratings, same faint glow and spawn ward, and in a Factory Light
+the same cleansing beam and faster crops. Instead of hurting anything, it makes every mob
+within 14 blocks glow for 10 seconds (renewed while they stay in reach); the beam doesn't
+sting.
+
+## Copycat Pipe Casing
+
+**Stonecutter:** 1 Zinc Ingot → **1 Copycat Pipe Casing**
+
+Use it on a Fluid Pipe or Glass Fluid Pipe, like Copper Casing — Create's copper pipes, or
+Create: Encased's andesite, brass and zinc pipes when that mod is installed. Then use any full
+block on the encased pipe to dress the casing in that block (the block is used up, as with
+Create's copycats; use the same block again to turn it). The pipe keeps its connections, and
+each connected side shows a pipe's open end (always in Create's copper pipe look, whichever
+pipe is inside). With a block you can see through (glass, leaves), the pipe is drawn inside.
+Wrench: takes the block off (on a bare casing, takes the casing off). Sneak-wrench: takes the
+casing off, giving back the casing, the block and the same pipe that went in.
 
 ## Not craftable yet (work in progress)
 

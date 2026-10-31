@@ -2,6 +2,7 @@ package com.cio.createinteroperable.powerkit.cee;
 
 import com.cio.createinteroperable.modules.ElectroEnergeticsModule;
 import com.cio.createinteroperable.powerkit.PowerKitGeometry;
+import com.cio.createinteroperable.powerkit.PowerKitSwitch;
 import com.cio.createinteroperable.powerkit.cpg.PowerKitTier1Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.phys.Vec3;
@@ -32,6 +33,11 @@ public class CeePowerKitTier1Block extends CeeDebRectifierBlock {
     }
 
     @Override
+    public double[] signalNubBox() {
+        return null;
+    }
+
+    @Override
     protected Map<Integer, Vec3> nodesNorth() {
         return NODES;
     }
@@ -41,6 +47,18 @@ public class CeePowerKitTier1Block extends CeeDebRectifierBlock {
     @Override
     protected String[] outletsNorth() {
         return OUTLETS;
+    }
+
+    /** The flip switch under the gauge. */
+    @Override
+    public PowerKitSwitch.Kind masterSwitch() {
+        return PowerKitSwitch.Kind.FLIP_SWITCH;
+    }
+
+    /** The Improvised kit keeps its own look: no paint. */
+    @Override
+    public boolean dyeable() {
+        return false;
     }
 
     @Override

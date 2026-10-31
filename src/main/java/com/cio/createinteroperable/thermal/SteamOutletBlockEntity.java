@@ -130,6 +130,11 @@ public class SteamOutletBlockEntity extends KineticBlockEntity {
      * {@link #tickSteamParticles}); a closed valve or an inactive boiler
      * both read 0.
      */
+    /** The valve's open fraction, 0..1 — also throttles pipe-fed Steam Engines (see {@link SteamEngineNetwork}). */
+    public float getValveFraction() {
+        return pointer.getValue();
+    }
+
     public double currentPressure() {
         FluidTankBlockEntity controller = getBoilerController();
         if (controller == null) {
@@ -161,63 +166,28 @@ public class SteamOutletBlockEntity extends KineticBlockEntity {
         }
     }
 
-    /**
-     * How many degrees of real shaft rotation correspond to a full 0→100%
-     * valve sweep. NOT a literal 1-configured-degree-to-1% mapping — that
-     * was tried (100.0 here) and is structurally impossible to achieve via
-     * Create's kinetic network, confirmed by reading both
-     * {@code HandCrankBlockEntity} (the Valve Handle's real parent class)
-     * and {@code ValveHandleBlockEntity} directly:
-     * <ul>
-     *     <li>{@code HandCrankBlockEntity#getGeneratedSpeed()} outputs the
-     *     block's FULL nominal {@code rotationSpeed} (32 RPM for the Copper
-     *     Valve Handle) for every tick {@code inUse > 0} — there is no
-     *     partial-speed/fractional-tick signal; the shaft is either at full
-     *     speed or stopped, nothing in between.</li>
-     *     <li>{@code ValveHandleBlockEntity#activate()} sets
-     *     {@code inUse = ceil(targetDegrees / degreesPerTick) + 2} — that
-     *     flat {@code + 2} padding means EVERY activation, even the
-     *     UI-minimum 1° target ({@code ValveHandleScrollValueBehaviour}
-     *     clamps to {@code max(1, value)}), still drives the shaft at full
-     *     speed for a MINIMUM of 3 ticks.</li>
-     * </ul>
-     * At the Copper Valve Handle's 32 RPM (9.6°/tick via
-     * {@code convertToAngular}), that minimum floor is 3 × 9.6 ≈ 28.8° of
-     * REAL shaft rotation per click, REGARDLESS of how small the configured
-     * target is — the handle's own "1°" turn is only honest for its OWN
-     * cosmetic model interpolation ({@code getIndependentAngle}), not for
-     * what it actually broadcasts to the kinetic network every other
-     * attached block reads via {@link #getSpeed()}. This is the exact,
-     * sourced cause of a real reported bug: "even at 1º turn... wildly
-     * bigger, ~30%, changes" — 28.8/100 ≈ 29%, matching almost exactly.
-     * <p>
-     * Since there is no way to distinguish "a genuinely tiny click" from
-     * "the engine's own unavoidable minimum pulse" from here, this constant
-     * is instead picked so that pulse floor itself reads as a small,
-     * reasonable step: 2880° (8 full shaft rotations) makes even the
-     * smallest possible real click land at roughly 28.8/2880 ≈ 1% — the
-     * closest honest approximation of "the smallest turn barely nudges it"
-     * actually achievable, while sustained rotation (a windmill, water
-     * wheel, etc. left spinning) still reaches 100% in a reasonable ~10-30
-     * real seconds at typical early RPMs.
+    /*
+     * Valve feel: see SteamValve (one full handle turn = fully open). The
+     * Valve Handle facts behind it, from reading Create: a click drives the
+     * shaft at full speed (no partial-speed signal), and
+     * ValveHandleBlockEntity#activate pads every activation by 2 ticks, so even
+     * the UI-minimum 1° target spins the shaft for at least 3 ticks, about 29° at
+     * the Copper Valve Handle's 32 RPM. Until 0.1.150 this block used 2880° (8
+     * turns) per sweep so that floor read as ~1%; the user found it far too slow.
      */
-    private static final double DEGREES_PER_FULL_SWEEP = 2880.0;
 
     @Override
     public void tick() {
         super.tick();
         // Direct accumulation of the shaft's REAL rotation this tick, not a
-        // chase toward a fixed 0/1 target — see DEGREES_PER_FULL_SWEEP's own
-        // doc for why. getSpeed() is Create's internal RPM-like unit;
+        // chase toward a fixed 0/1 target — see SteamValve for the rule. getSpeed() is Create's internal RPM-like unit;
         // KineticBlockEntity#convertToAngular is Create's own real
         // rpm->degrees/tick conversion (speed * 360 / 60 / 20), the same one
         // ValveHandleBlockEntity itself uses to know how many ticks its own
         // bounded turn needs — reused here rather than re-deriving it.
         float speed = getSpeed();
         if (speed != 0) {
-            double degreesThisTick = convertToAngular(Math.abs(speed));
-            double deltaFraction = degreesThisTick / DEGREES_PER_FULL_SWEEP;
-            double next = Mth.clamp(pointer.getValue() + Math.signum(speed) * deltaFraction, 0.0, 1.0);
+            float next = SteamValve.step(pointer.getValue(), speed);
             // Chase speed 1.0 = can move the full 0..1 range in a single
             // tick, so this always lands exactly on `next` this same tick —
             // LerpedFloat is kept only for its existing NBT/sync plumbing,
@@ -315,7 +285,10 @@ public class SteamOutletBlockEntity extends KineticBlockEntity {
      * value automatically. Divided by {@code attachedEngines} (which counts
      * THIS block too, via BoilerDataMixin) so multiple Outlets/Engines sharing
      * one boiler split its total output instead of each independently
-     * claiming the whole thing.
+     * claiming the whole thing. Pipe-fed Steam Engines (see
+     * {@link SteamEngineNetwork}) are in {@code attachedEngines} too, counted
+     * here at their real fractional load (see
+     * {@link RemoteEngineLedger#createinteroperable$effectiveEngines}).
      */
     /**
      * Looked up by resource location straight from the vanilla block registry
@@ -343,10 +316,11 @@ public class SteamOutletBlockEntity extends KineticBlockEntity {
         }
         int boilerLevel = Math.min(boiler.activeHeat,
                 Math.min(boiler.getMaxHeatLevelForWaterSupply(), boiler.getMaxHeatLevelForBoilerSize(boilerSize)));
+        float engines = ((RemoteEngineLedger) boiler).createinteroperable$effectiveEngines();
         Block steamEngine = BuiltInRegistries.BLOCK.get(STEAM_ENGINE_ID);
-        double totalSU = efficiency * 16 * Math.max(boilerLevel, boiler.attachedEngines)
+        double totalSU = efficiency * 16 * Math.max(boilerLevel, engines)
                 * BlockStressValues.getCapacity(steamEngine);
-        return totalSU / boiler.attachedEngines;
+        return totalSU / engines;
     }
 
     /**
@@ -366,7 +340,7 @@ public class SteamOutletBlockEntity extends KineticBlockEntity {
         int boilerSize = controller.getTotalTankSize();
         int actualHeat = Math.min(boiler.activeHeat,
                 Math.min(boiler.getMaxHeatLevelForWaterSupply(), boiler.getMaxHeatLevelForBoilerSize(boilerSize)));
-        return boiler.attachedEngines > actualHeat;
+        return ((RemoteEngineLedger) boiler).createinteroperable$effectiveEngines() > actualHeat;
     }
 
     /** Rise speed in blocks/tick — height traveled is roughly this times the particle's ~80-130 tick lifetime (see RadiatorSmokeParticle), so this pair alone is what makes a high-pressure vent read "a lot higher", not a separate height mechanic. */
@@ -589,6 +563,14 @@ public class SteamOutletBlockEntity extends KineticBlockEntity {
                             .add(Lang.translate("unit.mb_per_tick")).add(bufferFull ? Lang.translate("thermal.buffer_full") : Lang.empty())
                             .style(bufferFull ? ChatFormatting.RED : ChatFormatting.AQUA))
                     .forGoggles(tooltip, 1);
+
+            int pipeEngines = ((RemoteEngineLedger) controller.boiler).createinteroperable$remoteEngineCount();
+            if (pipeEngines > 0) {
+                Lang.translate("thermal.pipe_steam_engines")
+                        .style(ChatFormatting.GRAY)
+                        .add(CreateLang.number(pipeEngines).style(ChatFormatting.GOLD))
+                        .forGoggles(tooltip, 1);
+            }
 
             if (isOverstressed(controller)) {
                 Lang.translate("thermal.overstressed")

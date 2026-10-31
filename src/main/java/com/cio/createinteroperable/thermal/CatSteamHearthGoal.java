@@ -142,7 +142,7 @@ public class CatSteamHearthGoal extends Goal {
 
     private int scanCooldown;
     @Nullable
-    private WeakReference<RadiatorValveNorthBlockEntity> hearthRef;
+    private WeakReference<SteamHearth> hearthRef;
     /** Game time the cat should stop waiting and actually get up — see the class doc's "Idle" state. -1 until a Hearth has been noticed. */
     private long approachAtTick = -1;
     /** Game time the cat should give up on a now-cold Hearth and leave — see the class doc's "Leaving" state. -1 whenever not currently counting down (including "still warm"). */
@@ -176,7 +176,7 @@ public class CatSteamHearthGoal extends Goal {
         Level level = cat.level();
         long gameTime = level.getGameTime();
 
-        RadiatorValveNorthBlockEntity hearth = hearthRef != null ? hearthRef.get() : null;
+        SteamHearth hearth = hearthRef != null ? hearthRef.get() : null;
         if (hearth == null || hearth.isRemoved() || hearth.getLevel() != level) {
             hearthRef = null;
             if (scanCooldown > 0) {
@@ -217,7 +217,7 @@ public class CatSteamHearthGoal extends Goal {
         if (cat.isOrderedToSit()) {
             return false;
         }
-        RadiatorValveNorthBlockEntity hearth = hearthRef != null ? hearthRef.get() : null;
+        SteamHearth hearth = hearthRef != null ? hearthRef.get() : null;
         if (hearth == null || hearth.isRemoved() || hearth.getLevel() != cat.level()) {
             return false;
         }
@@ -272,7 +272,7 @@ public class CatSteamHearthGoal extends Goal {
 
     @Override
     public void tick() {
-        RadiatorValveNorthBlockEntity hearth = hearthRef != null ? hearthRef.get() : null;
+        SteamHearth hearth = hearthRef != null ? hearthRef.get() : null;
         if (hearth == null) {
             return;
         }
@@ -332,7 +332,7 @@ public class CatSteamHearthGoal extends Goal {
         }
     }
 
-    private void tickJumping(RadiatorValveNorthBlockEntity hearth, long gameTime) {
+    private void tickJumping(SteamHearth hearth, long gameTime) {
         BlockPos top = finalTopPos;
         if (top == null) {
             phase = Phase.TRAVEL;
@@ -387,7 +387,7 @@ public class CatSteamHearthGoal extends Goal {
     }
 
     /** @return whether the CURRENT phase's real destination is still legitimate — false forces {@link #retarget} in {@link #tick()}. */
-    private boolean currentTargetStillValid(RadiatorValveNorthBlockEntity hearth) {
+    private boolean currentTargetStillValid(SteamHearth hearth) {
         if (wantsOnTop && hearth.getHeatTier() == BrassHeaterBlock.HeatLevel.BLAZING) {
             return false;
         }
@@ -397,7 +397,7 @@ public class CatSteamHearthGoal extends Goal {
     }
 
     /** Picks a fresh spot and begins pursuing it, mid-goal — used both by the periodic re-check in {@link #tick()} and by a failed jump attempt (with {@code allowOnTopChoice = false}, forcing a beside spot). @return false if nothing usable was found at all. */
-    private boolean retarget(RadiatorValveNorthBlockEntity hearth, boolean allowOnTopChoice) {
+    private boolean retarget(SteamHearth hearth, boolean allowOnTopChoice) {
         SpotChoice spot = pickSpot(hearth, cat, allowOnTopChoice);
         if (spot == null) {
             return false;
@@ -441,12 +441,12 @@ public class CatSteamHearthGoal extends Goal {
      * nearby Hearth's room am I in").
      */
     @Nullable
-    private RadiatorValveNorthBlockEntity findAttractiveHearth() {
+    private SteamHearth findAttractiveHearth() {
         Level level = cat.level();
         BlockPos catPos = cat.blockPosition();
-        RadiatorValveNorthBlockEntity best = null;
+        SteamHearth best = null;
         double bestDistSq = Double.MAX_VALUE;
-        for (RadiatorValveNorthBlockEntity hearth : RadiatorValveNorthBlockEntity.activeHearthsSnapshot()) {
+        for (SteamHearth hearth : SteamHearths.snapshot()) {
             if (hearth.isRemoved() || hearth.getLevel() != level) {
                 continue;
             }
@@ -504,10 +504,11 @@ public class CatSteamHearthGoal extends Goal {
      * (used when a jump attempt just failed).
      */
     @Nullable
-    private static SpotChoice pickSpot(RadiatorValveNorthBlockEntity hearth, Cat cat, boolean allowOnTopChoice) {
+    private static SpotChoice pickSpot(SteamHearth hearth, Cat cat, boolean allowOnTopChoice) {
         Level level = cat.level();
         Set<BlockPos> room = hearth.getRoomCache();
-        boolean allowOnTop = allowOnTopChoice && hearth.getHeatTier() != BrassHeaterBlock.HeatLevel.BLAZING;
+        boolean allowOnTop = allowOnTopChoice && hearth.catsMayLieOnTop()
+                && hearth.getHeatTier() != BrassHeaterBlock.HeatLevel.BLAZING;
 
         if (allowOnTop) {
             List<BlockPos> topCandidates = new ArrayList<>();
@@ -526,6 +527,14 @@ public class CatSteamHearthGoal extends Goal {
                 // This segment's own top is free, but nothing free/reachable
                 // beside it to stage the jump from — try the next candidate
                 // rather than falling straight through to "beside anywhere."
+            }
+        }
+
+        List<BlockPos> preferred = new ArrayList<>(hearth.preferredCatSpots());
+        sortByDistancePreferred(preferred, cat);
+        for (BlockPos pos : preferred) {
+            if (room.contains(pos) && isFree(level, pos, cat)) {
+                return new SpotChoice(pos, false, null);
             }
         }
 
@@ -549,7 +558,7 @@ public class CatSteamHearthGoal extends Goal {
 
     /** @return a free, in-room horizontal neighbor of {@code seg} to stage a jump onto {@code seg}'s own top from, or null if all 4 sides are blocked/occupied/outside the room. */
     @Nullable
-    private static BlockPos stagingSpotFor(RadiatorValveNorthBlockEntity hearth, BlockPos seg, Cat cat) {
+    private static BlockPos stagingSpotFor(SteamHearth hearth, BlockPos seg, Cat cat) {
         Level level = cat.level();
         Set<BlockPos> room = hearth.getRoomCache();
         List<BlockPos> sides = new ArrayList<>(4);
@@ -573,7 +582,7 @@ public class CatSteamHearthGoal extends Goal {
     }
 
     /** Every one of this Hearth's own flood-filled room cells within {@code maxDist} (real distance) of ANY of its segments. */
-    private static List<BlockPos> nearbyRoomCells(RadiatorValveNorthBlockEntity hearth, double maxDist) {
+    private static List<BlockPos> nearbyRoomCells(SteamHearth hearth, double maxDist) {
         List<BlockPos> segments = hearth.getAllSegmentPositions();
         double maxDistSq = maxDist * maxDist;
         List<BlockPos> result = new ArrayList<>();

@@ -1,12 +1,15 @@
 package com.cio.createinteroperable;
 
+import com.cio.createinteroperable.copycat.CopycatEncasedPipeBlock;
 import com.cio.createinteroperable.thermal.AirconMotorTopBlock;
 import com.cio.createinteroperable.thermal.AirconVenterBlock;
 import com.cio.createinteroperable.thermal.BrassHeaterBlock;
 import com.cio.createinteroperable.thermal.RadiatorMiddleBlock;
 import com.cio.createinteroperable.thermal.RadiatorValveNorthBlock;
 import com.cio.createinteroperable.thermal.RadiatorValveSouthBlock;
+import com.cio.createinteroperable.thermal.SteamEnginePipeBlock;
 import com.cio.createinteroperable.thermal.SteamOutletBlock;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
 import net.neoforged.bus.api.IEventBus;
@@ -22,7 +25,8 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 public class CIOBlocks {
     private static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(CreateInteroperable.ID);
 
-    // --- Steam heating loop (Create Boiler -> Steam Outlet -> pipes -> Brass Heater -> Cold Sweat) ---
+    // --- Steam heating loop (Create Boiler -> Steam Outlet -> pipes -> Brass Heater / Steam Hearth).
+    // None of these needs a temperature mod; one (Cold Sweat) only adds their effect on temperature. ---
 
     public static final DeferredBlock<SteamOutletBlock> STEAM_OUTLET = BLOCKS.register("steam_outlet",
             () -> new SteamOutletBlock(BlockBehaviour.Properties.of()
@@ -35,6 +39,21 @@ public class CIOBlocks {
                     .mapColor(MapColor.METAL)
                     .strength(2.0f, 6.0f)
                     ));
+
+    // A Fluid Pipe with a Steam Engine on it turns into this (no item: it only
+    // ever comes from placing the engine, and drops a Fluid Pipe).
+    public static final DeferredBlock<SteamEnginePipeBlock> STEAM_ENGINE_PIPE = BLOCKS.register("steam_engine_pipe",
+            () -> new SteamEnginePipeBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.COPPER_BLOCK)
+                    .noOcclusion()
+                    .mapColor(MapColor.TERRACOTTA_LIGHT_GRAY)));
+
+    // A Fluid Pipe in a Copycat Pipe Casing (no item: made by using the casing
+    // on a pipe; drops the pipe and the casing). Mining speed, tool and sound
+    // follow the block the casing copies.
+    public static final DeferredBlock<CopycatEncasedPipeBlock> COPYCAT_ENCASED_PIPE = BLOCKS.register("copycat_encased_pipe",
+            () -> new CopycatEncasedPipeBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.COPPER_BLOCK)
+                    .noOcclusion()
+                    .mapColor(MapColor.GLOW_LICHEN)));
 
     // --- Multi Radiator — extendable steam->water multiblock (scaffold, see
     // RadiatorAssembly). North/South are player-placed end caps; middle is

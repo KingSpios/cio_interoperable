@@ -10,6 +10,8 @@ import com.cio.createinteroperable.grid.GridConnection;
 import com.cio.createinteroperable.grid.Pool;
 import com.cio.createinteroperable.powerkit.DebNodeBox;
 import com.cio.createinteroperable.powerkit.DebTier;
+import com.cio.createinteroperable.powerkit.PowerKitReadout;
+import com.cio.createinteroperable.powerkit.PowerKitSwitch;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
 import com.simibubi.create.foundation.utility.CreateLang;
 import net.minecraft.ChatFormatting;
@@ -169,7 +171,7 @@ public class DebRectifierBlockEntity extends ElectricBlockEntity implements Appl
     protected float temperatureC;
 
     // --- tier-1 needle gauge, client-smoothed (see DebRectifierRenderer) --
-    /** Eased usage fraction the needle currently shows; 1.0 = a pool at its soft cap. */
+    /** Eased {@link #getWorstLoad} the needle currently shows (linear); 1.0 = a pool at its soft cap. */
     public float gauge;
     /** Previous tick's {@link #gauge}, for {@code Mth.lerp(partialTicks, ...)} in the renderer. */
     public float gaugePrev;
@@ -233,9 +235,35 @@ public class DebRectifierBlockEntity extends ElectricBlockEntity implements Appl
         return Pool.LV.nominalVoltage / primaryVolts();
     }
 
-    /** Regulated 12 V feed EMF: a fixed fraction of whatever the intake solved to. */
+    /** Regulated 12 V feed EMF: a fixed fraction of whatever the intake solved to (0 while switched off). */
     protected double stepDownEmf() {
-        return Math.max(0.0, intakeVolts() * stepDownRatio());
+        return isSwitchedOff() ? 0.0 : Math.max(0.0, DebTier.regulatedEmf(Pool.LV.nominalVoltage, intakeVolts(), primaryVolts(), tier().brownoutFraction(), poolVoltageFactor(Pool.LV)));
+    }
+
+    /**
+     * Fraction of full power this pool's output set may deliver: 1.0 here; the
+     * tier-4 control panel's levers lower it (see
+     * {@link com.cio.createinteroperable.powerkit.PowerKitControls}). Linked
+     * appliances are billed at it and the pool's feed voltage is scaled by its
+     * square root, so a dimmed rail browns out where it physically falls.
+     */
+    protected double poolPowerFactor(Pool pool) {
+        return 1.0;
+    }
+
+    /** Output voltage factor for {@link #poolPowerFactor}: its square root. */
+    protected double poolVoltageFactor(Pool pool) {
+        return Math.sqrt(poolPowerFactor(pool));
+    }
+
+    /**
+     * True while the kit's master switch (tier 2's slide switch, tier 3's
+     * E-Stop) is off: the readouts stay lit, but nothing is transmitted &mdash;
+     * no appliance is energised or billed, the feeds are dead and the intake is
+     * an open circuit. Read off the blockstate, so client-safe and immediate.
+     */
+    public boolean isSwitchedOff() {
+        return PowerKitSwitch.isOff(getBlockState());
     }
 
     /** Solved voltage across the intake terminals. */
@@ -290,7 +318,7 @@ public class DebRectifierBlockEntity extends ElectricBlockEntity implements Appl
      * {@link #lvFeed}'s node voltages.
      */
     protected double lvRailVolts() {
-        double emf = intakeVolts() * stepDownRatio();
+        double emf = DebTier.regulatedEmf(Pool.LV.nominalVoltage, intakeVolts(), primaryVolts(), tier().brownoutFraction(), poolVoltageFactor(Pool.LV));
         double sag = lvFeedCurrent() * tier().stepDownResistance();
         return Math.max(0.0, emf - sag);
     }
@@ -447,6 +475,13 @@ public class DebRectifierBlockEntity extends ElectricBlockEntity implements Appl
         // Meter the Power Feeds (downstream fixtures on the output nubs).
         meterFeeds();
 
+        // Switched off: the feeds are dead and reportLinkedAppliances bills
+        // nothing, so the intake below falls back to an open circuit.
+        boolean off = isSwitchedOff();
+        if (off) {
+            java.util.Arrays.fill(externalWatts, 0f);
+        }
+
         // Push this tick's aggregate load onto the single intake resistor
         // (consumed by PG's next solve). Harmless no-op on a CEE kit — the stub
         // circuit is isolated and nothing reads it.
@@ -458,15 +493,15 @@ public class DebRectifierBlockEntity extends ElectricBlockEntity implements Appl
         // read straight off the feed couplings: an unwired Power Feed nub is a
         // floating island in PG's solver whose node voltages read ~0, which
         // would make a grid-powered board look completely unpowered.
-        busVolts[Pool.MV.ordinal()] = (float) mvRailVolts();
-        busVolts[Pool.LV.ordinal()] = (float) lvRailVolts();
+        busVolts[Pool.MV.ordinal()] = off ? 0f : (float) mvRailVolts();
+        busVolts[Pool.LV.ordinal()] = off ? 0f : (float) lvRailVolts();
 
         boolean anyLive = false;
         boolean anyFaulted = false;
         boolean grossOverload = false;
         for (Pool pool : Pool.values()) {
             int i = pool.ordinal();
-            if (pool == Pool.MV && !tier().servesMediumVoltage()) {
+            if (off || poolPowerFactor(pool) <= 0.0 || (pool == Pool.MV && !tier().servesMediumVoltage())) {
                 railFaulted[i] = false;
                 railLive[i] = false;
                 brownoutTicks[i] = 0;
@@ -533,9 +568,13 @@ public class DebRectifierBlockEntity extends ElectricBlockEntity implements Appl
         return (float) (totalWatts(Pool.LV) + totalWatts(Pool.MV));
     }
 
-    /** True while the intake or the 12 V feed is delivering voltage — gates the face readouts. Client-safe. */
+    /**
+     * True while the intake or the 12 V feed is delivering voltage — gates the
+     * face readouts. The intake alone counts so a switched-off kit, whose rails
+     * are dead, stays lit. Client-safe.
+     */
     public boolean isPowered() {
-        return busVolts[Pool.MV.ordinal()] >= 1f || busVolts[Pool.LV.ordinal()] >= 1f;
+        return intakeDisplayVolts() >= 1.0 || busVolts[Pool.MV.ordinal()] >= 1f || busVolts[Pool.LV.ordinal()] >= 1f;
     }
 
     /**
@@ -549,7 +588,7 @@ public class DebRectifierBlockEntity extends ElectricBlockEntity implements Appl
         return soft <= 0 ? 0f : (float) (totalWatts(pool) / soft);
     }
 
-    /** The higher of the two pools' {@link #getRailLoad} — drives the single body gauge / hum / smoke rate. */
+    /** The higher of the two pools' {@link #getRailLoad} — drives the needle and the hum / smoke rate. */
     public float getWorstLoad() {
         return Math.max(getRailLoad(Pool.LV), getRailLoad(Pool.MV));
     }
@@ -679,10 +718,18 @@ public class DebRectifierBlockEntity extends ElectricBlockEntity implements Appl
         return networkConflict;
     }
 
-    /** Whichever backend distributes power reports its per-pool link tally here each server tick. */
+    /**
+     * Whichever backend distributes power reports its per-pool link tally here
+     * each server tick. Switched off, the links still count but nothing is
+     * billed; a dimmed pool bills its appliances at {@link #poolPowerFactor}.
+     */
     @Override
     public void reportLinkedAppliances(double[] wattsByPool, int[] countByPool) {
-        System.arraycopy(wattsByPool, 0, linkedWatts, 0, linkedWatts.length);
+        boolean off = isSwitchedOff();
+        for (Pool pool : Pool.values()) {
+            int i = pool.ordinal();
+            linkedWatts[i] = off ? 0.0 : wattsByPool[i] * poolPowerFactor(pool);
+        }
         System.arraycopy(countByPool, 0, linkedCount, 0, linkedCount.length);
     }
 
@@ -779,6 +826,12 @@ public class DebRectifierBlockEntity extends ElectricBlockEntity implements Appl
                     .forGoggles(tooltip, 1);
         }
 
+        if (isSwitchedOff()) {
+            CreateLang.builder()
+                    .add(Component.translatable(GK + "transmission_off").withStyle(ChatFormatting.RED, ChatFormatting.BOLD))
+                    .forGoggles(tooltip, 1);
+        }
+
         if (isPlayerSneaking) {
             CreateLang.builder()
                     .add(Component.translatable(GK + "range",
@@ -856,7 +909,7 @@ public class DebRectifierBlockEntity extends ElectricBlockEntity implements Appl
                 : Component.translatable(GK + "state_idle");
 
         Component value = Component.translatable(GK + "rail_value",
-                percent, Math.round(used), softCapW, stateSuffix).withStyle(loadColor);
+                PowerKitReadout.percent(getRailLoad(pool)), Math.round(used), softCapW, stateSuffix).withStyle(loadColor);
 
         CreateLang.builder()
                 .add(Component.translatable(GK + "rail", Component.translatable(railNameKey), value))

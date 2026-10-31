@@ -2,6 +2,7 @@ package com.cio.createinteroperable.telephone.cee;
 
 import com.cio.createinteroperable.Lang;
 import com.cio.createinteroperable.CIOValueBox;
+import com.cio.createinteroperable.computer.ComputerLinkBehaviour;
 import com.cio.createinteroperable.telephone.CioTelephone;
 import com.cio.createinteroperable.telephone.TelephoneAutoAnswerBehaviour;
 import com.cio.createinteroperable.telephone.TelephoneCore;
@@ -59,6 +60,7 @@ public class CeeTelephoneBlockEntity extends SmartBlockEntity implements IHaveHo
     public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
         autoAnswerValue = new TelephoneAutoAnswerBehaviour(this, slot(12.05, 10.5, 12.5, 270));
         behaviours.add(autoAnswerValue);
+        behaviours.add(new ComputerLinkBehaviour(this));
     }
 
     /** Slider box on the face a legacy {@code baseAngle} pointed at, carried through the block's own facing (see {@link CIOValueBox}). */
@@ -83,6 +85,11 @@ public class CeeTelephoneBlockEntity extends SmartBlockEntity implements IHaveHo
     }
 
     @Override
+    public String kindId() {
+        return "cee";
+    }
+
+    @Override
     public Component wiringLabel() {
         return Lang.component("telephone.wiring.cee");
     }
@@ -96,6 +103,12 @@ public class CeeTelephoneBlockEntity extends SmartBlockEntity implements IHaveHo
     @Override
     public void playRingSound() {
         AllSoundEvents.DESK_BELL_USE.play(level, null, worldPosition);
+    }
+
+    /** The CEE phone's desk bell rings twice as fast as the other phones' bell. */
+    @Override
+    public int ringSoundPeriodTicks() {
+        return 10;
     }
 
     @Override
@@ -156,9 +169,6 @@ public class CeeTelephoneBlockEntity extends SmartBlockEntity implements IHaveHo
         return core.onFrontUsed(player);
     }
 
-    InteractionResult onTopUsed(Player player) {
-        return core.onTopUsed(player);
-    }
 
     InteractionResult onBackPlateUsed(Player player) {
         return core.onBackPlateUsed(player);

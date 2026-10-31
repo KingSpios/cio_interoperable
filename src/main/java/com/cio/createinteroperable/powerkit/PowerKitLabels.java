@@ -34,6 +34,11 @@ public final class PowerKitLabels {
         return Lang.component("powerkit.outlet_nub", positive ? "+" : "−", volts);
     }
 
+    /** The signal nub ({@link PowerKitSignalNub}), also the CPG Telephone's: takes a Peripheral Cable to a computer. */
+    public static MutableComponent signal() {
+        return Lang.component("computer.signal_nub");
+    }
+
     /** "120V", "240V", "1kV" &mdash; the intake tap as a nub label reads it. */
     public static String volts(double v) {
         return v >= 1000.0

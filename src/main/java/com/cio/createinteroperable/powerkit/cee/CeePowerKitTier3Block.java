@@ -2,6 +2,8 @@ package com.cio.createinteroperable.powerkit.cee;
 
 import com.cio.createinteroperable.modules.ElectroEnergeticsModule;
 import com.cio.createinteroperable.powerkit.PowerKitGeometry;
+import com.cio.createinteroperable.powerkit.PowerKitSignalNub;
+import com.cio.createinteroperable.powerkit.PowerKitSwitch;
 import com.cio.createinteroperable.powerkit.cpg.PowerKitTier3Block;
 import com.cio.createinteroperable.powerkit.cpg.PowerKitTier3BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -37,6 +39,11 @@ public class CeePowerKitTier3Block extends CeeDebRectifierBlock {
     }
 
     @Override
+    public double[] signalNubBox() {
+        return PowerKitSignalNub.TIER3_BOX;
+    }
+
+    @Override
     protected Map<Integer, Vec3> nodesNorth() {
         return NODES;
     }
@@ -46,6 +53,12 @@ public class CeePowerKitTier3Block extends CeeDebRectifierBlock {
     @Override
     protected String[] outletsNorth() {
         return OUTLETS;
+    }
+
+    /** Tier 3: the E-Stop on the east plate. */
+    @Override
+    public PowerKitSwitch.Kind masterSwitch() {
+        return PowerKitSwitch.Kind.E_STOP;
     }
 
     @Override

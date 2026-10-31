@@ -36,7 +36,7 @@ public class PowerKitTier2BlockEntity extends PowerKitTier3BlockEntity {
     }
 
     @Override
-    protected boolean hasHvFeed() {
+    public boolean hasHvFeed() {
         return false;
     }
 

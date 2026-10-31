@@ -1,10 +1,16 @@
 {
   "variants": {
-    "facing=north": { "model": "createinteroperable:block/deb_rectifier_tier_4" },
-    "facing=south": { "model": "createinteroperable:block/deb_rectifier_tier_4", "y": 180 },
-    "facing=east":  { "model": "createinteroperable:block/deb_rectifier_tier_4", "y": 90 },
-    "facing=west":  { "model": "createinteroperable:block/deb_rectifier_tier_4", "y": -90 },
-    "facing=down":  { "model": "createinteroperable:block/deb_rectifier_tier_4", "x": 90 },
-    "facing=up":    { "model": "createinteroperable:block/deb_rectifier_tier_4", "x": -90 }
+    "facing=north":           {"model": "createinteroperable:block/deb_rectifier_tier_4"},
+    "facing=south":           {"model": "createinteroperable:block/deb_rectifier_tier_4", "y": 180},
+    "facing=east":            {"model": "createinteroperable:block/deb_rectifier_tier_4", "y": 90},
+    "facing=west":            {"model": "createinteroperable:block/deb_rectifier_tier_4", "y": -90},
+    "facing=down,top=north":  {"model": "createinteroperable:block/deb_rectifier_tier_4", "x": 90},
+    "facing=down,top=east":   {"model": "createinteroperable:block/deb_rectifier_tier_4", "x": 90, "y": 90},
+    "facing=down,top=south":  {"model": "createinteroperable:block/deb_rectifier_tier_4", "x": 90, "y": 180},
+    "facing=down,top=west":   {"model": "createinteroperable:block/deb_rectifier_tier_4", "x": 90, "y": 270},
+    "facing=up,top=north":    {"model": "createinteroperable:block/deb_rectifier_tier_4", "x": -90, "y": 180},
+    "facing=up,top=east":     {"model": "createinteroperable:block/deb_rectifier_tier_4", "x": -90, "y": 270},
+    "facing=up,top=south":    {"model": "createinteroperable:block/deb_rectifier_tier_4", "x": -90},
+    "facing=up,top=west":     {"model": "createinteroperable:block/deb_rectifier_tier_4", "x": -90, "y": 90}
   }
 }

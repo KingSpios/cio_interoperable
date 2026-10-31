@@ -5,13 +5,18 @@
   "plugin": "com.cio.createinteroperable.mixin.crayfish.CrayfishMixinPlugin",
   "mixins": [
     "CeeDebSourceNodeMixin",
+    "CrayfishToiletBottleMixin",
+    "CrayfishFreezerInsertMixin",
+    "CrayfishFreezerSlotMixin",
     "DebSourceNodeMixin",
     "ElectricSwitchNodeMixin",
     "IFluidContainerBlockMixin",
     "IdenTelephoneNodeMixin",
     "LetsDoLampNodeMixin",
     "MtsAaPowerNodeCrayfishMixin",
-    "RefurbishedFixtureTapMixin"
+    "RefurbishedFixtureTapMixin",
+    "UrbanFanNodeMixin",
+    "UrbanWashingMachineNodeMixin"
   ],
   "client": [],
   "minVersion": "0.8"

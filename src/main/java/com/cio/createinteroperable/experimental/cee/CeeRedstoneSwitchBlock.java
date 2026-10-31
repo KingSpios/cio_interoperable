@@ -55,8 +55,7 @@ public class CeeRedstoneSwitchBlock extends SimpleElectricalDeviceBlock<Redstone
     public CeeRedstoneSwitchBlock(Properties properties) {
         super(properties);
         registerDefaultState(defaultBlockState().setValue(FACING, Direction.NORTH).setValue(POWERED, false));
-        this.shaper = VoxelShaper.forDirectional(PowerKitGeometry.REDSTONE_SWITCH_SHAPE, Direction.NORTH)
-                .withVerticalShapes(PowerKitGeometry.REDSTONE_SWITCH_SHAPE);
+        this.shaper = VoxelShaper.forDirectional(PowerKitGeometry.REDSTONE_SWITCH_SHAPE, Direction.NORTH);
     }
 
     @Override
@@ -107,16 +106,15 @@ public class CeeRedstoneSwitchBlock extends SimpleElectricalDeviceBlock<Redstone
 
     @Override
     public Map<Integer, Vec3> getNodePositions(Level level, BlockPos pos, BlockState state) {
-        int angle = PowerKitGeometry.angleFor(state);
         Map<Integer, Vec3> out = new HashMap<>();
-        NODES.forEach((id, v) -> out.put(id, PowerKitGeometry.rotateY(v, angle)));
+        NODES.forEach((id, v) -> out.put(id, PowerKitGeometry.orient(state, v)));
         return out;
     }
 
     @Override
     public Vec3 getNodePosition(Level level, BlockPos pos, BlockState state, int id) {
         Vec3 v = NODES.get(id);
-        return v == null ? null : PowerKitGeometry.rotateY(v, PowerKitGeometry.angleFor(state));
+        return v == null ? null : PowerKitGeometry.orient(state, v);
     }
 
     @Override

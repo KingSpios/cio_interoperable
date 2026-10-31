@@ -3,8 +3,11 @@
   "package": "com.cio.createinteroperable.mixin.cee",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "ElectricalDeviceHeatMixin"
+    "ElectricalDeviceHeatMixin",
+    "ConnectorPoleOffsetMixin"
   ],
-  "client": [],
+  "client": [
+    "WireSpoolNodeBoxMixin"
+  ],
   "minVersion": "0.8"
 }

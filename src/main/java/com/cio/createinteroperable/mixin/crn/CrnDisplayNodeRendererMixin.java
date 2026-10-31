@@ -1,6 +1,7 @@
 package com.cio.createinteroperable.mixin.crn;
 
 import com.cio.createinteroperable.grid.CrayfishClient;
+import net.minecraft.client.Minecraft;
 import net.minecraft.world.level.Level;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -44,7 +45,8 @@ public abstract class CrnDisplayNodeRendererMixin {
             at = @At("HEAD"), remap = false, require = 0)
     private void cioNodeRender$drawNode(CallbackInfo ci) {
         BlockEntity be = this.cioNodeRender$be;
-        if (be != null && !be.isRemoved()) {
+        // Contraption displays live in the contraption's own render level and can't be wired; no marker there.
+        if (be != null && !be.isRemoved() && be.getLevel() == Minecraft.getInstance().level) {
             CrayfishClient.drawDebNodeOverlay(be);
         }
     }

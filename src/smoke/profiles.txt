@@ -20,3 +20,14 @@ pg-mts       | powergrid mts                                   | PowerGridModule
 mts-crayfish | powergrid mts refurbished_furniture             | PowerGridModule ImmersiveVehiclesModule RefurbishedFurnitureModule RedstoneSwitchModule.Cpg
 # curios: Beachparty needs it at runtime without declaring it in its mods.toml.
 soft-mods    | powergrid electroenergetics refurbished_furniture cold_sweat pipesnphysics voicechat furniture candlelight beachparty curios alpinewhispers another_furniture | PowerGridModule ElectroEnergeticsModule BridgeModule RefurbishedFurnitureModule ColdSweatIntegration PipesNPhysicsIntegration VoiceCallTracker RedstoneSwitchModule.Cpg RedstoneSwitchModule.Cee
+# The ComputerCraft CEE Addon (it requires CC: Tweaked and Electro Energetics).
+cee-ccee     | electroenergetics computercraft computercraft_cee_addon | ElectroEnergeticsModule ComputerModule RedstoneSwitchModule.Cee
+pg-cee-ccee  | powergrid electroenergetics computercraft computercraft_cee_addon | PowerGridModule ElectroEnergeticsModule BridgeModule ComputerModule RedstoneSwitchModule.Cpg RedstoneSwitchModule.Cee
+# Beachparty with the addon: the radio's antenna pin (mixin.ccee.BeachpartyRadioPinMixin) applies at block registration.
+ccee-beachparty | electroenergetics computercraft computercraft_cee_addon beachparty curios | ElectroEnergeticsModule ComputerModule RedstoneSwitchModule.Cee
+# Urban Decor's water fixtures + washing machine (name-targeted mixins in createinteroperable.urbandecor.mixin.json); no CIO module.
+urban-decor  | urban_decor                                     | -
+# ...with Refurbished Furniture, whose adapter bolts IModuleNode onto the washing machine (UrbanWashingMachineNodeMixin).
+ud-crayfish  | urban_decor refurbished_furniture               | RefurbishedFurnitureModule
+# Urban Decor's speaker with the addon: its radio pin (mixin.ccee.UrbanSpeakerPinMixin) applies at block registration.
+ccee-urban-decor | electroenergetics computercraft computercraft_cee_addon urban_decor beachparty curios | ElectroEnergeticsModule ComputerModule RedstoneSwitchModule.Cee

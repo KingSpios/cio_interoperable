@@ -6,8 +6,12 @@ import com.cio.createinteroperable.grid.ApplianceGrid;
 import com.cio.createinteroperable.grid.ApplianceNode;
 import com.cio.createinteroperable.compat.Mods;
 import com.cio.createinteroperable.grid.GridConnection;
+import com.cio.createinteroperable.telephone.TelephoneListeners;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -26,6 +30,8 @@ import java.util.Set;
  * Native (no-Crayfish) power node for Let's Do Beachparty's Radio &mdash; the
  * {@link ApplianceNode} half. It only plays while powered; losing power
  * mid-track stops it. See {@link GramophoneNodeMixin} for the backend split.
+ * As a CC:EE radio receiver ({@code radio.receiver.ReceiverBlocks}) it is billed
+ * while it is on, and losing power silences it at once.
  */
 @Mixin(targets = "net.satisfy.beachparty.core.block.entity.RadioBlockEntity")
 public abstract class RadioNodeMixin implements ApplianceNode, MeteredAppliance {
@@ -86,8 +92,13 @@ public abstract class RadioNodeMixin implements ApplianceNode, MeteredAppliance 
         Level level = be.getLevel();
         if (level != null && !level.isClientSide) {
             level.sendBlockUpdated(be.getBlockPos(), be.getBlockState(), be.getBlockState(), 2);
-            if (!powered && this.isPlaying && CIOConfig.BEACHPARTY_APPLIANCES_REQUIRE_POWER.get()) {
-                this.stop();
+            if (!powered && CIOConfig.BEACHPARTY_APPLIANCES_REQUIRE_POWER.get()) {
+                if (this.isPlaying) {
+                    this.stop();
+                }
+                if (level instanceof ServerLevel server) {
+                    TelephoneListeners.silence(server, be.getBlockPos());
+                }
             }
         }
     }
@@ -104,11 +115,12 @@ public abstract class RadioNodeMixin implements ApplianceNode, MeteredAppliance 
 
     @Override
     public boolean cio$isConsuming() {
-        return this.isPlaying;
+        BlockEntity be = cioNode$be();
+        return this.isPlaying || (be.getLevel() != null && TelephoneListeners.isSpeaker(be.getLevel().dimension(), be.getBlockPos()));
     }
 
     @Nullable
-    public ClientboundBlockEntityDataPacket getUpdatePacket() {
+    public Packet<ClientGamePacketListener> getUpdatePacket() { // Packet, as BlockEntity declares it: a narrower return type would not override it from a mixin
         return ClientboundBlockEntityDataPacket.create(cioNode$be());
     }
 

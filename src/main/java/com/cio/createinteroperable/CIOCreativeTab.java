@@ -1,5 +1,6 @@
 package com.cio.createinteroperable;
 
+import com.cio.createinteroperable.thermal.TemperatureMods;
 import com.simibubi.create.AllCreativeModeTabs;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -13,6 +14,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 /**
@@ -29,10 +31,13 @@ import java.util.function.Supplier;
  * <p>Sections keep the order the tab had before modules existed: inside a
  * section, entries appear in registration order (core first, then Power Grid,
  * then Electro Energetics, as {@code CIOModules} registers them). The icon is
- * the highest-priority {@link #offerIcon offer}: the CPG Domestic Power Kit,
- * else its CEE twin, else the Steam Outlet. The Brass Heater is registered
+ * the highest-priority {@link #offerIcon offer}: {@link CIOItems#TAB_ICON} (an
+ * enlarged Domestic Power Kit) when either grid mod's Power Kits exist, else the
+ * Steam Outlet. The Brass Heater is registered
  * content (reachable via /give) but deliberately not listed, and so are the
- * CPG / CEE Redstone Switches (experimental branch only).</p>
+ * CPG / CEE Redstone Switches (experimental branch only). The Steam Hearth and
+ * Aircon parts are listed only while {@link TemperatureMods#climateBlocksEnabled()}
+ * (see {@link #CLIMATE_BLOCKS}).</p>
  */
 public class CIOCreativeTab {
     private static final DeferredRegister<CreativeModeTab> REGISTER =
@@ -47,11 +52,16 @@ public class CIOCreativeTab {
         /** Power Kits, telephones, connectors, transformer, streetlight. */
         DEVICES,
         /** Iden's Decor Electric buttons & switches. */
-        SWITCHES
+        SWITCHES,
+        /** Copycat Pipe Casing. */
+        DECORATION
     }
 
-    private record Entry(Section section, Supplier<? extends ItemLike> item) {
+    private record Entry(Section section, Supplier<? extends ItemLike> item, BooleanSupplier shown) {
     }
+
+    /** Visibility of the Steam Hearth and Aircon parts; pass to {@link #add(Section, Supplier, BooleanSupplier)}. */
+    public static final BooleanSupplier CLIMATE_BLOCKS = TemperatureMods::climateBlocksEnabled;
 
     private static final List<Entry> ENTRIES = new ArrayList<>();
     private static Supplier<? extends ItemLike> icon = CIOItems.STEAM_OUTLET;
@@ -63,13 +73,19 @@ public class CIOCreativeTab {
                     .withTabsBefore(AllCreativeModeTabs.PALETTES_CREATIVE_TAB.getId())
                     .icon(() -> new ItemStack(icon.get()))
                     .displayItems((params, output) -> ENTRIES.stream()
+                            .filter(entry -> entry.shown().getAsBoolean())
                             .sorted(Comparator.comparing(Entry::section)) // stable: keeps registration order
                             .forEach(entry -> output.accept(entry.item().get())))
                     .build());
 
     /** Lists an item in this tab. Call while registering (mod construction). */
     public static void add(Section section, Supplier<? extends ItemLike> item) {
-        ENTRIES.add(new Entry(section, item));
+        add(section, item, () -> true);
+    }
+
+    /** Lists an item in this tab while {@code shown} holds, checked each time the tab's contents are built. */
+    public static void add(Section section, Supplier<? extends ItemLike> item, BooleanSupplier shown) {
+        ENTRIES.add(new Entry(section, item, shown));
     }
 
     /** Proposes the tab icon; the highest priority wins (the Steam Outlet default is 0). */
@@ -82,10 +98,11 @@ public class CIOCreativeTab {
 
     public static void register(IEventBus modEventBus) {
         add(Section.CLIMATE, CIOItems.STEAM_OUTLET);
-        add(Section.CLIMATE, CIOItems.RADIATOR_VALVE_NORTH);
-        add(Section.CLIMATE, CIOItems.RADIATOR_VALVE_SOUTH);
-        add(Section.CLIMATE, CIOItems.AIRCON_VENTER);
-        add(Section.CLIMATE, CIOItems.AIRCON_MOTOR_TOP);
+        add(Section.CLIMATE, CIOItems.RADIATOR_VALVE_NORTH, CLIMATE_BLOCKS);
+        add(Section.CLIMATE, CIOItems.RADIATOR_VALVE_SOUTH, CLIMATE_BLOCKS);
+        add(Section.CLIMATE, CIOItems.AIRCON_VENTER, CLIMATE_BLOCKS);
+        add(Section.CLIMATE, CIOItems.AIRCON_MOTOR_TOP, CLIMATE_BLOCKS);
+        add(Section.DECORATION, CIOItems.COPYCAT_PIPE_CASING);
         REGISTER.register(modEventBus);
     }
 }

@@ -1,11 +1,16 @@
 package com.cio.createinteroperable.powerkit.cee;
 
+import com.cio.createinteroperable.pole.client.FenceMountRenderer;
+import net.minecraft.world.phys.AABB;
+import com.cio.createinteroperable.powerkit.PowerKitReadout;
+import com.cio.createinteroperable.powerkit.PowerKitGeometry;
 import com.cio.createinteroperable.Lang;
 import com.cio.createinteroperable.CreateInteroperable;
 import com.cio.createinteroperable.grid.CrayfishClient;
 import com.cio.createinteroperable.compat.Mods;
 import com.cio.createinteroperable.grid.Pool;
 import com.cio.createinteroperable.powerkit.cpg.DebRectifierRenderer;
+import com.cio.createinteroperable.powerkit.client.SignalNubRenderer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import com.simibubi.create.foundation.blockEntity.renderer.SafeBlockEntityRenderer;
@@ -17,7 +22,6 @@ import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -35,11 +39,20 @@ public class CeeDebRectifierRenderer extends SafeBlockEntityRenderer<CeeDebRecti
     private static final int LABEL_GREY = 0xFFB8B8B8;
     private static final int VALUE_AMBER = 0xFFFFC048;
     private static final int VALUE_RED = 0xFFFF5555;
+    /**
+     * Height budget (model px) for a viewer's value. {@code drawFace} fits a whole
+     * 9-row font line into its budget; the glyphs fill 8 of those rows (7 plus a
+     * descender), so 9/8 makes the tallest glyph exactly 1 px. More digits only
+     * shrink it further (the 2 px width budget).
+     */
+    private static final float VALUE_HEIGHT_PX = 9f / 8f;
 
     public static final PartialModel POINTER =
             PartialModel.of(CreateInteroperable.rl("block/power_kit/pointer"));
 
-    public static void init() { }
+    public static void init() {
+        SignalNubRenderer.init();
+    }
 
     private static final float PIN_X = 8.05f / 16f;
     private static final float PIN_Y = 7.05f / 16f;
@@ -54,6 +67,8 @@ public class CeeDebRectifierRenderer extends SafeBlockEntityRenderer<CeeDebRecti
     @Override
     protected void renderSafe(CeeDebRectifierBlockEntity be, float partialTicks, PoseStack ms,
                               MultiBufferSource buffer, int light, int overlay) {
+        // The kit's back plate against a fence post: the pole's bracket.
+        FenceMountRenderer.render(be, PowerKitGeometry.facing(be.getBlockState()), ms, buffer);
         // CeeDebRectifierBlockEntity gains Crayfish's IElectricityNode/ISourceNode
         // at runtime via CeeDebSourceNodeMixin (mirroring DebSourceNodeMixin on
         // the PG-rooted family) — same wrench-link node box + connection lines
@@ -62,16 +77,22 @@ public class CeeDebRectifierRenderer extends SafeBlockEntityRenderer<CeeDebRecti
             CrayfishClient.drawDebNodeOverlay(be);
         }
 
+        BlockState state = be.getBlockState();
+
+        // The signal nub (ComputerCraft CEE Addon installed) shows whether or not the kit is powered.
+        if (state.getBlock() instanceof CeeDebRectifierBlock kit) {
+            ms.pushPose();
+            applyFacing(ms, state);
+            SignalNubRenderer.render(state, kit.signalNubBox(), ms, buffer, light);
+            ms.popPose();
+        }
+
         if (!be.isPowered()) {
             return;
         }
 
-        BlockState state = be.getBlockState();
-        Direction facing = state.hasProperty(BlockStateProperties.FACING)
-                ? state.getValue(BlockStateProperties.FACING) : Direction.NORTH;
-
         ms.pushPose();
-        applyFacing(ms, facing);
+        applyFacing(ms, state);
 
         if (be.usesNeedleGauge()) {
             renderGauge(be, partialTicks, ms, buffer, light);
@@ -84,7 +105,9 @@ public class CeeDebRectifierRenderer extends SafeBlockEntityRenderer<CeeDebRecti
             float z = PLATE_Z_T2;
             drawViewer(ms, buffer, light, z, "12v", railPercent(be.getRailLoad(Pool.LV)), be.isRailFaulted(Pool.LV), 11f, 4f);
             drawViewer(ms, buffer, light, z, "120v", railPercent(be.getRailLoad(Pool.MV)), be.isRailFaulted(Pool.MV), 5f, 4f);
-            drawViewer(ms, buffer, light, z, Lang.component("powerkit.usage").getString(), Integer.toString(Math.round(be.getTotalUsageWatts())), false, 8f, 8f);
+            String usage = be.isSwitchedOff() ? Lang.component("common.off_caps").getString()
+                    : Integer.toString(Math.round(be.getTotalUsageWatts()));
+            drawViewer(ms, buffer, light, z, Lang.component("powerkit.usage").getString(), usage, be.isSwitchedOff(), 8f, 8f);
         }
 
         ms.popPose();
@@ -104,13 +127,13 @@ public class CeeDebRectifierRenderer extends SafeBlockEntityRenderer<CeeDebRecti
     }
 
     private static String railPercent(float load) {
-        return Math.round(load * 100f) + "%";
+        return PowerKitReadout.percent(load) + "%";
     }
 
     private void drawViewer(PoseStack ms, MultiBufferSource buffer, int worldLight, float plateZ,
                             String label, String value, boolean fault, float cx, float baseY) {
         drawFace(ms, buffer, label, cx / 16f, (baseY + 2.5f) / 16f, plateZ, 2f, 1f, LABEL_GREY, worldLight);
-        drawFace(ms, buffer, value, cx / 16f, (baseY + 1.5f) / 16f, plateZ, 2f, 2f,
+        drawFace(ms, buffer, value, cx / 16f, (baseY + 1.5f) / 16f, plateZ, 2f, VALUE_HEIGHT_PX,
                 fault ? VALUE_RED : VALUE_AMBER, LightTexture.FULL_BRIGHT);
     }
 
@@ -137,16 +160,21 @@ public class CeeDebRectifierRenderer extends SafeBlockEntityRenderer<CeeDebRecti
         ms.popPose();
     }
 
-    private static void applyFacing(PoseStack ms, Direction facing) {
+    private static void applyFacing(PoseStack ms, BlockState state) {
+        // Blockstate JSON order: x first, then y (so y is pushed first). JSON angles turn clockwise, Axis turns counter-clockwise.
         ms.translate(0.5, 0.5, 0.5);
-        switch (facing) {
-            case NORTH -> { }
-            case SOUTH -> ms.mulPose(Axis.YP.rotationDegrees(180));
-            case EAST -> ms.mulPose(Axis.YP.rotationDegrees(-90));
-            case WEST -> ms.mulPose(Axis.YP.rotationDegrees(90));
-            case DOWN -> ms.mulPose(Axis.XP.rotationDegrees(-90));
-            case UP -> ms.mulPose(Axis.XP.rotationDegrees(90));
-        }
+        ms.mulPose(Axis.YP.rotationDegrees(-PowerKitGeometry.modelY(state)));
+        ms.mulPose(Axis.XP.rotationDegrees(-PowerKitGeometry.modelX(state)));
         ms.translate(-0.5, -0.5, -0.5);
+    }
+
+    @Override
+    public AABB getRenderBoundingBox(CeeDebRectifierBlockEntity be) {
+        return FenceMountRenderer.renderBox(be);
+    }
+
+    @Override
+    public int getViewDistance() {
+        return FenceMountRenderer.VIEW_DISTANCE;
     }
 }

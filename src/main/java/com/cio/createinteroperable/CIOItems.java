@@ -1,6 +1,8 @@
 package com.cio.createinteroperable;
 
+import com.cio.createinteroperable.copycat.CopycatPipeCasingItem;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -37,6 +39,21 @@ public class CIOItems {
 
     public static final DeferredItem<BlockItem> AIRCON_VENTER = ITEMS.registerSimpleBlockItem(
             "aircon_venter", CIOBlocks.AIRCON_VENTER);
+
+    // --- Copycat Pipe Casing: used on a Fluid Pipe, like Copper Casing ---
+
+    public static final DeferredItem<CopycatPipeCasingItem> COPYCAT_PIPE_CASING = ITEMS.registerItem(
+            "copycat_pipe_casing", CopycatPipeCasingItem::new);
+
+    // --- Creative tab icon ---
+
+    /**
+     * Never listed anywhere (hidden from recipe viewers by the
+     * {@code c:hidden_from_recipe_viewers} tag): only the CIO tab's own icon. Its
+     * item model is the Tier 2 Power Kit drawn larger than the real kit's
+     * inventory icon. Offered by the Power Grid / Electro Energetics modules.
+     */
+    public static final DeferredItem<Item> TAB_ICON = ITEMS.registerSimpleItem("tab_icon");
 
     public static void register(IEventBus modEventBus) {
         ITEMS.register(modEventBus);

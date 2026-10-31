@@ -209,6 +209,36 @@
     "facing=west,color=magenta": {
       "model": "createinteroperable:block/telephone_magenta",
       "y": 270
+    },
+    "facing=north,color=light_gray": {
+      "model": "createinteroperable:block/telephone_light_gray"
+    },
+    "facing=north,color=light_blue": {
+      "model": "createinteroperable:block/telephone_light_blue"
+    },
+    "facing=east,color=light_gray": {
+      "model": "createinteroperable:block/telephone_light_gray",
+      "y": 90
+    },
+    "facing=east,color=light_blue": {
+      "model": "createinteroperable:block/telephone_light_blue",
+      "y": 90
+    },
+    "facing=south,color=light_gray": {
+      "model": "createinteroperable:block/telephone_light_gray",
+      "y": 180
+    },
+    "facing=south,color=light_blue": {
+      "model": "createinteroperable:block/telephone_light_blue",
+      "y": 180
+    },
+    "facing=west,color=light_gray": {
+      "model": "createinteroperable:block/telephone_light_gray",
+      "y": 270
+    },
+    "facing=west,color=light_blue": {
+      "model": "createinteroperable:block/telephone_light_blue",
+      "y": 270
     }
   }
 }

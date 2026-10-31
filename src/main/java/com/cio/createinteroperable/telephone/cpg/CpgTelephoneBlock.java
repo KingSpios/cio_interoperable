@@ -162,7 +162,7 @@ public class CpgTelephoneBlock extends ElectricBlock implements IBE<CpgTelephone
     public static final EnumProperty<DyeColor> COLOR = EnumProperty.create("color", DyeColor.class,
             DyeColor.BLUE, DyeColor.WHITE, DyeColor.GRAY, DyeColor.RED, DyeColor.CYAN, DyeColor.GREEN,
             DyeColor.YELLOW, DyeColor.BLACK, DyeColor.PINK, DyeColor.PURPLE, DyeColor.ORANGE,
-            DyeColor.BROWN, DyeColor.LIME, DyeColor.MAGENTA);
+            DyeColor.BROWN, DyeColor.LIME, DyeColor.MAGENTA, DyeColor.LIGHT_GRAY, DyeColor.LIGHT_BLUE);
 
     public CpgTelephoneBlock(Properties properties) {
         super(properties);
@@ -295,9 +295,6 @@ public class CpgTelephoneBlock extends ElectricBlock implements IBE<CpgTelephone
                     AllSoundEvents.DENY.play(level, player, pos);
                     if (level.isClientSide) {
                         spawnDenySmoke(level, pos);
-                    } else {
-                        player.displayClientMessage(
-                                Lang.component("telephone.that_number_is_busy").withStyle(net.minecraft.ChatFormatting.RED), true);
                     }
                 }
             }
@@ -310,10 +307,7 @@ public class CpgTelephoneBlock extends ElectricBlock implements IBE<CpgTelephone
             return be.onFrontUsed(player);
         }
 
-        Direction hitFace = hitResult.getDirection();
-        if (hitFace == Direction.UP) {
-            return be.onTopUsed(player);
-        }
+        // The top face is the nubs' alone (wiring); the label lives on the back plate's settings screen.
         return InteractionResult.PASS;
     }
 

@@ -1,3 +1,10 @@
 {
-	"parent": "createinteroperable:block/deb_rectifier_tier_3"
+	"parent": "createinteroperable:block/deb_rectifier_tier_3",
+	"display": {
+		"gui": {
+			"rotation": [30, 45, 0],
+			"translation": [2.0, -1.5, 0],
+			"scale": [0.625, 0.625, 0.625]
+		}
+	}
 }

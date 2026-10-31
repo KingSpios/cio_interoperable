@@ -1,6 +1,7 @@
 package com.cio.createinteroperable.telephone;
 
 import com.cio.createinteroperable.Lang;
+import com.cio.createinteroperable.compat.Mods;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 
@@ -29,6 +30,14 @@ public final class TelephoneLabels {
         return Lang.component("telephone.telephone_tap_call_line");
     }
 
+    /**
+     * The CEE tap with the ComputerCraft CEE Addon installed: it also takes a
+     * Peripheral Cable, making the phone a peripheral of the computer on it.
+     */
+    public static MutableComponent tapOrSignal() {
+        return Lang.component("telephone.telephone_tap_or_signal");
+    }
+
     /** Switch to the negative rail, closed on the answering phone while a call is up. */
     public static MutableComponent callBreaker() {
         return Lang.component("telephone.call_breaker_closes_while_answered");
@@ -51,7 +60,7 @@ public final class TelephoneLabels {
         return switch (id) {
             case 0 -> positive();
             case 1 -> negative();
-            case 2 -> tap();
+            case 2 -> Mods.CC_CEE_ADDON.present() ? tapOrSignal() : tap();
             case 3 -> callFeedPositive();
             case 4 -> callFeedNegative();
             case 5 -> callBreaker();

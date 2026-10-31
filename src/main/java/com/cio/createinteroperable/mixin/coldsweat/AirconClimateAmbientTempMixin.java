@@ -2,7 +2,7 @@ package com.cio.createinteroperable.mixin.coldsweat;
 
 import com.cio.createinteroperable.thermal.AirconVenterBlockEntity;
 import com.cio.createinteroperable.CreateInteroperable;
-import com.cio.createinteroperable.thermal.RadiatorValveNorthBlockEntity;
+import com.cio.createinteroperable.thermal.SteamHearth;
 import com.momosoftworks.coldsweat.api.util.Temperature;
 import com.momosoftworks.coldsweat.common.blockentity.HearthBlockEntity;
 import net.minecraft.core.BlockPos;
@@ -36,7 +36,7 @@ import java.util.Map;
  * <p>
  * Fixed by making all three effects ADDITIVE deltas (see
  * {@link AirconVenterBlockEntity#getCoolingOffsetMc}/
- * {@link RadiatorValveNorthBlockEntity#getWarmingOffsetMc}/
+ * {@link SteamHearth#getWarmingOffsetMc}/
  * {@link #createinteroperable$hearthOffsetMc} — negative, positive, and
  * either respectively) summed here, ONCE, in a single injection: order no
  * longer matters because addition is commutative — a room with several
@@ -210,7 +210,7 @@ public abstract class AirconClimateAmbientTempMixin {
                     double delta;
                     if (be instanceof AirconVenterBlockEntity venter) {
                         delta = venter.getCoolingOffsetMc(pos);
-                    } else if (be instanceof RadiatorValveNorthBlockEntity radiator) {
+                    } else if (be instanceof SteamHearth radiator) {
                         delta = radiator.getWarmingOffsetMc(pos);
                     } else if (be instanceof HearthBlockEntity hearth) {
                         delta = createinteroperable$hearthOffsetMc(hearth, pos);

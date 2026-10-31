@@ -1,16 +1,16 @@
 package com.cio.createinteroperable.mixin.urbandecor;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
+import com.cio.createinteroperable.urbandecor.UrbanFixtures;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.BlockHitResult;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -23,7 +23,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
  * calls {@code state.setValue(ON, !state.getValue(ON))} while throwing the
  * result away (BlockState is immutable), so the {@code on} property never
  * changes on either side. This performs the toggle on the server with a real
- * {@code setBlock}.
+ * {@code setBlock} ({@link UrbanFixtures#toggle}), and makes both the tap and a
+ * glass bottle need real water (see {@code UrbanFixtureBlockEntity}).
  *
  * <p>Name-targeted and property-by-name (no compile dependency on Urban Decor),
  * non-required &mdash; a complete no-op when Urban Decor is absent.
@@ -35,8 +36,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 })
 public abstract class UrbanDecorWaterToggleMixin {
 
-    private static final ResourceLocation CIO$FAUCET_TURN = ResourceLocation.parse("urban_decor:block.faucet.turn");
-
     @Inject(method = "useWithoutItem", at = @At("HEAD"), cancellable = true, require = 0)
     private void cio$toggleOn(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit,
                               CallbackInfoReturnable<InteractionResult> cir) {
@@ -44,16 +43,27 @@ public abstract class UrbanDecorWaterToggleMixin {
         if (player.isCrouching() || !player.getMainHandItem().isEmpty()) {
             return;
         }
-        Property<?> prop = state.getBlock().getStateDefinition().getProperty("on");
-        if (!(prop instanceof BooleanProperty on)) {
+        BooleanProperty on = UrbanFixtures.onProperty(state);
+        if (on == null) {
             return; // not the shape we expect — leave the mod's own code alone
         }
         if (!level.isClientSide) {
-            level.setBlock(pos, state.setValue(on, !state.getValue(on)), 3);
-            level.playSound(null, pos,
-                    BuiltInRegistries.SOUND_EVENT.getOptional(CIO$FAUCET_TURN).orElse(SoundEvents.LEVER_CLICK),
-                    SoundSource.BLOCKS, 0.8F, 1.0F);
+            UrbanFixtures.toggle(level, pos, state, on, player);
         }
         cir.setReturnValue(InteractionResult.sidedSuccess(level.isClientSide));
+    }
+
+    /** A glass bottle takes real water from a running tap, or none at all. */
+    @Inject(method = "useItemOn", at = @At("HEAD"), cancellable = true, require = 0)
+    private void cio$bottleNeedsWater(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player,
+                                      InteractionHand hand, BlockHitResult hit,
+                                      CallbackInfoReturnable<ItemInteractionResult> cir) {
+        BooleanProperty on = UrbanFixtures.onProperty(state);
+        if (level.isClientSide || on == null || !state.getValue(on) || !player.getItemInHand(hand).is(Items.GLASS_BOTTLE)) {
+            return;
+        }
+        if (!UrbanFixtures.payForBottle(level, pos, player)) {
+            cir.setReturnValue(ItemInteractionResult.CONSUME);
+        }
     }
 }

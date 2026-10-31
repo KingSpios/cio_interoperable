@@ -1,10 +1,10 @@
-package com.cio.createinteroperable.cee;
+package com.cio.createinteroperable.streetlight;
 
 import com.cio.createinteroperable.CreateInteroperable;
-import com.cio.createinteroperable.telephone.cee.CeeTelephoneBlock;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.renderer.SafeBlockEntityRenderer;
 import dev.engine_room.flywheel.lib.model.baked.PartialModel;
 import net.createmod.catnip.render.CachedBuffers;
@@ -17,7 +17,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 
 /**
- * The Streetlight's glow: the light-overflow rays hanging under the head plus
+ * The Streetlight's glow (either grid's): the light-overflow rays hanging under the head plus
  * a sheen over the glass and the bulb, drawn the way Power Grid draws its
  * Factory Light rays and lit bulbs &mdash; a separate model through an
  * <b>additive</b> render type at full brightness. Additive blending is what
@@ -39,7 +39,7 @@ import net.minecraft.world.phys.AABB;
  * <p>Only drawn while the bulb is lit: warm white when on, orange while it
  * browns out, scaled by the lamp's own light level (8..15).</p>
  */
-public class CeeStreetlightRenderer extends SafeBlockEntityRenderer<CeeStreetlightBlockEntity> {
+public class StreetlightRenderer<T extends SmartBlockEntity> extends SafeBlockEntityRenderer<T> {
     public static final PartialModel GLOW = PartialModel.of(CreateInteroperable.rl("block/streetlamp_glow"));
     public static final PartialModel GLOW_ANGLED = PartialModel.of(CreateInteroperable.rl("block/streetlamp_glow_angled"));
     public static final PartialModel LIT = PartialModel.of(CreateInteroperable.rl("block/streetlamp_lit"));
@@ -48,7 +48,7 @@ public class CeeStreetlightRenderer extends SafeBlockEntityRenderer<CeeStreetlig
     public static final PartialModel LIT_BROWN_ANGLED = PartialModel.of(CreateInteroperable.rl("block/streetlamp_lit_brown_angled"));
 
     /** Power Grid's {@code ModdedRenderLayers.ADDITIVE}, but colour-only writes so overlapping rays add up instead of hiding each other. */
-    private static final RenderType ADDITIVE = RenderType.create("createinteroperable_additive", DefaultVertexFormat.BLOCK,
+    public static final RenderType ADDITIVE = RenderType.create("createinteroperable_additive", DefaultVertexFormat.BLOCK,
             VertexFormat.Mode.QUADS, RenderType.SMALL_BUFFER_SIZE, false, true, RenderType.CompositeState.builder()
                     .setShaderState(RenderStateShard.RENDERTYPE_TRANSLUCENT_SHADER)
                     .setTextureState(RenderStateShard.BLOCK_SHEET)
@@ -67,21 +67,21 @@ public class CeeStreetlightRenderer extends SafeBlockEntityRenderer<CeeStreetlig
     public static void init() {
     }
 
-    public CeeStreetlightRenderer(BlockEntityRendererProvider.Context context) {
+    public StreetlightRenderer(BlockEntityRendererProvider.Context context) {
         super();
     }
 
     @Override
-    protected void renderSafe(CeeStreetlightBlockEntity be, float partialTicks, PoseStack ms, MultiBufferSource buffer, int light, int overlay) {
+    protected void renderSafe(T be, float partialTicks, PoseStack ms, MultiBufferSource buffer, int light, int overlay) {
         BlockState state = be.getBlockState();
-        CeeStreetlightBlock.Bulb bulb = state.getValue(CeeStreetlightBlock.BULB);
+        Streetlight.Bulb bulb = state.getValue(Streetlight.BULB);
         if (!bulb.lit()) {
             return;
         }
-        float strength = state.getValue(CeeStreetlightBlock.LIGHT) / 15f;
-        boolean on = bulb == CeeStreetlightBlock.Bulb.ON;
-        boolean angled = state.getValue(CeeStreetlightBlock.STYLE) == CeeStreetlightBlock.Style.ANGLED;
-        int facingDegrees = -CeeTelephoneBlock.angleFor(state); // blockstate "y": 90 turns north to east, i.e. -90 degrees about +Y
+        float strength = state.getValue(Streetlight.LIGHT) / 15f;
+        boolean on = bulb == Streetlight.Bulb.ON;
+        boolean angled = state.getValue(Streetlight.STYLE) == Streetlight.Style.ANGLED;
+        int facingDegrees = -Streetlight.angleFor(state); // blockstate "y": 90 turns north to east, i.e. -90 degrees about +Y
 
         // Full-bright glass + bulb: the on texture at full white; a browning-out bulb a little dimmer.
         int lit = on ? 255 : (int) (255 * (0.55f + 0.45f * strength));
@@ -103,7 +103,7 @@ public class CeeStreetlightRenderer extends SafeBlockEntityRenderer<CeeStreetlig
 
     /** The rays hang up to 8 px into the block below; keep drawing them while only that block is on screen. */
     @Override
-    public AABB getRenderBoundingBox(CeeStreetlightBlockEntity be) {
+    public AABB getRenderBoundingBox(T be) {
         return new AABB(be.getBlockPos()).expandTowards(0, -1, 0);
     }
 }

@@ -77,6 +77,10 @@ public final class ApplianceLoads {
         // (com.cio.createinteroperable.letsdo.LetsDoLampBlockEntity) rides on
         // every one; 3 W each, mirroring a Crayfish lamp, billed only while lit.
         put("createinteroperable", "letsdo_lamp", Pool.LV, 3);
+        // Let's Do Furniture 1.1.7+ street lantern (IronStreetLanternBlock) keeps
+        // its own block entity for its flower pots; the node rides on that
+        // (com.cio.createinteroperable.mixin.letsdo.FurnitureStreetLanternNodeMixin).
+        put("furniture", "street_lantern", Pool.LV, 3);
         // Let's Do Beachparty — radio (a powered speaker, billed only while a
         // track plays via MeteredAppliance) and mini-fridge (a compressor: draws
         // its rated load whenever linked, and won't ferment while unpowered).
@@ -131,6 +135,34 @@ public final class ApplianceLoads {
         // (com.cio.createinteroperable.iden) — one BE type. A relay, like the
         // Crayfish lightswitch above; billed only while closed (MeteredAppliance).
         put("createinteroperable", "electric_switch", Pool.LV, 0.5);
+        // Urban Decor washing machine (com.cio.createinteroperable.urbandecor) - a
+        // domestic drum motor + pump, 500 W on the 120 V rail, billed only while a
+        // wash cycle runs (MeteredAppliance).
+        put("createinteroperable", "urban_washer", Pool.MV, 500);
+        // Urban Decor dryer: the washing machine's drum without the pump, rated the same.
+        put("createinteroperable", "urban_dryer", Pool.MV, 500);
+        // Urban Decor dishwasher: the washing machine's drum and pump again, rated the same.
+        put("createinteroperable", "urban_dishwasher", Pool.MV, 500);
+        // Urban Decor stainless steel lanterns (UrbanLanternBlockEntity): twice a Crayfish
+        // ceiling light (3 W), billed only while lit (MeteredAppliance).
+        put("createinteroperable", "urban_lantern", Pool.LV, 6);
+        // Urban Decor desk fan (UrbanFanBlockEntity): a small motor, billed only while it blows.
+        put("createinteroperable", "urban_fan", Pool.MV, 30);
+        // Urban Decor oven: Refurbished Furniture's stove (1500 W on the 120 V rail), billed only
+        // while it cooks. It rides on Urban Decor's own smoker block entity, shared with the
+        // microwave, which is never a node (UrbanOvenNodeMixin.applianceValid).
+        put("urban_decor", "smoker_decor", Pool.MV, 1500);
+        // Urban Decor microwave (750 W, half the oven's) and stove (1500 W, scaled up from this row
+        // by UrbanFurnaceNodeMixin): one furnace-decor block entity type behind both.
+        put("urban_decor", "furnace_decor", Pool.MV, 750);
+        // Urban Decor fridge and freezer (UrbanColdNodeMixin, on the storage block entity its
+        // cupboards share, which are never nodes): compressors, drawing whenever linked. This
+        // 100 W row is scaled (ScalableAppliance) to 85 W for the fridge (Beachparty's mini fridge)
+        // and 150 W for the freezer (Refurbished Furniture's).
+        put("urban_decor", "storage_decor", Pool.MV, 100);
+        // Urban Decor speaker (com.cio.createinteroperable.mixin.urbandecor.UrbanSpeakerNodeMixin):
+        // plays a Beachparty radio wired to it; billed only while it plays, like the radio.
+        put("urban_decor", "speaker", Pool.LV, 10);
         // Immersive Vehicles (MTS Official Content Pack) — the AA Base Plate's
         // power terminal (com.cio.createinteroperable.mts). The Spotlight on it
         // is a searchlight arc lamp: 6 kW on the 120 V rail while the beam is

@@ -72,12 +72,12 @@ public class RedstoneSwitchBlock extends DirectionalElectricBlock implements IBE
 
     static final VoxelShape SHAPE = PowerKitGeometry.REDSTONE_SWITCH_SHAPE;
     private static final VoxelShaper SHAPE_SHAPER =
-            VoxelShaper.forDirectional(SHAPE, Direction.NORTH).withVerticalShapes(SHAPE);
+            VoxelShaper.forDirectional(SHAPE, Direction.NORTH);
 
     public RedstoneSwitchBlock(Properties properties) {
         super(properties);
         registerDefaultState(defaultBlockState().setValue(POWERED, false));
-        setTerminalCollection(DirectionalElectricBlock.directionalNorthTerminals(this, TERMINALS, SHAPE, SHAPE));
+        setTerminalCollection(DirectionalElectricBlock.directionalNorthTerminals(this, TERMINALS, SHAPE));
     }
 
     @Override

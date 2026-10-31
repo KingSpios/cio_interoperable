@@ -32,7 +32,7 @@ public class CeePowerKitTier2BlockEntity extends CeePowerKitTier3BlockEntity {
     }
 
     @Override
-    protected boolean hasHvFeed() {
+    public boolean hasHvFeed() {
         return false;
     }
 

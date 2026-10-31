@@ -47,7 +47,7 @@ CIO is compatibility code. It only does anything because of the mods it builds o
 | **Create: Electro Energetics** | george_vi | The other grid standard CIO speaks, a first-class equal to Power Grid. Its `SimulatedDevice` circuit API backs the Electro Energetics side of every CIO device. |
 | **MrCrayfish's Furniture Mod: Refurbished** | MrCrayfish | Its appliance-electricity system is what the Domestic Electrical Board feeds. CIO's powered appliances register as nodes on Crayfish's own network — wrench-linking, wire rendering and the "missing power" overlay all come with it. Also its water fixtures. |
 | **Create Train Navigator** | MrJulsen | Its Advanced Displays are retrofitted so a freestanding display only shows text while powered. |
-| **Cold Sweat** | momosoftworks | Its temperature simulation is what the Steam Hearth warms and the Aircon cools — and CIO makes it keep running on Peaceful difficulty instead of silently switching off. |
+| **Cold Sweat** | momosoftworks | Its temperature simulation is what the Steam Hearth warms and the Aircon cools — and CIO makes it keep running on Peaceful difficulty instead of silently switching off. Optional: without it the Steam Hearth and Aircon still load and run as steam / air machines, they just change no temperature. |
 | **Create: Pipes n Physics** | StaticFX | CIO's steam fluid declares itself a real, buoyant, low-viscosity gas so PnP's pipe network moves real throughput instead of a flat, capped rate — an optional integration. |
 
 CIO also retrofits a power requirement onto furniture and utility blocks from **Let's Do
@@ -78,6 +78,8 @@ CIO is an unofficial fan project and is not affiliated with or endorsed by any o
 - **Create: Pipes n Physics** — with it, CIO's steam fluid gets real pipe-network
   throughput instead of a flat rate; without it, steam still vents to atmosphere at an
   open pipe end for free, just without PnP's physics.
+- **CC: Tweaked + ComputerCraft CEE Addon** — with both, the telephones and Tier 2–4 Power
+  Kits become computer peripherals (see [Computers](#computers-computercraft-cee-addon)).
 
 ---
 
@@ -125,14 +127,14 @@ Rules shared across all of them:
 
 | Retrofitted | When unpowered |
 |---|---|
-| Let's Do Furniture / Candlelight **lamps & street lanterns** | Stay dark; manual toggle kept; stacking posts put a node only on the head |
+| Let's Do Furniture / Candlelight **lamps & street lanterns** | Stay dark; manual toggle kept; stacking posts put a node only on the head. Furniture 1.1.7+'s flower-pot street lantern carries the node on its own block entity |
 | Let's Do Furniture **gramophone** | Won't play; stops mid-disc on power loss, resumes on return |
 | Let's Do Beachparty **radio & mini-fridge** | Radio won't tune in; fridge stops fermenting and blocks hopper automation |
 | Another Furniture **lamps** | Stay dark; their redstone control is handed to the grid |
 | Alpine Whispers **fairy lights** | Actually go dark — the block has no light state of its own, so this took real work |
 | Bibliocraft **Fancy Crafter** | Won't auto-craft; the grid drives its `POWERED` state instead of redstone |
 | Bibliocraft **Fancy Lamp** | Stays dark, through the shared lamp machinery |
-| Create Train Navigator **Advanced Displays** | Freestanding displays go blank; contraption displays untouched. Wire any one block of a multi-block board and the whole board lights. |
+| Create Train Navigator **Advanced Displays** | Freestanding displays go blank; Super-Glued and contraption/train displays need no power. Wire any one block of a multi-block board and the whole board lights. |
 | Vista (cameramod) **TV** | Off — with power it defaults *on*, and redstone becomes a manual kill switch instead of an on-switch. A grown, connected wall of TVs is billed n² the single-TV rate. |
 | WaterFrames **video screens** | Stop rendering text (needs WaterFrames' own `waterframes_refurbished_compat` bridge jar, not just WaterFrames alone) |
 | Iden's Decor **Computer** | Shows no floppy-disk text (disks still insert/eject). 15 W, billed only while a disk is in. |
@@ -166,8 +168,33 @@ for both:
 
 - **Refurbished Furniture** fixtures — a bare-hand right-click pulls fluid straight from an
   adjacent supply into the fixture.
-- **Let's Do / Farm & Charm / Alpine Whispers** sinks & bathtubs — Create pipes fill a
-  small internal buffer, and the faucet spends from that. Optional bucket top-up.
+- **Let's Do / Farm & Charm** sinks — Create pipes fill a small internal buffer, and the
+  faucet spends from that. Optional bucket top-up.
+- **Alpine Whispers** (1.0.4+) sink, washbasin & bathtub — pipes feed the fixture, and its
+  own animated tap runs only while that water lasts, closing itself when it runs dry. The
+  bathtub also drinks from a tank it touches, and a click on a running tap closes it.
+- **Urban Decor** water fixtures — sinks, faucets and showers take Create pipes (a faucet or
+  shower also drinks from a tank it touches) and only run, or fill a glass bottle, while there is
+  water; a shower washes harmful effects off whoever stands under it and gives a gentle
+  Regeneration. The toilet has a cistern (pipes, buckets, bottles) and flushes items like
+  Refurbished Furniture's. The bathtub takes pipes on either half and fills in front of you once
+  both halves are in place; sitting in it washes harmful effects off, a bucket or bottle bails
+  it, and sneak + empty hand pulls the plug. The washing machine takes pipes and Power Kit power
+  and opens a dial GUI that accepts only wearables: a cycle removes their curses and restores
+  20 % durability (config `urbanDecor.*`); while it runs it hums like a slow Create shaft. Toilet
+  bowls show their water, and sitting on a toilet cures poison. A Copycat Pipe Casing behind a
+  bare sink, commercial toilet, shower or faucet shows a copper collar round the fixture's pipe
+  instead of its usual opening. The radiator is a small Steam Hearth: it takes steam from a Create
+  pipe on its back face only, burns half a Hearth run's steam for half its warmth, needs no draining,
+  warms the enclosed room it stands in (the flood fill stops at walls and the ceiling), melts ice and
+  snow, steams at HOT / BLAZING, draws cats to lie around it, and turns freezing / warm / hot / blazing
+  to match the Hearth's colours.
+  The stainless steel lanterns light only while a Power Kit powers them (6 W, twice a Refurbished
+  Furniture ceiling light) and show light rays when lit, like the Streetlight. A sink's basin fills
+  while its tap runs and drains after. The desk fan needs power (30 W) and then blows like a Create
+  fan fixed at 16 RPM. The dryer is the washing machine without the water: a cycle adds Protection
+  to armour that can take it, keeping its other enchantments. The oven needs power (1500 W, like
+  Refurbished Furniture's stove) and then cooks without fuel.
 
 ### Telephone
 
@@ -179,6 +206,58 @@ phone uses, plus a **Pulse (3s)** option: calls placed from that phone make the 
 Breaker, Call Feeds and redstone output switch on and off every 3 seconds instead of staying on); right-click the dial
 for a dial-only version. Every wire nub is labelled with what
 it does (Telephone Positive/Negative 12 V in, Telephone Tap, Call Breaker, Call Feed ±).
+While a phone's dial screen is open, and while a call it placed waits to be answered, it plays
+a dial tone.
+
+**Radio Telephone** (needs Electro Energetics, CC: Tweaked and the ComputerCraft CEE Addon) —
+calls other Radio Telephones over the addon's radio. Cable its TX pin to TX antennas or dishes
+and its RX pin to RX antennas or dishes; a phone on the same channel (0–6000, the Radio
+Modem's) whose antennas reach both ways can be dialled by its number, rings, and the call
+carries voice and everything a wired call does. Reach follows the addon's own rules: 40 blocks
+per transmit level for an omni antenna and 190 for a dish, plus a height bonus, minus what
+the blocks in between absorb. The channel is shared air, as on the addon's modems: a phone on a
+call sits in the addon's transmitter registry (the RF probe lists its channel), a new call is
+refused with a busy signal when another transmitter (a phone on another call, or a modem that
+has sent in the last 2 seconds) already reaches either phone on that channel, and during a call a weak
+signal or another transmitter adds line noise; one that out-shouts the call breaks it up and
+drops it after 3 seconds. Calls far enough apart reuse the same channel. Runs on anything
+from 12 V to 240 V. Its visor glows and shows
+the channel and 0–3 signal bars while powered, and the dial's pointer turns with the channel.
+Hold right-click on the frequency dial and scroll to tune it like the Radio Modem's knob; the
+settings screen (click the visor) has a frequency dial plus a typed band start, band width and
+transmit level. **Bands:** a phone uses a band of 1–32 channels. Idle phones listen on its first
+channel (the paging channel); a direct call moves to the highest channel in the band that is
+clear at both phones, and a call through an exchange to the line (channel) the exchange names —
+an exchange with several village modem pairs gives each call its own, from the bottom of the
+band up. Many calls can then share a village band at once; a width of 1 keeps everything on
+one channel. A dye paints the body. The
+data pin takes a Peripheral Cable (computer control, with radio methods) or a call line.
+
+Radio Telephones also share the air with the addon's computers. Each phone is a **TeleLink**
+station (the radio-call protocol of the Telecontrol and Radiotronic apps), without a computer of
+its own: a computer running one of them on a Radio Modem the phone reaches can call the phone
+and be called by it, and a number no radio phone in reach has is dialled on the air for such a
+computer — an exchange — to carry. Telecontrol 1.2 can be that exchange: give it an area code and a second "trunk" modem pair
+(dishes, the addon's repeaters between villages) and it relays calls within its village and
+sends calls for other area codes over the trunk to their exchanges. Between a phone and a computer the voice travels as
+TeleLink's DFPWM audio; between two radio phones joined through exchanges, the exchanges pass
+each phone's location along (TeleLink 2's `ep`) and the voice goes straight between the phones.
+
+**Microphone** (needs Electro Energetics, CC: Tweaked and the ComputerCraft CEE Addon) — a desk
+microphone that hears what a phone on a call would, for a computer: voices around it (Simple
+Voice Chat, the phones' capture radius, half when whispering) and every other sound within 16
+blocks (blocks, mobs, machines' loops, jukebox songs), by the phones' own rules. Its three pins
+stick out of the back of its base: data in the middle (a Peripheral Cable to a computer, where it
+becomes a `cio_microphone` peripheral) and the supply either side, 12–240 V, 2 W. Its on/off switch is a Create value box on the
+indicator light at the front of the base: ON only takes while it is powered (it drops back to OFF
+a second after the power goes), and the light glows while it is on. It only listens while it is on
+and a computer listens. The computer reads the voice
+as 48 kHz samples (`readAudio`, for a speaker's `playAudio`) or ready-made DFPWM (`readDfpwm`), and
+the other sounds as a list of named events (`readSounds`, for a speaker's `playSound`). The
+**Microcast** app puts it on the air: the voice goes out of a Radio Modem as the addon's own typed
+audio, so an RX modem with Electric Speakers on its Signal pin (and no computer) plays it by
+itself, a CIO radio receiver on the channel plays it, and Microcast's Listen mode on another
+computer plays the voice and the sounds on its speakers.
 
 ### Grid Coupler
 
@@ -200,6 +279,22 @@ voltage — placed directly, wrench-rotated, on the creative menu.
   circuit that already had its own power.
 - Craftable, on the creative menu, needs both grid mods.
 
+### Mini Grid Coupler
+
+The Grid Coupler's small, wall-mounted sibling, rated **10 kW**. It mounts on a wall, floor or
+ceiling like a Power Kit; the bottom pin pair is the Power Grid side, the top pair the Electro
+Energetics side.
+
+- The same one-way bridge as the Grid Coupler (sensing / delivering sides, reflected load).
+- A flow slider on the indicator pin — `CPG → CEE`, `Neuter`, `CEE → CPG` — swings the
+  indicator lever up, level or down; transfer is cut while it moves (~3 s for a full swing).
+- The flip switch at the bottom turns it on and off.
+- The gauge needle shows the power crossing against the 10 kW rating.
+- Near 11 kW it warms up and smokes; held over 12 kW for half a second it pops and is left
+  burnt — no more transfer, and it drops nothing when broken.
+- Hangs on a Utility Pole's block bracket (either grid's pole). Craftable, on the creative
+  menu, needs both grid mods.
+
 ### CPG Double Connector
 
 A Power Grid–only block for splitting a wire run: two independent terminals, each its own
@@ -220,6 +315,9 @@ Steam Hearth below. These gasses are work in progress.
 - The venter also melts nearby snow and ice when it's running warm, and freezes standing
   water near it when running cold.
 - All four pieces are craftable; see `recipes.md` for the exact grids.
+- No temperature mod needed to build or run it: without Cold Sweat it still moves air and
+  draws power, it just cools nothing. Config `temperatureMods.climateBlocksWithoutTemperatureMod`
+  (on by default) decides whether it is craftable and in the creative tab on such an install.
 
 ### Steam Hearth (heating)
 
@@ -237,6 +335,16 @@ into linked **Steam Hearth Radiator** segments.
 - Vanilla cats will seek out and lie on an assembled, sufficiently warm Steam Hearth, the
   same way they do a lit furnace or a bed.
 - The whole loop is craftable except the Brass Heater; see `recipes.md`.
+- **Steam Engines on pipes:** place a Create Steam Engine against a plain Fluid Pipe on a
+  Steam Outlet's network (shaft two blocks out, as usual). The pipe turns copper-encased and
+  the engine runs off every boiler the network reaches through a Steam Outlet, splitting its
+  load across them by heat level and competing with on-tank engines for the same heat, at
+  90% of an on-tank engine's power. The Outlet's valve throttles it. One engine per pipe
+  block; removing the engine turns the pipe back into a plain pipe.
+- No temperature mod needed to build or run it: without Cold Sweat the steam still flows,
+  the radiator still heats up through its tiers and condenses water, it just warms nobody.
+  The Steam Outlet is always available; the radiator follows the same
+  `temperatureMods.climateBlocksWithoutTemperatureMod` option as the Aircon.
 
 ---
 
@@ -291,6 +399,43 @@ all five phones (Interoperable, CPG, CEE, and Iden's two). Whispering carries ha
 for as long as the call is up, over a faint open-line dial tone. Radius, playback range and hiss loudness (`lineNoise`, 0 = off) are in
 the `telephoneVoice` config section, or switch the whole thing off with `relayEnabled`. Without
 Simple Voice Chat nothing changes.
+
+### Computers (ComputerCraft CEE Addon)
+
+**New, not playtested yet.** With CC: Tweaked and the **ComputerCraft CEE Addon** (newclear's
+Electro Energetics-powered computers) installed, CIO's three telephones and the Tier 2–4 Power
+Kits (both grids) become computer peripherals:
+
+- The Power Kits grow a 1 px **signal nub** under the body, right of the intake nubs. A phone's
+  existing **tap** nub doubles as its signal nub (the CPG phone gets a CEE node there for it).
+  Run the addon's **Peripheral Cable** from the nub to a computer's signal pin.
+- Reach the block with `cee.getPeripheral(pin)`, or as an ordinary peripheral: every computer on
+  the cable gets it on a free side, so `peripheral.find("cio_telephone")` /
+  `peripheral.find("cio_power_kit")` work and events arrive.
+- **`cio_power_kit`**: `getStatus()` (everything at once), `isOn` / `setOn` (throws the tier 2
+  slide switch, tier 3 E-Stop or tier 4 main lever), `getIntakeVoltage`, `getIntakeTap` /
+  `getIntakeTaps` / `setIntakeTap`, `getUsage`, `getRail("12v" | "120v")` (watts, voltage, caps,
+  load, live, faulted, appliances), `getHvFeedWatts`, `getTemperature`, `getFaultProgress`, and
+  on tier 4 `getLevers` / `setLever(name, step)`. Event: `power_kit_state`.
+- **`cio_telephone`**: number, area code, label, dial target, Auto-Answer and Pulse, each with
+  get / set; `getState()` (`idle` / `calling` / `ringing` / `in_call`), `getPartner()`,
+  `dial([number])`, `answer()`, `hangUp()`, `listReachable()`. With Simple Voice Chat,
+  `readAudio()` returns what the earpiece hears as 48 kHz 8-bit samples (straight into a
+  speaker's `playAudio`, so a computer can put a call on the addon's speakers) and
+  `sendAudio(samples)` plays audio out of the phone at the other end. Events:
+  `telephone_ring`, `telephone_answer`, `telephone_hangup`, `telephone_audio`.
+- Data cables never carry calls between phones: two phones on one computer pin don't connect.
+- **External calls** let a computer be the far end of a call itself, e.g. a radio link:
+  `setExternalRouting(true)` (a 5-second lease, renewed by the program) makes the handset's
+  dialling of a number no wired phone has place an external call (`telephone_dial` event);
+  `ringExternal(number, label)` rings the phone with a call the computer carries,
+  `connectExternal()` connects one it placed, and `readMic()` / `playAudio(samples)` carry the
+  voice (what the phone picks up / what it plays). A lapsed lease hangs the call up.
+- Companion programs (separate projects): **Telecontrol** (phones: calls, keypad, directory,
+  settings, speakerphone, and calls over Radio Modems), **KitControl** (Power Kits: readouts,
+  switch, tap, levers, usage graph, automatic overheat/overload Guard) and **Radiotronic** 1.5
+  (its Phones tab). Telecontrol and Radiotronic carry calls between far-apart phones over the
+  addon's radio with the same protocol (TeleLink).
 
 ---
 

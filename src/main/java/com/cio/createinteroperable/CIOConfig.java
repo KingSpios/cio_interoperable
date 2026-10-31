@@ -40,7 +40,9 @@ public final class CIOConfig {
      * sinks and the Alpine Whispers bathtub no longer fill for free: pipes
      * (Create, or any mod exposing a fluid handler on the bottom face) feed an
      * internal buffer, and the player fills the basin by right-clicking the
-     * faucet while that buffer holds enough fluid. When false the sink keeps Farm
+     * faucet while that buffer holds enough fluid. Alpine Whispers' own sink and
+     * bathtub taps run only on piped water instead (see
+     * {@code letsdo.AlpineFixture}). When false the sink keeps Farm
      * &amp; Charm's / Alpine Whispers' vanilla behaviour and none of the rest of
      * this section applies. Let's Do is only ever a soft (name-targeted,
      * non-required) integration — a no-op when it isn't installed.
@@ -59,10 +61,23 @@ public final class CIOConfig {
     /** Loudness of the quiet hiss each phone plays for the length of an answered call; 0 = none. */
     public static final ModConfigSpec.DoubleValue VOICE_LINE_NOISE;
 
+    /** World sounds near a phone on an answered call (jukeboxes, note blocks, machines, mobs...) are heard from the far phone (no other mod needed). */
+    public static final ModConfigSpec.BooleanValue MUSIC_RELAY;
+
+    /** Voice and sounds carried down a call lose quality like a compressed phone line. */
+    public static final ModConfigSpec.BooleanValue LINE_COMPRESSION;
+
+    /** Radio Telephones may keep their own chunk loaded when a player ticks the option. */
+    public static final ModConfigSpec.BooleanValue RADIO_CHUNK_LOADING;
+
     /** Capacity of a Let's Do sink's internal supply buffer, in millibuckets. */
     public static final ModConfigSpec.IntValue SINK_BUFFER_CAPACITY_MB;
 
-    /** Millibuckets drawn from the buffer each time the player fills a Let's Do basin from the faucet. */
+    /**
+     * Millibuckets drawn from the buffer each time the player fills a Let's Do
+     * basin from the faucet. An Alpine Whispers basin fills in three steps, each
+     * costing a third of this.
+     */
     public static final ModConfigSpec.IntValue SINK_FILL_COST_MB;
 
     /**
@@ -71,11 +86,33 @@ public final class CIOConfig {
      */
     public static final ModConfigSpec.BooleanValue SINK_ALLOW_MANUAL_BUCKET_FILL;
 
-    /** Millibuckets a full Alpine Whispers bathtub represents (governs how long it takes to fill). */
+    /** Millibuckets of water a full Alpine Whispers bathtub takes, drawn evenly while its tap runs. */
     public static final ModConfigSpec.IntValue BATHTUB_CAPACITY_MB;
 
-    /** Millibuckets pulled from an adjacent supply per right-click while filling a bathtub (hold to keep filling). */
-    public static final ModConfigSpec.IntValue BATHTUB_FILL_STEP_MB;
+    /** Urban Decor sinks, faucets and showers need piped water (a no-op without Urban Decor). */
+    public static final ModConfigSpec.BooleanValue UD_REQUIRE_SUPPLY;
+    /** Millibuckets per second a running Urban Decor sink or faucet draws. */
+    public static final ModConfigSpec.IntValue UD_TAP_MB_PER_SECOND;
+    /** Millibuckets per second a running Urban Decor shower draws. */
+    public static final ModConfigSpec.IntValue UD_SHOWER_MB_PER_SECOND;
+    /** Millibuckets of water an Urban Decor toilet's cistern holds. */
+    public static final ModConfigSpec.IntValue UD_TOILET_CAPACITY_MB;
+    /** Millibuckets of water a whole (two-half) Urban Decor bathtub holds. */
+    public static final ModConfigSpec.IntValue UD_BATHTUB_CAPACITY_MB;
+    /** Sitting in a bathtub that is at least 40% full washes harmful effects off. */
+    public static final ModConfigSpec.BooleanValue UD_BATH_CLEANSES;
+    /** Seconds a washing machine cycle runs. */
+    public static final ModConfigSpec.IntValue UD_WASHER_CYCLE_SECONDS;
+    /** Millibuckets of water one washing machine cycle uses. */
+    public static final ModConfigSpec.IntValue UD_WASHER_WATER_MB;
+    /** Percent of an item's full durability a washing machine cycle restores. */
+    public static final ModConfigSpec.IntValue UD_WASHER_REPAIR_PERCENT;
+    /** Millibuckets a glass bottle takes from an Urban Decor tap. */
+    public static final ModConfigSpec.IntValue UD_BOTTLE_COST_MB;
+    /** A running shower washes harmful effects off whoever stands under it. */
+    public static final ModConfigSpec.BooleanValue UD_SHOWER_CLEANSES;
+    /** A running shower also gives whoever stands under it a gentle Regeneration. */
+    public static final ModConfigSpec.BooleanValue UD_SHOWER_REGENERATION;
 
     /**
      * Master switch for the third-party lamp integration, <b>on by default</b>.
@@ -193,6 +230,16 @@ public final class CIOConfig {
      */
     public static final ModConfigSpec.BooleanValue TEMPERATURE_MODS_AFFECT_GRID_DEVICES;
 
+    /**
+     * On by default. Whether the Steam Hearth (Multi Radiator) and the Aircon
+     * parts are offered (creative tab, recipes) when no temperature mod is
+     * installed. With one installed they always are. The Steam Outlet is offered
+     * either way, and the blocks are registered either way, so placed ones never
+     * vanish. Read through
+     * {@link com.cio.createinteroperable.thermal.TemperatureMods#climateBlocksEnabled()}.
+     */
+    public static final ModConfigSpec.BooleanValue CLIMATE_BLOCKS_WITHOUT_TEMPERATURE_MOD;
+
     static {
         ModConfigSpec.Builder b = new ModConfigSpec.Builder();
         b.translation("createinteroperable.configuration.refurbishedFurniture").push("refurbishedFurniture");
@@ -212,12 +259,15 @@ public final class CIOConfig {
 
         b.translation("createinteroperable.configuration.sink").push("sink");
         SINK_REQUIRE_PIPE_SUPPLY = b
-                .comment("ON by default. Let's Do (Farm & Charm / Candlelight / Bakery) sinks and",
-                        "the Alpine Whispers bathtub no longer fill for free:",
-                        "Sinks: pipes (Create, or any mod exposing a fluid handler on the bottom",
-                        "face) feed an internal buffer; the player fills the basin by right-clicking",
-                        "the faucet when the buffer holds at least fillCostMb.",
-                        "Bathtub: right-click (hold) draws water from an adjacent supply until full.",
+                .comment("ON by default. Let's Do sinks (Farm & Charm / Candlelight / Bakery /",
+                        "Alpine Whispers) and the Alpine Whispers bathtub no longer fill for free.",
+                        "Farm & Charm-style sinks: pipes (Create, or any mod exposing a fluid handler",
+                        "on the bottom face) feed an internal buffer; the player fills the basin by",
+                        "right-clicking the faucet when the buffer holds at least fillCostMb.",
+                        "Alpine Whispers sink and bathtub: pipes feed the fixture (sink: bottom or",
+                        "back; bathtub: any side of the tap end except the top) and the tap only runs",
+                        "while that water lasts, closing itself when it runs dry; the bathtub also",
+                        "drinks from a tank it touches.",
                         "A no-op unless one of those mods is installed. Set false to restore their",
                         "vanilla behaviour.")
                 .translation("createinteroperable.configuration.sink.requirePipeSupply")
@@ -227,7 +277,8 @@ public final class CIOConfig {
                 .translation("createinteroperable.configuration.sink.bufferCapacityMb")
                 .defineInRange("bufferCapacityMb", 2000, 1, 1_000_000);
         SINK_FILL_COST_MB = b
-                .comment("Millibuckets drawn from the buffer each time the player fills the basin.")
+                .comment("Millibuckets drawn from the buffer each time the player fills the basin.",
+                        "An Alpine Whispers basin fills in three steps, each costing a third of this.")
                 .translation("createinteroperable.configuration.sink.fillCostMb")
                 .defineInRange("fillCostMb", 1000, 1, 1_000_000);
         SINK_ALLOW_MANUAL_BUCKET_FILL = b
@@ -238,14 +289,70 @@ public final class CIOConfig {
 
         b.translation("createinteroperable.configuration.bathtub").push("bathtub");
         BATHTUB_CAPACITY_MB = b
-                .comment("Millibuckets a full Alpine Whispers bathtub holds. Larger = slower to fill.")
+                .comment("Millibuckets of water a full Alpine Whispers bathtub takes, drawn evenly",
+                        "while its tap runs.")
                 .translation("createinteroperable.configuration.bathtub.capacityMb")
                 .defineInRange("capacityMb", 3000, 1, 1_000_000);
-        BATHTUB_FILL_STEP_MB = b
-                .comment("Millibuckets pulled from an adjacent supply per right-click while filling",
-                        "the bathtub. Hold right-click to keep filling.")
-                .translation("createinteroperable.configuration.bathtub.fillStepMb")
-                .defineInRange("fillStepMb", 100, 1, 1_000_000);
+        b.pop();
+
+        b.translation("createinteroperable.configuration.urbanDecor").push("urbanDecor");
+        UD_REQUIRE_SUPPLY = b
+                .comment("ON by default. Urban Decor sinks, faucets and showers no longer run on",
+                        "nothing: Create pipes (back of the fixture, plus the bottom of a sink or",
+                        "faucet and the top of a shower) feed them, a faucet or shower also drinks",
+                        "from a tank it touches, and a tap that runs dry turns itself off.",
+                        "A no-op unless Urban Decor is installed.")
+                .translation("createinteroperable.configuration.urbanDecor.requireSupply")
+                .define("requireSupply", true);
+        UD_TAP_MB_PER_SECOND = b
+                .comment("Millibuckets per second a running sink or faucet draws.")
+                .translation("createinteroperable.configuration.urbanDecor.tapMbPerSecond")
+                .defineInRange("tapMbPerSecond", 50, 1, 100_000);
+        UD_SHOWER_MB_PER_SECOND = b
+                .comment("Millibuckets per second a running shower draws.")
+                .translation("createinteroperable.configuration.urbanDecor.showerMbPerSecond")
+                .defineInRange("showerMbPerSecond", 100, 1, 100_000);
+        UD_TOILET_CAPACITY_MB = b
+                .comment("Millibuckets of water a toilet's cistern holds (Refurbished Furniture's holds one",
+                        "bucket). Pipes, buckets and bottles fill it; flushing needs it non-empty.")
+                .translation("createinteroperable.configuration.urbanDecor.toiletCapacityMb")
+                .defineInRange("toiletCapacityMb", 1000, 1, 1_000_000);
+        UD_BATHTUB_CAPACITY_MB = b
+                .comment("Millibuckets of water a whole bathtub (both halves) holds; Refurbished Furniture's",
+                        "bath holds ten buckets. Pipes into either half, buckets and bottles fill it; the tub",
+                        "has no tap, so it simply fills while water runs in.")
+                .translation("createinteroperable.configuration.urbanDecor.bathtubCapacityMb")
+                .defineInRange("bathtubCapacityMb", 10000, 1, 10_000_000);
+        UD_BATH_CLEANSES = b
+                .comment("Sitting in a bathtub that is at least 40% full washes every harmful effect off.")
+                .translation("createinteroperable.configuration.urbanDecor.bathCleanses")
+                .define("bathCleanses", true);
+        UD_WASHER_CYCLE_SECONDS = b
+                .comment("Seconds one washing machine cycle runs (it pauses while unpowered).")
+                .translation("createinteroperable.configuration.urbanDecor.washerCycleSeconds")
+                .defineInRange("washerCycleSeconds", 30, 1, 3600);
+        UD_WASHER_WATER_MB = b
+                .comment("Millibuckets of water one washing machine cycle uses, taken when it starts.",
+                        "Piped in through any side but the top and the door.")
+                .translation("createinteroperable.configuration.urbanDecor.washerWaterMb")
+                .defineInRange("washerWaterMb", 500, 1, 100_000);
+        UD_WASHER_REPAIR_PERCENT = b
+                .comment("Percent of its full durability each damaged item regains from a washing machine",
+                        "cycle (every curse on it is removed as well).")
+                .translation("createinteroperable.configuration.urbanDecor.washerRepairPercent")
+                .defineInRange("washerRepairPercent", 20, 0, 100);
+        UD_BOTTLE_COST_MB = b
+                .comment("Millibuckets a glass bottle takes from a running tap.")
+                .translation("createinteroperable.configuration.urbanDecor.bottleCostMb")
+                .defineInRange("bottleCostMb", 250, 1, 1_000_000);
+        UD_SHOWER_CLEANSES = b
+                .comment("A running shower washes every harmful effect off whoever stands under it.")
+                .translation("createinteroperable.configuration.urbanDecor.showerCleanses")
+                .define("showerCleanses", true);
+        UD_SHOWER_REGENERATION = b
+                .comment("A running shower also gives whoever stands under it a gentle Regeneration.")
+                .translation("createinteroperable.configuration.urbanDecor.showerRegeneration")
+                .define("showerRegeneration", true);
         b.pop();
 
         b.translation("createinteroperable.configuration.lamps").push("lamps");
@@ -303,8 +410,9 @@ public final class CIOConfig {
                 .comment("ON by default. A freestanding Create Train Navigator Advanced Display",
                         "renders its texts only while a live rail from a Domestic Electrical Board",
                         "reaches it (8 W, 12 V); unwired or unpowered = blank screen. Wiring any",
-                        "one block of a multi-block board powers the whole board. Displays built",
-                        "onto a moving contraption are never touched. A no-op unless Create Train",
+                        "one block of a multi-block board powers the whole board. Super-Glued",
+                        "displays and displays built onto a moving contraption or train need no",
+                        "power. A no-op unless Create Train",
                         "Navigator is installed. Set false to hand displays back to Create Train",
                         "Navigator (no node attached).")
                 .translation("createinteroperable.configuration.crnDisplays.requirePower")
@@ -394,6 +502,17 @@ public final class CIOConfig {
                         "Sweat's effects on players (heaters, radiators, aircon) are not affected.")
                 .translation("createinteroperable.configuration.temperatureMods.affectGridDevices")
                 .define("affectGridDevices", false);
+        CLIMATE_BLOCKS_WITHOUT_TEMPERATURE_MOD = b
+                .comment("Enable Steam Hearth and Air Conditioning even without Cold Sweat.",
+                        "ON by default. When no temperature mod (Cold Sweat) is installed, the Steam",
+                        "Hearth (Multi Radiator) and the Aircon parts stay craftable and in the",
+                        "creative tab; they work as steam and air machines but change no temperature.",
+                        "Set false to withhold them unless a temperature mod is installed. The Steam",
+                        "Outlet is always available. Blocks already placed keep working either way.",
+                        "Takes effect when a world is next loaded.")
+                .translation("createinteroperable.configuration.temperatureMods.climateBlocksWithoutTemperatureMod")
+                .worldRestart()
+                .define("climateBlocksWithoutTemperatureMod", true);
         b.pop();
 
         b.translation("createinteroperable.configuration.telephoneVoice").push("telephoneVoice");
@@ -409,15 +528,38 @@ public final class CIOConfig {
                 .translation("createinteroperable.configuration.telephoneVoice.captureRadius")
                 .defineInRange("captureRadius", 5.0, 1.0, 32.0);
         VOICE_PLAYBACK_RANGE = b
-                .comment("Blocks around the far phone within which the carried voice can be heard.")
+                .comment("Blocks around the far phone within which the carried voice can be heard. A phone",
+                        "is a small speaker: 8 at most (other sounds from a phone always carry 8 blocks).")
                 .translation("createinteroperable.configuration.telephoneVoice.playbackRange")
-                .defineInRange("playbackRange", 8.0, 1.0, 64.0);
+                .defineInRange("playbackRange", 8.0, 1.0, 8.0);
         VOICE_LINE_NOISE = b
                 .comment("A faint hiss with the odd soft crackle, played from both phones for as long as",
                         "a call is answered - mild by default. 0 turns it off, 1 is roughly four times",
                         "as loud as the default.")
                 .translation("createinteroperable.configuration.telephoneVoice.lineNoise")
                 .defineInRange("lineNoise", 0.25, 0.0, 1.0);
+        MUSIC_RELAY = b
+                .comment("While a telephone call is answered, the sounds within 16 blocks of either phone",
+                        "(jukeboxes, note blocks, machines, bells, engines, mobs, footsteps...) are heard",
+                        "from the other one, as loud as they are at the phone. Jukebox songs join where the",
+                        "jukebox is in the song, and stop with it. Needs no other mod.")
+                .translation("createinteroperable.configuration.telephoneVoice.relayMusic")
+                .define("relayMusic", true);
+        LINE_COMPRESSION = b
+                .comment("Voice and sounds carried down a call come out of the far phone band-limited and",
+                        "coarsened, like audio through a low-bitrate phone line. False plays them as they are.")
+                .translation("createinteroperable.configuration.telephoneVoice.compressAudio")
+                .define("compressAudio", true);
+        b.pop();
+
+        b.translation("createinteroperable.configuration.radioTelephone").push("radioTelephone");
+        RADIO_CHUNK_LOADING = b
+                .comment("Lets players tick \"Keep chunk loaded\" in a Radio Telephone's settings: the phone",
+                        "then keeps its own chunk loaded and ticking, so it rings and answers with nobody",
+                        "nearby. False: the option does nothing, and chunks phones held are let go when",
+                        "the world loads.")
+                .translation("createinteroperable.configuration.radioTelephone.allowChunkLoading")
+                .define("allowChunkLoading", true);
         b.pop();
 
         SPEC = b.build();

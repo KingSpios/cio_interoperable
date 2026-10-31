@@ -16,6 +16,8 @@ import com.cio.createinteroperable.bridge.InteroperablePgAssembledBlockEntity;
 import com.cio.createinteroperable.bridge.InteroperablePgKeystoneBlock;
 import com.cio.createinteroperable.bridge.InteroperableSmallBlock;
 import com.cio.createinteroperable.bridge.InteroperableSmallBlockEntity;
+import com.cio.createinteroperable.bridge.MiniGridCouplerBlock;
+import com.cio.createinteroperable.bridge.MiniGridCouplerBlockEntity;
 import com.cio.createinteroperable.telephone.interop.TelephoneBlock;
 import com.cio.createinteroperable.telephone.interop.TelephoneBlockEntity;
 import com.cio.createinteroperable.compat.Mods;
@@ -33,7 +35,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 /**
  * PG&lt;-&gt;CEE bridge content, needing both grid mods: the Grid (Double)
- * Coupler and the Interoperable Telephone, plus the disabled bridge extras.
+ * Coupler, the Mini Grid Coupler and the Interoperable Telephone, plus the disabled bridge extras.
  * Touched only after {@link CIOModules} has checked {@link #REQUIRES}.
  */
 public final class BridgeModule {
@@ -133,6 +135,13 @@ public final class BridgeModule {
                     .strength(2.0f, 6.0f)
                     .noOcclusion()));
 
+    // Mini Grid Coupler — the Grid Coupler's wall-mounted 10 kW sibling (pops past 12 kW).
+    public static final DeferredBlock<MiniGridCouplerBlock> MINI_GRID_COUPLER = BLOCKS.register("mini_grid_coupler",
+            () -> new MiniGridCouplerBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.METAL)
+                    .strength(2.0f, 6.0f)
+                    .noOcclusion()));
+
     public static final DeferredBlock<TelephoneBlock> TELEPHONE = BLOCKS.register("telephone",
             () -> new TelephoneBlock(BlockBehaviour.Properties.of()
                     .mapColor(MapColor.METAL)
@@ -171,6 +180,11 @@ public final class BridgeModule {
                     (pos, state) -> new InteroperableDoubleCouplerBlockEntity(BridgeModule.DOUBLE_COUPLER_BE.get(), pos, state),
                     BridgeModule.DOUBLE_COUPLER.get()).build(null));
 
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<MiniGridCouplerBlockEntity>> MINI_GRID_COUPLER_BE =
+            BLOCK_ENTITIES.register("mini_grid_coupler", () -> BlockEntityType.Builder.of(
+                    (pos, state) -> new MiniGridCouplerBlockEntity(BridgeModule.MINI_GRID_COUPLER_BE.get(), pos, state),
+                    BridgeModule.MINI_GRID_COUPLER.get()).build(null));
+
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<TelephoneBlockEntity>> TELEPHONE_BE =
             BLOCK_ENTITIES.register("telephone", () -> BlockEntityType.Builder.of(
                     (pos, state) -> new TelephoneBlockEntity(BridgeModule.TELEPHONE_BE.get(), pos, state),
@@ -199,6 +213,9 @@ public final class BridgeModule {
     public static final DeferredItem<BlockItem> DOUBLE_COUPLER_ITEM = ITEMS.registerSimpleBlockItem(
             "double_coupler", BridgeModule.DOUBLE_COUPLER);
 
+    public static final DeferredItem<BlockItem> MINI_GRID_COUPLER_ITEM = ITEMS.registerSimpleBlockItem(
+            "mini_grid_coupler", BridgeModule.MINI_GRID_COUPLER);
+
     public static final DeferredItem<BlockItem> TELEPHONE_ITEM = ITEMS.registerSimpleBlockItem(
             "telephone", BridgeModule.TELEPHONE);
 
@@ -208,6 +225,7 @@ public final class BridgeModule {
         ITEMS.register(modEventBus);
 
         CIOCreativeTab.add(CIOCreativeTab.Section.BRIDGE, DOUBLE_COUPLER_ITEM);
+        CIOCreativeTab.add(CIOCreativeTab.Section.BRIDGE, MINI_GRID_COUPLER_ITEM);
         CIOCreativeTab.add(CIOCreativeTab.Section.BRIDGE, TELEPHONE_ITEM);
 
         if (FMLEnvironment.dist.isClient()) {

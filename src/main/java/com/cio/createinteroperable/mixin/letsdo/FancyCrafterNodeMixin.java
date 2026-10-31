@@ -8,6 +8,8 @@ import com.cio.createinteroperable.compat.Mods;
 import com.cio.createinteroperable.grid.GridConnection;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
@@ -149,7 +151,7 @@ public abstract class FancyCrafterNodeMixin implements ApplianceNode, MeteredApp
     }
 
     @Nullable
-    public ClientboundBlockEntityDataPacket getUpdatePacket() {
+    public Packet<ClientGamePacketListener> getUpdatePacket() { // Packet, as BlockEntity declares it: a narrower return type would not override it from a mixin
         return ClientboundBlockEntityDataPacket.create(cioNode$be());
     }
 

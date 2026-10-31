@@ -17,7 +17,16 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "createinteroperable:cpg_telephone"
+          "name": "createinteroperable:cpg_telephone",
+          "functions": [
+            {
+              "function": "minecraft:copy_state",
+              "block": "createinteroperable:cpg_telephone",
+              "properties": [
+                "color"
+              ]
+            }
+          ]
         }
       ],
       "rolls": 1.0

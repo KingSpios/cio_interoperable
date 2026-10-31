@@ -1,6 +1,7 @@
 {
   "neoforge:conditions": [
-    { "type": "neoforge:mod_loaded", "modid": "powergrid" }
+    { "type": "neoforge:mod_loaded", "modid": "powergrid" },
+    { "type": "createinteroperable:climate_blocks_enabled" }
   ],
   "type": "minecraft:crafting_shaped",
   "category": "misc",

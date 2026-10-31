@@ -35,7 +35,7 @@ public class SinkBlockEntity extends BlockEntity {
     /** Fluid that last filled the basin (what a bucket pulls back out). */
     private Fluid basinFluid = Fluids.WATER;
     /** Game time of the last accepted pipe delivery — server side only, transient. */
-    private long lastDeliveryTick = Long.MIN_VALUE;
+    private long lastDeliveryTick = -1L;
 
     private SinkFluidHandler handler;
 
@@ -108,7 +108,8 @@ public class SinkBlockEntity extends BlockEntity {
         if (isSupplied()) {
             return true;
         }
-        if (level != null && level.getGameTime() - lastDeliveryTick <= 60L) {
+        // -1 = never (the old Long.MIN_VALUE overflowed "now - last" into "just now").
+        if (level != null && lastDeliveryTick >= 0 && level.getGameTime() - lastDeliveryTick <= 60L) {
             return true;
         }
         return pipeBelow();

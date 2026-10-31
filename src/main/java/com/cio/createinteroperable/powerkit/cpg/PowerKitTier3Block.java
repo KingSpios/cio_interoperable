@@ -2,10 +2,11 @@ package com.cio.createinteroperable.powerkit.cpg;
 
 import com.cio.createinteroperable.modules.PowerGridModule;
 import com.cio.createinteroperable.powerkit.PowerKitGeometry;
+import com.cio.createinteroperable.powerkit.PowerKitSignalNub;
+import com.cio.createinteroperable.powerkit.PowerKitSwitch;
 import com.cio.createinteroperable.powerkit.PowerKitLabels;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.patryk3211.powergrid.electricity.base.DirectionalElectricBlock;
 import org.patryk3211.powergrid.electricity.base.IDecoratedTerminal;
 import org.patryk3211.powergrid.electricity.base.TerminalBoundingBox;
 
@@ -65,7 +66,18 @@ public class PowerKitTier3Block extends DebRectifierBlock {
     public PowerKitTier3Block(Properties properties) {
         super(properties);
         // Overwrite the tier-2 terminal collection the super constructor set.
-        setTerminalCollection(DirectionalElectricBlock.directionalNorthTerminals(this, TIER3_TERMINALS, TIER3_SHAPE, TIER3_SHAPE));
+        setKitTerminals(TIER3_TERMINALS, TIER3_SHAPE);
+    }
+
+    /** Tier 3: the E-Stop on the east plate. */
+    @Override
+    public PowerKitSwitch.Kind masterSwitch() {
+        return PowerKitSwitch.Kind.E_STOP;
+    }
+
+    @Override
+    public double[] signalNubBox() {
+        return PowerKitSignalNub.TIER3_BOX;
     }
 
     @Override

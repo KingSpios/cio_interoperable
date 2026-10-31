@@ -128,7 +128,7 @@ public class CeeTelephoneBlock extends SimpleElectricalDeviceBlock<TelephoneDevi
     public static final EnumProperty<DyeColor> COLOR = EnumProperty.create("color", DyeColor.class,
             DyeColor.BLUE, DyeColor.WHITE, DyeColor.GRAY, DyeColor.RED, DyeColor.CYAN, DyeColor.GREEN,
             DyeColor.YELLOW, DyeColor.BLACK, DyeColor.PINK, DyeColor.PURPLE, DyeColor.ORANGE,
-            DyeColor.BROWN, DyeColor.LIME, DyeColor.MAGENTA);
+            DyeColor.BROWN, DyeColor.LIME, DyeColor.MAGENTA, DyeColor.LIGHT_GRAY, DyeColor.LIGHT_BLUE);
 
     public CeeTelephoneBlock(Properties properties) {
         super(properties);
@@ -234,9 +234,6 @@ public class CeeTelephoneBlock extends SimpleElectricalDeviceBlock<TelephoneDevi
                     AllSoundEvents.DENY.play(level, player, pos);
                     if (level.isClientSide) {
                         spawnDenySmoke(level, pos);
-                    } else {
-                        player.displayClientMessage(
-                                Lang.component("telephone.that_number_is_busy").withStyle(net.minecraft.ChatFormatting.RED), true);
                     }
                 }
             }
@@ -249,10 +246,7 @@ public class CeeTelephoneBlock extends SimpleElectricalDeviceBlock<TelephoneDevi
             return be.onFrontUsed(player);
         }
 
-        Direction hitFace = hitResult.getDirection();
-        if (hitFace == Direction.UP) {
-            return be.onTopUsed(player);
-        }
+        // The top face is the nubs' alone (wiring); the label lives on the back plate's settings screen.
         return InteractionResult.PASS;
     }
 
@@ -329,6 +323,17 @@ public class CeeTelephoneBlock extends SimpleElectricalDeviceBlock<TelephoneDevi
             case 5 -> rotateY(CEE_LISTENER_BASE, angle);
             default -> null;
         };
+    }
+
+    /**
+     * Every node sits at the center of a 1x1x1 px model nub (power_positive/negative,
+     * pulse_sender_tap x2, outlet_positive/negative), so the pick box is 1 px too
+     * instead of CEE's 4 px default, which swallowed the neighbouring nubs and the
+     * body around them.
+     */
+    @Override
+    public float getNodeSize(Level level, BlockPos pos, BlockState state, int id) {
+        return 1.0F / 16;
     }
 
     // --- Create IBE ---------------------------------------------

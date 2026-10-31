@@ -1,6 +1,7 @@
 package com.cio.createinteroperable.modules;
 
 import com.cio.createinteroperable.bridge.InteroperableDoubleCouplerRenderer;
+import com.cio.createinteroperable.bridge.MiniGridCouplerRenderer;
 import com.cio.createinteroperable.telephone.TelephoneRenderer;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
@@ -22,6 +23,8 @@ final class BridgeModuleClient {
         // unconditionally). The single Coupler is disabled (BRIDGE_EXTRAS).
         InteroperableDoubleCouplerRenderer.init();
         event.registerBlockEntityRenderer(BridgeModule.DOUBLE_COUPLER_BE.get(), InteroperableDoubleCouplerRenderer::new);
+        MiniGridCouplerRenderer.init();
+        event.registerBlockEntityRenderer(BridgeModule.MINI_GRID_COUPLER_BE.get(), MiniGridCouplerRenderer::new);
         event.registerBlockEntityRenderer(BridgeModule.TELEPHONE_BE.get(), TelephoneRenderer::new);
     }
 }

@@ -9,6 +9,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -102,7 +104,7 @@ public abstract class MiniFridgeNodeMixin implements ApplianceNode {
     }
 
     @Nullable
-    public ClientboundBlockEntityDataPacket getUpdatePacket() {
+    public Packet<ClientGamePacketListener> getUpdatePacket() { // Packet, as BlockEntity declares it: a narrower return type would not override it from a mixin
         return ClientboundBlockEntityDataPacket.create(cioNode$be());
     }
 

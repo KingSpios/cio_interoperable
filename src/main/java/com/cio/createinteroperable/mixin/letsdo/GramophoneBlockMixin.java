@@ -23,7 +23,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
  * translation key so it reads identically whichever backend is in play.
  * Name-targeted, non-required &mdash; a no-op without Let's Do Furniture.
  */
-@Mixin(targets = "com.berksire.furniture.core.block.GramophoneBlock")
+@Mixin(targets = {
+        "com.berksire.furniture.core.block.GramophoneBlock",
+        "net.satisfy.furniture.core.block.GramophoneBlock" // Let's Do Furniture 1.1.7+ (repackaged)
+})
 public abstract class GramophoneBlockMixin {
 
     @Inject(method = "useItemOn", at = @At("RETURN"), require = 0)

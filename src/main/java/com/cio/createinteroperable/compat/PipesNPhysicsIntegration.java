@@ -59,6 +59,10 @@ public final class PipesNPhysicsIntegration {
             FluidHandlerApi.setRole(CIOBlocks.BRASS_HEATER.get(), FluidHandlerRole.RESERVOIR);
             FluidHandlerApi.setRole(CIOBlocks.RADIATOR_VALVE_NORTH.get(), FluidHandlerRole.RESERVOIR);
             FluidHandlerApi.setRole(CIOBlocks.RADIATOR_VALVE_SOUTH.get(), FluidHandlerRole.RESERVOIR);
+            // Urban Decor's radiator burns its steam like the Hearth's inlet does.
+            for (net.minecraft.world.level.block.Block radiator : com.cio.createinteroperable.urbandecor.UrbanFixtures.radiatorBlocks()) {
+                FluidHandlerApi.setRole(radiator, FluidHandlerRole.RESERVOIR);
+            }
             // Aircon — both self-fill their own internal tanks every tick
             // outside any PnP-mediated transfer (cold_air/water production,
             // local cold->hot conversion), same "spontaneous gain" reasoning

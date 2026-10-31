@@ -2,6 +2,7 @@ package com.cio.createinteroperable.telephone.interop;
 
 import com.cio.createinteroperable.Lang;
 import com.cio.createinteroperable.CIOValueBox;
+import com.cio.createinteroperable.computer.ComputerLinkBehaviour;
 import com.cio.createinteroperable.telephone.CioTelephone;
 import com.cio.createinteroperable.telephone.TelephoneAutoAnswerBehaviour;
 import com.cio.createinteroperable.telephone.TelephoneCore;
@@ -105,6 +106,7 @@ public class TelephoneBlockEntity extends ElectricBlockEntity implements IHaveHo
         // the old Area Code slider went).
         autoAnswerValue = new TelephoneAutoAnswerBehaviour(this, slot(12.05, 10.5, 12.5, 270));
         behaviours.add(autoAnswerValue);
+        behaviours.add(new ComputerLinkBehaviour(this));
     }
 
     /** Slider box on the face a legacy {@code baseAngle} pointed at, carried through the block's own facing (see {@link CIOValueBox}). */
@@ -126,6 +128,11 @@ public class TelephoneBlockEntity extends ElectricBlockEntity implements IHaveHo
     @Override
     public Component telephoneName() {
         return Lang.component("telephone.name.interop");
+    }
+
+    @Override
+    public String kindId() {
+        return "interoperable";
     }
 
     @Override
@@ -320,9 +327,6 @@ public class TelephoneBlockEntity extends ElectricBlockEntity implements IHaveHo
         return core.onFrontUsed(player);
     }
 
-    InteractionResult onTopUsed(Player player) {
-        return core.onTopUsed(player);
-    }
 
     InteractionResult onBackPlateUsed(Player player) {
         return core.onBackPlateUsed(player);

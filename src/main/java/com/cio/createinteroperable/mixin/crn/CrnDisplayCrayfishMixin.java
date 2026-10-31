@@ -1,5 +1,6 @@
 package com.cio.createinteroperable.mixin.crn;
 
+import com.cio.createinteroperable.compat.CrnDisplayGlue;
 import com.cio.createinteroperable.grid.ApplianceNode;
 import com.mrcrayfish.furniture.refurbished.electricity.Connection;
 import com.mrcrayfish.furniture.refurbished.electricity.IModuleNode;
@@ -80,9 +81,15 @@ public abstract class CrnDisplayCrayfishMixin {
      * networked whenever it is powered &mdash; the board-wide verdict from
      * {@link CrnDisplayNodeMixin#reconcileAppliancePower()} &mdash; while
      * keeping the stock wire-reachability test for anything it already covers.
+     * A Super-Glued display needs no power ({@link CrnDisplayGlue}), so it never
+     * shows the label either; that check is client-only because the label is.
      */
     public boolean imn$isNodeInPowerableNetwork() {
-        return !this.cioCf$sources.isEmpty() || cioCf$node().appliancePowered();
+        if (!this.cioCf$sources.isEmpty() || cioCf$node().appliancePowered()) {
+            return true;
+        }
+        Level level = cioCf$be().getLevel();
+        return level != null && level.isClientSide && CrnDisplayGlue.isGlued(cioCf$be());
     }
 
     /** Crayfish's {@code ElectricityTicker} calls this every tick for every module node. */

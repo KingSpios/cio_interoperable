@@ -22,7 +22,9 @@ license="${mod_license}"
 # sitting somewhere genuinely hot, cold, or Steam Hearth-warmed heats up and
 # cools down accordingly. Name-targeted, non-required — a complete no-op
 # without Power Grid, and falls back to PG's own formula unchanged without
-# Cold Sweat.
+# Cold Sweat. The same config also stands wall-mounted Power Resistors upright
+# (ResistorPlacementMixin), and carries the UV Bulb's hooks into PG's light
+# fixtures (dimmed glow, no projected light, violet Factory Light rays).
 [[mixins]]
     config="createinteroperable.powergrid.mixin.json"
 
@@ -89,6 +91,11 @@ license="${mod_license}"
 [[mixins]]
     config="createinteroperable.urbandecor.mixin.json"
 
+# Crayfish node adapters for Urban Decor blocks (its speaker); disabled
+# wholesale without Refurbished Furniture by CrayfishMixinPlugin.
+[[mixins]]
+    config="createinteroperable.urbandecor.crayfish.mixin.json"
+
 # Optional Create Train Navigator integration: a freestanding Advanced Display
 # only renders its texts while powered from a Domestic Electrical Board.
 # Name-targeted, non-required — a complete no-op without Create Train Navigator
@@ -133,6 +140,23 @@ license="${mod_license}"
 # Guarded by MtsCrayfishMixinPlugin — a no-op without both mods.
 [[mixins]]
     config="createinteroperable.mts.crayfish.mixin.json"
+
+# Optional ComputerCraft CEE Addon integration: the Telephones and Tier 2-4 Power
+# Kits implement the addon's peripheral-source interface, so its computers reach
+# them over a Peripheral Cable. Guarded by CceeMixinPlugin (CC: Tweaked + the addon +
+# Electro Energetics); the .cpg config also needs Power Grid, for the CPG blocks,
+# which it additionally gives a CEE signal node.
+[[mixins]]
+    config="createinteroperable.ccee.mixin.json"
+
+[[mixins]]
+    config="createinteroperable.ccee.cpg.mixin.json"
+
+# The CPG Telephone's interoperable tap pin: a CEE node beside its Power Grid tap
+# terminal, and the CEE call-line walk, so its calls travel over CEE wire too.
+# Guarded by CeeCpgMixinPlugin (Electro Energetics + Power Grid).
+[[mixins]]
+    config="createinteroperable.cee.cpg.mixin.json"
 
 [[dependencies.${mod_id}]]
     modId="neoforge"
@@ -228,6 +252,17 @@ license="${mod_license}"
     ordering="AFTER"
     side="BOTH"
 
+# Soft dependency. Only orders CIO's resources AFTER Urban Decor's: CIO ships its
+# own blockstate for Urban Decor's radiator (the per-heat-tier textures) and it must
+# win over Urban Decor's file (see com.cio.createinteroperable.urbandecor
+# .UrbanRadiatorBlockEntity).
+[[dependencies.${mod_id}]]
+    modId="urban_decor"
+    type="optional"
+    versionRange="[0,)"
+    ordering="AFTER"
+    side="BOTH"
+
 # Soft dependency. When present, an answered Telephone call carries nearby players'
 # voice between the two phones (see com.cio.createinteroperable.voice). Simple Voice
 # Chat discovers CioVoicechatPlugin itself; nothing else in this mod touches its API.
@@ -235,5 +270,23 @@ license="${mod_license}"
     modId="voicechat"
     type="optional"
     versionRange="${voicechat_version_range}"
+    ordering="AFTER"
+    side="BOTH"
+
+# Soft dependencies. With both installed (the addon brings Electro Energetics), the
+# Telephones and the Tier 2-4 Power Kits become peripherals for its computers, over a
+# Peripheral Cable on the phone's tap / the kit's signal nub (see
+# com.cio.createinteroperable.computer).
+[[dependencies.${mod_id}]]
+    modId="computercraft"
+    type="optional"
+    versionRange="${cc_tweaked_version_range}"
+    ordering="AFTER"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="computercraft_cee_addon"
+    type="optional"
+    versionRange="${ccee_addon_version_range}"
     ordering="AFTER"
     side="BOTH"

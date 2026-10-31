@@ -7,11 +7,15 @@ import com.george_vi.electroenergetics.devices.device.SimulatedDeviceType;
 import com.george_vi.electroenergetics.foundation.device.SimpleElectricalDevice;
 import com.george_vi.electroenergetics.foundation.nodes.InWorldNode;
 import com.george_vi.electroenergetics.foundation.nodes.InWorldNodeConnection;
+import com.cio.createinteroperable.compat.Mods;
+import com.george_vi.electroenergetics.CEERegistries;
 import com.george_vi.electroenergetics.simulation.infrastructure.InfrastructureSavedData;
+import com.george_vi.electroenergetics.simulation.infrastructure.WireData;
 import com.george_vi.electroenergetics.simulation.BridgeCollector;
 import com.george_vi.electroenergetics.simulation.SimulationResults;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 
@@ -115,6 +119,11 @@ public class TelephoneDevice extends SimpleElectricalDevice {
      * so this walks InfrastructureSavedData's own connection list outward.
      * MAX_TAP_HOPS bounds the walk against a pathological/cyclic wire layout.
      * Shared by the Interoperable and CEE telephones.
+     *
+     * <p>Peripheral Cables (the ComputerCraft CEE Addon's data cable, which a tap
+     * also takes to reach a computer) are skipped: they link a phone to a
+     * computer, never two phones to each other, so phones on one computer pin
+     * can't call one another through it.</p>
      */
     public static boolean tapReaches(ServerLevel level, BlockPos from, BlockPos to) {
         InWorldNode start = new InWorldNode(2, from);
@@ -131,6 +140,9 @@ public class TelephoneDevice extends SimpleElectricalDevice {
         while (!queue.isEmpty() && hops++ < MAX_TAP_HOPS) {
             InWorldNode current = queue.poll();
             for (InWorldNodeConnection connection : sd.getConnections(current)) {
+                if (isPeripheralCable(sd, connection)) {
+                    continue;
+                }
                 InWorldNode next = connection.node1().equals(current) ? connection.node2() : connection.node1();
                 if (next.equals(goal)) {
                     return true;
@@ -141,5 +153,15 @@ public class TelephoneDevice extends SimpleElectricalDevice {
             }
         }
         return false;
+    }
+
+    /** True for a wire of the ComputerCraft CEE Addon (its Peripheral Cables, every size and dye): told apart by registry namespace, so no addon type is needed. */
+    private static boolean isPeripheralCable(InfrastructureSavedData sd, InWorldNodeConnection connection) {
+        WireData data = sd.getConnectionData(connection);
+        if (data == null) {
+            return false;
+        }
+        ResourceLocation id = CEERegistries.WIRE_TYPE.getKey(data.wireType());
+        return id != null && Mods.Id.CC_CEE_ADDON.equals(id.getNamespace());
     }
 }

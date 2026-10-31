@@ -1,9 +1,14 @@
 package com.cio.createinteroperable.powerkit.cpg;
 
+import com.cio.createinteroperable.powerkit.PowerKitReadout;
 import com.cio.createinteroperable.Lang;
 import com.cio.createinteroperable.grid.Pool;
 import com.cio.createinteroperable.powerkit.DebTier;
+import com.cio.createinteroperable.computer.ComputerLinkBehaviour;
+import com.cio.createinteroperable.powerkit.PowerKitComputerAccess;
+import com.cio.createinteroperable.powerkit.PowerKitControls;
 import com.cio.createinteroperable.powerkit.PowerKitGeometry;
+import com.cio.createinteroperable.powerkit.PowerKitSignalNub;
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
@@ -57,7 +62,7 @@ import java.util.function.IntFunction;
  * {@link PowerKitTier4BlockEntity} is a thin subclass — it only changes
  * {@link #tier()} and a couple of model-geometry hooks.
  */
-public class PowerKitTier3BlockEntity extends DebRectifierBlockEntity {
+public class PowerKitTier3BlockEntity extends DebRectifierBlockEntity implements PowerKitComputerAccess {
 
     /** Slider: index into {@link DebTier.Substation#modes()}; index 0 is the default tap. */
     private ScrollValueBehaviour intakeMode;
@@ -67,6 +72,16 @@ public class PowerKitTier3BlockEntity extends DebRectifierBlockEntity {
     private SwitchedWire hvSwitch;
     /** Regulated intake&rarr;120 V step-down feed (ideal source, reflected onto the intake). */
     private ProvidedVoltageSourceCoupling mv120Feed;
+
+    /** Series resistance currently dimming the HV pass-through (see {@link PowerKitControls#dimmerResistance}). Transient. */
+    private double hvDimmerOhms;
+
+    /**
+     * The control-panel levers. Only tier 4 has the panel; tiers 2&ndash;3 stay at
+     * full power. Created on first use because the super constructor already calls
+     * into this class (addBehaviours &rarr; buildCircuit) before field initialisers run.
+     */
+    private PowerKitControls controls;
 
     // --- synced readout state --------------------------------------
     private float hvFeedWatts;
@@ -89,7 +104,7 @@ public class PowerKitTier3BlockEntity extends DebRectifierBlockEntity {
     }
 
     /** true &rarr; the model has the HV pass-through terminal pair (tiers 3/4); the tier-2 Domestic kit does not. Constant: read during construction. */
-    protected boolean hasHvFeed() {
+    public boolean hasHvFeed() {
         return true;
     }
 
@@ -105,6 +120,87 @@ public class PowerKitTier3BlockEntity extends DebRectifierBlockEntity {
 
     private DebTier.Substation sub() {
         return tier().substation();
+    }
+
+    // --- computers (PowerKitComputerAccess) -------------------------------
+
+    @Override
+    public int kitTier() {
+        return tier() == DebTier.TIER_4 ? 4 : tier() == DebTier.TIER_3 ? 3 : 2;
+    }
+
+    @Override
+    public String kitGrid() {
+        return "cpg";
+    }
+
+    @Override
+    public boolean hasSignalNub() {
+        return PowerKitSignalNub.present() && getBlockState().getBlock() instanceof DebRectifierBlock kit && kit.signalNubBox() != null;
+    }
+
+    @Override
+    public float intakeVoltage() {
+        return (float) intakeDisplayVolts();
+    }
+
+    @Override
+    public double poolSoftCapWatts(Pool pool) {
+        return softCap(pool);
+    }
+
+    @Override
+    public double poolHardCapWatts(Pool pool) {
+        return hardCap(pool);
+    }
+
+    @Override
+    public int linkedApplianceCount(Pool pool) {
+        return linkedCount[pool.ordinal()];
+    }
+
+    @Override
+    public void controlsChanged() {
+        setChanged();
+        sendData();
+    }
+
+    @Override
+    public PowerKitControls controls() {
+        if (controls == null) {
+            controls = new PowerKitControls();
+        }
+        return controls;
+    }
+
+    /** The main lever at OFF switches the kit off exactly like tier 2/3's switch. */
+    @Override
+    public boolean isSwitchedOff() {
+        return super.isSwitchedOff() || controls().feedPower(PowerKitControls.Lever.MAIN) <= 0.0;
+    }
+
+    @Override
+    protected double poolPowerFactor(Pool pool) {
+        return controls().feedPower(pool == Pool.LV ? PowerKitControls.Lever.LV : PowerKitControls.Lever.MV);
+    }
+
+    /** Moves the intake tap's Create slider (which then syncs itself), e.g. from the control panel. */
+    public void setModeIndex(int index) {
+        if (intakeMode != null) {
+            intakeMode.setValue(Mth.clamp(index, 0, sub().modes().length - 1));
+        }
+    }
+
+    public int intakeModeCount() {
+        return sub().modes().length;
+    }
+
+    public String intakeModeDisplay(int index) {
+        return modeLabelStr(index);
+    }
+
+    public double intakeModeVolts(int index) {
+        return sub().modes()[Mth.clamp(index, 0, sub().modes().length - 1)].volts();
     }
 
     /** Selected tap index, clamped to the mode list. */
@@ -138,6 +234,7 @@ public class PowerKitTier3BlockEntity extends DebRectifierBlockEntity {
         intakeMode.withFormatter(labels::apply);
         super.addBehaviours(behaviours);
         behaviours.add(intakeMode);
+        behaviours.add(new ComputerLinkBehaviour(this));
     }
 
     /**
@@ -231,9 +328,9 @@ public class PowerKitTier3BlockEntity extends DebRectifierBlockEntity {
         lvFeed.setVoltageProvider(this::stepDownEmf);
     }
 
-    /** Regulated 120 V feed EMF = 120 / tap volts x solved intake volts. */
+    /** Regulated 120 V feed EMF = 120 / tap volts x solved intake volts (0 while switched off). */
     protected double mv120Emf() {
-        return Math.max(0.0, intakeVolts() * (120.0 / primaryVolts()));
+        return isSwitchedOff() ? 0.0 : Math.max(0.0, DebTier.regulatedEmf(120.0, intakeVolts(), primaryVolts(), tier().brownoutFraction(), poolVoltageFactor(Pool.MV)));
     }
 
     // ---------------------------------------------------- tier hooks
@@ -267,7 +364,7 @@ public class PowerKitTier3BlockEntity extends DebRectifierBlockEntity {
      */
     @Override
     protected double mvRailVolts() {
-        double emf = intakeVolts() * (120.0 / primaryVolts());
+        double emf = DebTier.regulatedEmf(120.0, intakeVolts(), primaryVolts(), tier().brownoutFraction(), poolVoltageFactor(Pool.MV));
         double current = mv120Feed != null ? Math.abs(mv120Feed.getCurrent()) : 0.0;
         return Math.max(0.0, emf - current * sub().mvStepDownResistance());
     }
@@ -291,13 +388,23 @@ public class PowerKitTier3BlockEntity extends DebRectifierBlockEntity {
 
     @Override
     protected void meterFeeds() {
-        boolean hvLive = mode().hvFeedLive();
+        double hvPower = controls().feedPower(PowerKitControls.Lever.HV);
+        boolean hvLive = mode().hvFeedLive() && !isSwitchedOff() && hvPower > 0.0;
+        double hvCurrent = (hvSwitch != null && hvLive) ? Math.abs(hvSwitch.current()) : 0.0;
+        // Watts delivered past the dimmer (its own series drop is not the load's).
+        hvFeedWatts = (float) Math.max(0.0, intakeVolts() * hvCurrent - hvCurrent * hvCurrent * hvDimmerOhms);
+
         if (hvSwitch != null) {
             hvSwitch.setState(hvLive);
+            // A pass-through can't have its voltage scaled, so the HV lever dims it
+            // with a series resistance sized to the load it just saw.
+            double dimmer = hvLive ? PowerKitControls.dimmerResistance(
+                    intakeVolts(), hvCurrent, 2 * FEED_PASSTHROUGH_R, hvDimmerOhms, hvPower) : 0.0;
+            if (Math.abs(dimmer - hvDimmerOhms) > 0.02 * Math.max(dimmer, hvDimmerOhms)) {
+                hvDimmerOhms = dimmer;
+                hvSwitch.setResistance(FEED_PASSTHROUGH_R + hvDimmerOhms);
+            }
         }
-
-        double hvCurrent = (hvSwitch != null && hvLive) ? Math.abs(hvSwitch.current()) : 0.0;
-        hvFeedWatts = (float) (intakeVolts() * hvCurrent);
 
         double mv120Current = mv120Feed != null ? Math.abs(mv120Feed.getCurrent()) : 0.0;
         mv120FeedWatts = (float) (mvRailVolts() * mv120Current);
@@ -353,7 +460,7 @@ public class PowerKitTier3BlockEntity extends DebRectifierBlockEntity {
     }
 
     static String pct(float load) {
-        return Math.round(load * 100f) + "%";
+        return PowerKitReadout.percent(load) + "%";
     }
 
     /**
@@ -369,7 +476,10 @@ public class PowerKitTier3BlockEntity extends DebRectifierBlockEntity {
                 new ViewerSpec("TEMP", Math.round(getTemperatureC()) + "°",
                         getTemperatureC() >= overheatCelsius() * 0.8, 5f, b + 4f),
                 new ViewerSpec("120v", pct(getRailLoad(Pool.MV)), isRailFaulted(Pool.MV), 11f, b + 4f),
-                new ViewerSpec("USAGE", Integer.toString(Math.round(getTotalUsageWatts())), false, 8f, b + 8f));
+                new ViewerSpec(Lang.component("powerkit.usage").getString(),
+                        isSwitchedOff() ? Lang.component("common.off_caps").getString()
+                                : Integer.toString(Math.round(getTotalUsageWatts())),
+                        isSwitchedOff(), 8f, b + 8f));
     }
 
     // ---------------------------------------------------- goggle + NBT
@@ -401,6 +511,7 @@ public class PowerKitTier3BlockEntity extends DebRectifierBlockEntity {
         hvFeedWatts = tag.getFloat("HvFeedWatts");
         mv120FeedWatts = tag.getFloat("Mv120FeedWatts");
         intakeVoltsSynced = tag.getFloat("IntakeVolts");
+        controls().read(tag);
         // TemperatureC round-trips in DebRectifierBlockEntity#read/#write
     }
 
@@ -410,5 +521,6 @@ public class PowerKitTier3BlockEntity extends DebRectifierBlockEntity {
         tag.putFloat("HvFeedWatts", hvFeedWatts);
         tag.putFloat("Mv120FeedWatts", mv120FeedWatts);
         tag.putFloat("IntakeVolts", intakeVoltsSynced);
+        controls().write(tag);
     }
 }

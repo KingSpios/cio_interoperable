@@ -26,11 +26,17 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  * is not on the compile classpath, and without {@code @Coerce} Mixin rejects the
  * handler's descriptor and silently skips the whole mixin (it did, until 0.1.78).
  */
-@Mixin(targets = "com.berksire.furniture.client.render.block.GramophoneRenderer", remap = false)
+@Mixin(targets = {
+        "com.berksire.furniture.client.render.block.GramophoneRenderer",
+        "net.satisfy.furniture.client.render.block.GramophoneRenderer" // Let's Do Furniture 1.1.7+ (repackaged)
+}, remap = false)
 public abstract class GramophoneRendererMixin {
 
     @Inject(
-            method = "render(Lcom/berksire/furniture/core/block/entity/GramophoneBlockEntity;FLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;II)V",
+            method = {
+                    "render(Lcom/berksire/furniture/core/block/entity/GramophoneBlockEntity;FLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;II)V",
+                    "render(Lnet/satisfy/furniture/core/block/entity/GramophoneBlockEntity;FLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;II)V"
+            },
             at = @At("HEAD"), require = 0, remap = false)
     private void cio$drawElectricNode(@Coerce BlockEntity blockEntity, float partialTicks, PoseStack poseStack,
                                       MultiBufferSource bufferSource, int light, int overlay, CallbackInfo ci) {

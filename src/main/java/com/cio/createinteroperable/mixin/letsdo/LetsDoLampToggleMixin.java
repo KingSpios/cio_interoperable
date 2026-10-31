@@ -26,6 +26,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(targets = {
         "com.berksire.furniture.core.block.LampBlock",
         "com.berksire.furniture.core.block.LampWallBlock",
+        "net.satisfy.furniture.core.block.LampBlock",
+        "net.satisfy.furniture.core.block.LampWallBlock",
         "net.satisfy.candlelight.core.block.LampBlock"
 })
 public abstract class LetsDoLampToggleMixin {

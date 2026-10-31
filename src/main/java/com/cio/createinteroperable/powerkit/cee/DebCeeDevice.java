@@ -82,16 +82,16 @@ public class DebCeeDevice extends SimpleElectricalDevice {
         this.passResistance = resistance;
     }
 
-    /** The regulated 12&nbsp;V step-down feed (every tier). */
-    public void setLvFeed(int a, int b, double emf, double resistance) {
-        this.lvFeed = true;
+    /** The regulated 12&nbsp;V step-down feed (every tier; {@code present=false} while the kit is switched off). */
+    public void setLvFeed(boolean present, int a, int b, double emf, double resistance) {
+        this.lvFeed = present;
         this.lvA = a;
         this.lvB = b;
         this.lvEmf = emf;
         this.lvResistance = resistance;
     }
 
-    /** The regulated 120&nbsp;V step-down feed (tier 3/4 only; {@code present=false} on tiers 1-2). */
+    /** The regulated 120&nbsp;V step-down feed ({@code present=false} on tier 1 and while switched off). */
     public void setMv120Feed(boolean present, int a, int b, double emf, double resistance) {
         this.mv120Feed = present;
         this.mv120A = a;

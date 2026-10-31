@@ -2,8 +2,10 @@ package com.cio.createinteroperable.mixin.letsdo;
 
 import com.cio.createinteroperable.CIOConfig;
 import com.cio.createinteroperable.grid.ApplianceNode;
+import com.cio.createinteroperable.telephone.TelephoneListeners;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -12,12 +14,15 @@ import net.minecraft.world.phys.BlockHitResult;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
  * Hard-gates the Radio ({@link RadioNodeMixin}) at the block interaction: with
  * no power a right-click does nothing at all and pops the "Missing power"
- * action-bar message. Name-targeted, non-required &mdash; a no-op without Let's
+ * action-bar message. Also: a radio removed by any means (broken, replaced,
+ * picked up by a contraption or a command) falls silent at once, wherever it
+ * was playing radio. Name-targeted, non-required &mdash; a no-op without Let's
  * Do Beachparty.
  */
 @Mixin(targets = "net.satisfy.beachparty.core.block.RadioBlock")
@@ -34,6 +39,14 @@ public abstract class RadioBlockMixin {
                 player.displayClientMessage(Component.translatable("gui.refurbished_furniture.no_power"), true);
             }
             cir.setReturnValue(InteractionResult.sidedSuccess(level.isClientSide));
+        }
+    }
+
+    @Inject(method = "onRemove", at = @At("HEAD"), require = 0)
+    private void cio$silenceWhenRemoved(BlockState state, Level level, BlockPos pos, BlockState newState, boolean moved,
+                                        CallbackInfo ci) {
+        if (level instanceof ServerLevel server && !newState.is(state.getBlock())) {
+            TelephoneListeners.silence(server, pos);
         }
     }
 }

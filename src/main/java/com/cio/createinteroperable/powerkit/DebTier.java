@@ -53,7 +53,12 @@ public record DebTier(
      */
     public record Substation(
             Mode[] modes,                  // slider index -> tap; index 0 is the default
-            double mvStepDownResistance) { // series R on the regulated intake->120 V feed
+            double mvStepDownResistance) { // series R on the regulated intake->120 V feed (see feedResistance)
+
+        /** The regulated 120 V feed's series R as the circuit sees it: near ideal (see {@link DebTier#FEED_OHMS}). */
+        public double mvStepDownResistance() {
+            return Math.min(mvStepDownResistance, FEED_OHMS);
+        }
 
         /** One selectable intake tap. */
         public record Mode(
@@ -124,7 +129,7 @@ public record DebTier(
             350.0, 9_600.0,            // overheat at 350 C; ~9.6 kW steady dissipation reaches it
             new Substation(
                     new Substation.Mode[] {
-                            new Substation.Mode("120 V", 120.0, 12_000.0, 18_000.0, 0.13, false),
+                            new Substation.Mode("120 V", 120.0, 12_000.0, 18_000.0, 0.13, true),
                             new Substation.Mode("240 V", 240.0, 20_000.0, 32_000.0, 0.50, true),
                             new Substation.Mode("480 V", 480.0, 40_000.0, 64_000.0, 1.00, true),
                     },
@@ -146,11 +151,33 @@ public record DebTier(
             420.0, 22_100.0,           // overheat at 420 C; ~22.1 kW steady dissipation reaches it
             new Substation(
                     new Substation.Mode[] {
-                            new Substation.Mode("120 V",  120.0,  16_000.0,  24_000.0, 0.13, false),
+                            new Substation.Mode("120 V",  120.0,  16_000.0,  24_000.0, 0.13, true),
                             new Substation.Mode("240 V",  240.0,  28_000.0,  44_000.0, 0.35, true),
                             new Substation.Mode("1 kV",  1000.0, 120_000.0, 190_000.0, 1.25, true),
                     },
                     0.03));   // intake->120 regulated feed series R
+
+    /**
+     * Series resistance of every regulated outlet (12 V, 120 V): near ideal, so an
+     * outlet delivers the voltage its label says, not a sagging share of the intake.
+     */
+    public static final double FEED_OHMS = 0.001;
+
+    /**
+     * The EMF of a regulated outlet: its labelled voltage, held while the intake is at or
+     * above the tier's brownout fraction of its tap voltage and falling away in proportion
+     * below it (0 with no intake), times the pool's power-factor voltage ({@code poolFactor},
+     * which the control panel's levers lower). The outlet no longer follows every volt the
+     * intake sags by.
+     */
+    public static double regulatedEmf(double nominalOut, double intakeVolts, double tapVolts,
+                                      double brownoutFraction, double poolFactor) {
+        if (tapVolts <= 0.0 || intakeVolts <= 0.0) {
+            return 0.0;
+        }
+        double cover = Math.min(1.0, intakeVolts / (tapVolts * brownoutFraction));
+        return nominalOut * cover * poolFactor;
+    }
 
     /** True if this tier energises the 120&nbsp;V appliance pool at all. */
     public boolean servesMediumVoltage() {
@@ -177,7 +204,7 @@ public record DebTier(
 
     /** Series resistance (&Omega;) on the regulated 12&nbsp;V Power Feed output. */
     public double stepDownResistance() {
-        return lvInternalResistance;
+        return Math.min(lvInternalResistance, FEED_OHMS);
     }
 
     /** Bus voltage below this (V) means the pool browns out and does not energise its appliances this tick. */

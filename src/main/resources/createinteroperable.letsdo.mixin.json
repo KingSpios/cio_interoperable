@@ -6,6 +6,8 @@
     "FarmAndCharmSinkBlockMixin",
     "AlpineWhispersBathtubBlockMixin",
     "AlpineWhispersBathtubEntityMixin",
+    "AlpineWhispersSinkBlockMixin",
+    "AlpineWhispersSinkEntityMixin",
     "AlpineFairyLightsBlockMixin",
     "AnotherFurnitureLampBlockMixin",
     "AnotherFurnitureLampToggleMixin",
@@ -23,10 +25,13 @@
     "IdenLightDefaultModeMixin",
     "IdenLampBlockMixin",
     "IdenModBlocksMixin",
-    "IdenComputerNodeMixin"
+    "IdenComputerNodeMixin",
+    "FurnitureStreetLanternNodeMixin",
+    "RadioDisplayMixin"
   ],
   "client": [
-    "IdenComputerRendererMixin"
+    "IdenComputerRendererMixin",
+    "GramophoneRendererSpinMixin"
   ],
   "minVersion": "0.8"
 }

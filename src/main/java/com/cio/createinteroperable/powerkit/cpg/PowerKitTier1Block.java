@@ -2,10 +2,10 @@ package com.cio.createinteroperable.powerkit.cpg;
 
 import com.cio.createinteroperable.modules.PowerGridModule;
 import com.cio.createinteroperable.powerkit.PowerKitGeometry;
+import com.cio.createinteroperable.powerkit.PowerKitSwitch;
 import com.cio.createinteroperable.powerkit.PowerKitLabels;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.patryk3211.powergrid.electricity.base.DirectionalElectricBlock;
 import org.patryk3211.powergrid.electricity.base.IDecoratedTerminal;
 import org.patryk3211.powergrid.electricity.base.TerminalBoundingBox;
 
@@ -46,7 +46,25 @@ public class PowerKitTier1Block extends DebRectifierBlock {
     public PowerKitTier1Block(Properties properties) {
         super(properties);
         // Overwrite the tier-2 terminal collection the super constructor set.
-        setTerminalCollection(DirectionalElectricBlock.directionalNorthTerminals(this, TIER1_TERMINALS, TIER1_SHAPE, TIER1_SHAPE));
+        setKitTerminals(TIER1_TERMINALS, TIER1_SHAPE);
+    }
+
+    /** The flip switch under the gauge. */
+    @Override
+    public PowerKitSwitch.Kind masterSwitch() {
+        return PowerKitSwitch.Kind.FLIP_SWITCH;
+    }
+
+    /** The Improvised kit keeps its own look: no paint. */
+    @Override
+    public boolean dyeable() {
+        return false;
+    }
+
+    /** The Improvised kit has no signal nub. */
+    @Override
+    public double[] signalNubBox() {
+        return null;
     }
 
     @Override

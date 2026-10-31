@@ -87,14 +87,14 @@ import java.util.Map;
  *     of body_box's own front face, so it needs its own MODEL_BOXES entry
  *     for the outline shape to even reach it.</li>
  * </ul>
- * The remaining 2 interactions (own Area Code/Number, label) have no
- * dedicated model geometry and attach to whole-region/whole-face checks
- * instead: the label screen on the top face (a plain hitFace check), and the
- * full settings screen (TelephoneSettingsScreen: own Area Code/Number,
+ * The remaining interactions (own Area Code/Number, label) have no
+ * dedicated model geometry: the full settings screen (TelephoneSettingsScreen: own Area Code/Number,
  * label, number to call, Auto-Answer) on back_plate specifically (its own
  * hitbox), since in-world ScrollValueBehaviours placed on body_box's faces
  * kept landing inside overlapping model geometry (phone_part/hook) and were
  * unreliable to click. The dial ring opens the same screen in dial-only mode.
+ * The top face does nothing on a click: it is the wire nubs' alone (it used
+ * to open a label-only screen; removed 2026-10-26).
  * <p>
  * FACING follows the same convention as BrassHeaterBlock/SteamOutletBlock's
  * blockstate ("north"=0, "east"=90, "south"=180, "west"=270 model rotation) —
@@ -272,20 +272,18 @@ public class TelephoneBlock extends ElectricBlock
             new TerminalBoundingBox(IDecoratedTerminal.CONNECTOR, 6.5, 3, 9, 9.5, 6, 10, NUB_EXPAND);
 
     /**
-     * Real texture swap, not a tint: each of these 14 DyeColor values has a
-     * matching hand-painted texture, one small "parent": block/telephone,
-     * overridden-textures model file per color (telephone_<color>.json — see
-     * blockstates/telephone.json). Only LIGHT_BLUE and LIGHT_GRAY have no
-     * matching texture yet and are deliberately left out of this property's
-     * allowed values — TelephoneBlock#useItemOn checks
-     * getPossibleValues().contains(...) before ever touching the block, so
-     * dyeing with one of those is a silent no-op, exactly as requested ("if
-     * the texture matching the dye does not exist, then nothing happens").
+     * Real texture swap, not a tint: every dye has its own texture, one small
+     * "parent": block/telephone, overridden-textures model file per color
+     * (telephone_<color>.json — see blockstates/telephone.json). Since
+     * 0.1.168 the textures are generated at build time from the white phone,
+     * a paint mask and the dye palette ({@code src/main/dyeable/},
+     * {@code generateDyedTextures}), so all 16 dyes work. The values' order
+     * is kept (BLUE first, the default; LIGHT_GRAY / LIGHT_BLUE appended).
      */
     public static final EnumProperty<DyeColor> COLOR = EnumProperty.create("color", DyeColor.class,
             DyeColor.BLUE, DyeColor.WHITE, DyeColor.GRAY, DyeColor.RED, DyeColor.CYAN, DyeColor.GREEN,
             DyeColor.YELLOW, DyeColor.BLACK, DyeColor.PINK, DyeColor.PURPLE, DyeColor.ORANGE,
-            DyeColor.BROWN, DyeColor.LIME, DyeColor.MAGENTA);
+            DyeColor.BROWN, DyeColor.LIME, DyeColor.MAGENTA, DyeColor.LIGHT_GRAY, DyeColor.LIGHT_BLUE);
 
     /**
      * Which protocol currently owns the positive/negative nubs — at most one
@@ -494,10 +492,8 @@ public class TelephoneBlock extends ElectricBlock
             // harmlessly either way, so this is purely the player feedback —
             // same dual-side .play() pattern as the bell above, plus a
             // client-only particle burst (no sync needed, this branch
-            // already runs identically on both sides). Busy additionally
-            // gets an actionbar message — sound+smoke alone doesn't say
-            // WHY the call didn't go through, unlike self-dial where that's
-            // usually obvious to the player already.
+            // already runs identically on both sides). Why the call didn't go
+            // through goes to the action bar from TelephoneCore.onHandsetUsed.
             if (!be.isBusy()) {
                 if (be.isDialingOwnNumber()) {
                     AllSoundEvents.DENY.play(level, player, pos);
@@ -508,9 +504,6 @@ public class TelephoneBlock extends ElectricBlock
                     AllSoundEvents.DENY.play(level, player, pos);
                     if (level.isClientSide) {
                         spawnDenySmoke(level, pos);
-                    } else {
-                        player.displayClientMessage(
-                                Lang.component("telephone.that_number_is_busy").withStyle(ChatFormatting.RED), true);
                     }
                 }
             }
@@ -526,10 +519,7 @@ public class TelephoneBlock extends ElectricBlock
             return be.onFrontUsed(player);
         }
 
-        Direction hitFace = hitResult.getDirection();
-        if (hitFace == Direction.UP) {
-            return be.onTopUsed(player);
-        }
+        // The top face is the nubs' alone (wiring); the label lives on the back plate's settings screen.
         return InteractionResult.PASS;
     }
 
@@ -660,6 +650,12 @@ public class TelephoneBlock extends ElectricBlock
             case 2 -> rotateY(CEE_TAP_BASE, angle);
             default -> null;
         };
+    }
+
+    /** The 3 CEE nodes sit at the center of 1x1x1 px nubs (see CeeTelephoneBlock#getNodeSize): a 1 px pick box each instead of CEE's 4 px default. */
+    @Override
+    public float getNodeSize(Level level, BlockPos pos, BlockState state, int id) {
+        return 1.0F / 16;
     }
 
     /** Mirror image of terminalsFor's own null-out — CEE's real, synchronous reject hook (default true; see InWorldNode#closestNode, which drops a node from candidate resolution entirely when this returns false). */

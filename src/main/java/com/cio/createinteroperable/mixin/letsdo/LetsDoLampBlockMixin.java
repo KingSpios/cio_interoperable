@@ -40,6 +40,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
         "com.berksire.furniture.core.block.LampWallBlock",
         "com.berksire.furniture.core.block.StreetLanternBlock",
         "com.berksire.furniture.core.block.StreetLanternWallBlock",
+        // Let's Do Furniture 1.1.7+ moved to net.satisfy.furniture
+        "net.satisfy.furniture.core.block.LampBlock",
+        "net.satisfy.furniture.core.block.LampWallBlock",
+        "net.satisfy.furniture.core.block.StreetLanternBlock",
+        "net.satisfy.furniture.core.block.StreetLanternWallBlock",
         "net.satisfy.candlelight.core.block.LampBlock"
 })
 public abstract class LetsDoLampBlockMixin implements EntityBlock {
@@ -47,7 +52,8 @@ public abstract class LetsDoLampBlockMixin implements EntityBlock {
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return CIOConfig.LETSDO_LAMPS_REQUIRE_POWER.get() && LetsDoLampStates.isHeadSegment(state)
+        return CIOConfig.LETSDO_LAMPS_REQUIRE_POWER.get() && LetsDoLampStates.isLamp(state)
+                && LetsDoLampStates.isHeadSegment(state)
                 ? new LetsDoLampBlockEntity(pos, state)
                 : null;
     }
@@ -79,6 +85,9 @@ public abstract class LetsDoLampBlockMixin implements EntityBlock {
             return;
         }
         BlockState now = level.getBlockState(pos);
+        if (!LetsDoLampStates.isLamp(now)) {
+            return; // e.g. Furniture's IronStreetLanternBlock, which inherits this method but keeps its own BE
+        }
         boolean head = LetsDoLampStates.isHeadSegment(now);
         boolean hasNode = level.getBlockEntity(pos) instanceof LetsDoLampBlockEntity;
         if (head && !hasNode && CIOConfig.LETSDO_LAMPS_REQUIRE_POWER.get()) {

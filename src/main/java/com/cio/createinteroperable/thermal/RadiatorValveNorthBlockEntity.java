@@ -34,14 +34,12 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.WeakHashMap;
 
 /**
  * The steam-consuming, heat-producing half of a Multi Radiator — see
@@ -69,7 +67,7 @@ import java.util.WeakHashMap;
  * tier's own °C divided by BLAZING's, matching how much warmer each tier
  * actually makes the flood-filled room (see {@link #WARM_ADD_C}).
  */
-public class RadiatorValveNorthBlockEntity extends KineticBlockEntity {
+public class RadiatorValveNorthBlockEntity extends KineticBlockEntity implements SteamHearth {
     /**
      * A bare 2x1 run (North+South, no middles) tops out at 24 mB/t at a fully
      * open valve. Deliberately scaled to real Create pipe throughput rather
@@ -135,23 +133,6 @@ public class RadiatorValveNorthBlockEntity extends KineticBlockEntity {
     private double insideTempC = Double.NaN;
     private double outsideTempC = Double.NaN;
 
-    /**
-     * Every currently-loaded, assembled Hearth — lets {@link CatSteamHearthGoal}
-     * find nearby Hearths without an expensive block-by-block world scan (see
-     * that class's own doc). Re-added (idempotently) every {@link #tick()}
-     * rather than tracked through an explicit remove hook — a plain {@link
-     * WeakHashMap}-backed set means an unloaded/discarded Hearth just falls
-     * out on its own once nothing else references it, no lifecycle bookkeeping
-     * needed. Single-threaded (server tick), so no synchronization required.
-     */
-    private static final Set<RadiatorValveNorthBlockEntity> ACTIVE_HEARTHS =
-            Collections.newSetFromMap(new WeakHashMap<>());
-
-    /** @return a point-in-time copy, safe to iterate while other Hearths keep ticking. */
-    public static List<RadiatorValveNorthBlockEntity> activeHearthsSnapshot() {
-        return new ArrayList<>(ACTIVE_HEARTHS);
-    }
-
     public RadiatorValveNorthBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
     }
@@ -177,7 +158,6 @@ public class RadiatorValveNorthBlockEntity extends KineticBlockEntity {
     @Override
     public void onSpeedChanged(float previousSpeed) {
         super.onSpeedChanged(previousSpeed);
-        pointer.chase(getSpeed() > 0 ? 1 : 0, getChaseSpeed(), Chaser.LINEAR);
         pointer.forceNextSync();
         // Same real Steam Engine puff as SteamOutletBlockEntity's own valve —
         // see its onSpeedChanged for why this is #play (server-broadcast),
@@ -186,10 +166,6 @@ public class RadiatorValveNorthBlockEntity extends KineticBlockEntity {
             AllSoundEvents.STEAM.play(level, null, worldPosition, 0.6f,
                     0.9f + level.random.nextFloat() * 0.2f);
         }
-    }
-
-    private float getChaseSpeed() {
-        return Mth.clamp(Math.abs(getSpeed()) / 16 / 20, 0, 1);
     }
 
     /** @return this run's max throughput at a fully open valve — 256 mB/t base, +128 mB/t per assembled middle segment. */
@@ -215,6 +191,12 @@ public class RadiatorValveNorthBlockEntity extends KineticBlockEntity {
     @Override
     public void tick() {
         super.tick();
+        // Same valve rule as the Steam Outlet (SteamValve: one full handle turn
+        // = fully open), accumulated from the shaft's real rotation each tick.
+        float speed = getSpeed();
+        if (speed != 0) {
+            pointer.chase(SteamValve.step(pointer.getValue(), speed), 1.0, Chaser.LINEAR);
+        }
         pointer.tickChaser();
 
         if (level == null || level.isClientSide) {
@@ -225,7 +207,7 @@ public class RadiatorValveNorthBlockEntity extends KineticBlockEntity {
         if (!(state.getBlock() instanceof RadiatorValveNorthBlock) || !state.getValue(RadiatorValveNorthBlock.ASSEMBLED)) {
             return;
         }
-        ACTIVE_HEARTHS.add(this);
+        SteamHearths.add(this);
 
         int maxConsumption = maxSteamConsumptionPerTick();
         float valvePosition = pointer.getValue();
@@ -536,9 +518,9 @@ public class RadiatorValveNorthBlockEntity extends KineticBlockEntity {
      * by {@link #BLAZING_ADD_C}), so "more heat" still genuinely costs
      * proportionally more steam, whatever the exact degree numbers are.
      */
-    private static final double WARM_ADD_C = 12.0;
-    private static final double HOT_ADD_C = 22.0;
-    private static final double BLAZING_ADD_C = 32.0;
+    public static final double WARM_ADD_C = 12.0;
+    public static final double HOT_ADD_C = 22.0;
+    public static final double BLAZING_ADD_C = 32.0;
 
     /**
      * Own thresholds — deliberately NOT
@@ -578,7 +560,7 @@ public class RadiatorValveNorthBlockEntity extends KineticBlockEntity {
     private static final float BLAZING_STEAM_FRACTION = 1.0f;
 
     /** @return the tier {@code fraction} (of this run's own max steam throughput, see {@link #maxSteamConsumptionPerTick}) lands in — COLD/FREEZING below {@link #WARM_STEAM_FRACTION}, same as Brass Heater's own low end. */
-    private static BrassHeaterBlock.HeatLevel quantizeHeatTier(float fraction, boolean coldBiome) {
+    public static BrassHeaterBlock.HeatLevel quantizeHeatTier(float fraction, boolean coldBiome) {
         if (fraction < WARM_STEAM_FRACTION) {
             return coldBiome ? BrassHeaterBlock.HeatLevel.FREEZING : BrassHeaterBlock.HeatLevel.COLD;
         }
@@ -616,6 +598,7 @@ public class RadiatorValveNorthBlockEntity extends KineticBlockEntity {
      * helper, never a Cold-Sweat type directly, so it's safe to leave
      * unguarded here too.
      */
+    @Override
     public double getWarmingOffsetMc(BlockPos pos) {
         int strength = hearthStrengthAt(pos);
         if (strength <= 0) {
@@ -950,6 +933,7 @@ public class RadiatorValveNorthBlockEntity extends KineticBlockEntity {
      * Used by {@link CatSteamHearthGoal} to decide whether/how cats should be
      * attracted to this run at all right now.
      */
+    @Override
     public BrassHeaterBlock.HeatLevel getHeatTier() {
         BlockState state = getBlockState();
         if (!(state.getBlock() instanceof RadiatorValveNorthBlock) || !state.getValue(RadiatorValveNorthBlock.ASSEMBLED)) {
@@ -965,6 +949,7 @@ public class RadiatorValveNorthBlockEntity extends KineticBlockEntity {
      * {@link CatSteamHearthGoal} to find lie-on-top/lie-beside candidate
      * positions.
      */
+    @Override
     public List<BlockPos> getAllSegmentPositions() {
         List<BlockPos> segments = new ArrayList<>(middlePositions.size() + 2);
         segments.add(worldPosition);
@@ -981,6 +966,7 @@ public class RadiatorValveNorthBlockEntity extends KineticBlockEntity {
      * in place) each recompute, so it's safe for a caller to hold onto this
      * reference across ticks without it changing out from under them.
      */
+    @Override
     public Set<BlockPos> getRoomCache() {
         return roomCache;
     }

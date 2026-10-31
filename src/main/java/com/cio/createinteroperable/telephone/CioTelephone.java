@@ -30,11 +30,36 @@ public interface CioTelephone extends TelephoneNode {
     /** One ring of the bell, every second while ringing. */
     void playRingSound();
 
+    /** Ticks between rings of {@link #playRingSound()} while ringing. */
+    default int ringSoundPeriodTicks() {
+        return 20;
+    }
+
     /** Goggle readout header, e.g. "CPG Telephone". */
     Component telephoneName();
 
     /** Goggle readout "Wiring:" value. */
     Component wiringLabel();
+
+    /**
+     * Whether a call to {@code target} can't start because its radio channel is taken
+     * (Radio Telephone only: another transmitter already reaches one of the two phones on
+     * it). The caller then hears a busy tone.
+     */
+    default boolean channelBusyFor(TelephoneNode target) {
+        return false;
+    }
+
+    /**
+     * A call event as computers get it ({@code telephone_ring} / {@code _answer} /
+     * {@code _hangup} / {@code _dial}, same arguments): a Radio Telephone carries its
+     * external calls on the air from these.
+     */
+    default void onCallEvent(String name, Object... args) {
+    }
+
+    /** Which phone this is, for computers: "cpg", "cee", "interoperable" or "radio". */
+    String kindId();
 
     // --- TelephoneNode, forwarded to the core ---
 
@@ -66,6 +91,11 @@ public interface CioTelephone extends TelephoneNode {
     @Override
     default boolean isCallAnswered() {
         return telephoneCore().isCallAnswered();
+    }
+
+    @Override
+    default boolean isExternalCall() {
+        return telephoneCore().isExternalCall();
     }
 
     @Override

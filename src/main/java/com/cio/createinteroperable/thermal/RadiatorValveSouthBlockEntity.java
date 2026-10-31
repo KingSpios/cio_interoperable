@@ -124,7 +124,6 @@ public class RadiatorValveSouthBlockEntity extends KineticBlockEntity {
     @Override
     public void onSpeedChanged(float previousSpeed) {
         super.onSpeedChanged(previousSpeed);
-        pointer.chase(getSpeed() > 0 ? 1 : 0, getChaseSpeed(), Chaser.LINEAR);
         pointer.forceNextSync();
         // Same real Steam Engine puff as SteamOutletBlockEntity's own valve —
         // see its onSpeedChanged for why this is #play (server-broadcast),
@@ -133,10 +132,6 @@ public class RadiatorValveSouthBlockEntity extends KineticBlockEntity {
             AllSoundEvents.STEAM.play(level, null, worldPosition, 0.6f,
                     0.9f + level.random.nextFloat() * 0.2f);
         }
-    }
-
-    private float getChaseSpeed() {
-        return Mth.clamp(Math.abs(getSpeed()) / 16 / 20, 0, 1);
     }
 
     /** How often (in ticks) an unconnected, open outlet checks whether it should drip. Matches a slow, lazy dripstone pace. */
@@ -149,6 +144,11 @@ public class RadiatorValveSouthBlockEntity extends KineticBlockEntity {
     @Override
     public void tick() {
         super.tick();
+        // Same valve rule as the North end and the Steam Outlet (SteamValve).
+        float speed = getSpeed();
+        if (speed != 0) {
+            pointer.chase(SteamValve.step(pointer.getValue(), speed), 1.0, Chaser.LINEAR);
+        }
         pointer.tickChaser();
         // Actual release to the outside world otherwise happens on demand,
         // when something downstream (a pipe, a boiler) drains

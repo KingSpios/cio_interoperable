@@ -1,6 +1,7 @@
 package com.cio.createinteroperable.telephone.iden;
 
 import com.cio.createinteroperable.Lang;
+import com.cio.createinteroperable.telephone.TelephoneCore;
 import com.cio.createinteroperable.telephone.TelephoneNode;
 import com.cio.createinteroperable.telephone.TelephoneNumbers;
 import com.cio.createinteroperable.telephone.TelephoneRedstone;
@@ -215,7 +216,7 @@ public final class IdenPhoneCore {
         MutableComponent failure = dial();
         if (failure != null) {
             denyFeedback();
-            player.displayClientMessage(failure.withStyle(ChatFormatting.RED), true);
+            player.displayClientMessage(failure.withStyle(ChatFormatting.GRAY), true);
         }
     }
 
@@ -356,6 +357,7 @@ public final class IdenPhoneCore {
         if (busy && callPartner != null) {
             TelephoneNode partner = TelephoneRegistry.get(level, callPartner);
             if (partner == null || !phone.canReach(partner)) {
+                TelephoneCore.dropLine(partner, pos()); // the far end may not tick (see TelephoneCore)
                 resetCallState();
             }
         }

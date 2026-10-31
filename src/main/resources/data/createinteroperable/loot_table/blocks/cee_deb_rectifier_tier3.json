@@ -17,7 +17,16 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "createinteroperable:cee_deb_rectifier_tier3"
+          "name": "createinteroperable:cee_deb_rectifier_tier3",
+          "functions": [
+            {
+              "function": "minecraft:copy_state",
+              "block": "createinteroperable:cee_deb_rectifier_tier3",
+              "properties": [
+                "color"
+              ]
+            }
+          ]
         }
       ],
       "rolls": 1.0

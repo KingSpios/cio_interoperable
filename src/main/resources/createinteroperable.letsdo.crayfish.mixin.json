@@ -8,10 +8,12 @@
     "RadioBlockEntityMixin",
     "MiniFridgeBlockEntityMixin",
     "FancyCrafterBlockEntityMixin",
-    "IdenComputerBlockEntityMixin"
+    "IdenComputerBlockEntityMixin",
+    "FurnitureStreetLanternBlockEntityMixin"
   ],
   "client": [
-    "GramophoneRendererMixin"
+    "GramophoneRendererMixin",
+    "FurnitureStreetLanternRendererMixin"
   ],
   "minVersion": "0.8"
 }

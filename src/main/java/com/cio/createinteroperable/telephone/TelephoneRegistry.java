@@ -42,6 +42,18 @@ public class TelephoneRegistry {
         return out;
     }
 
+    /** Every loaded phone that lives on a client level. Client thread only. */
+    public static java.util.List<TelephoneNode> clientPhones() {
+        java.util.List<TelephoneNode> out = new java.util.ArrayList<>();
+        for (TelephoneNode node : LOADED) {
+            if (node instanceof net.minecraft.world.level.block.entity.BlockEntity be
+                    && be.getLevel() != null && be.getLevel().isClientSide) {
+                out.add(node);
+            }
+        }
+        return out;
+    }
+
     public static void remove(TelephoneNode be) {
         LOADED.remove(be);
     }
@@ -49,7 +61,8 @@ public class TelephoneRegistry {
     @Nullable
     public static TelephoneNode findByNumber(TelephoneNode caller, String number) {
         for (TelephoneNode be : LOADED) {
-            if (sameSide(caller, be) && !be.isBusy() && caller.canReach(be) && number.equals(be.ownNumber())) {
+            // The number first: reachability can be a wire walk or a radio path check.
+            if (number.equals(be.ownNumber()) && sameSide(caller, be) && !be.isBusy() && caller.canReach(be)) {
                 return be;
             }
         }
@@ -60,7 +73,7 @@ public class TelephoneRegistry {
     @Nullable
     public static TelephoneNode findAnyByNumber(TelephoneNode caller, String number) {
         for (TelephoneNode be : LOADED) {
-            if (sameSide(caller, be) && caller.canReach(be) && number.equals(be.ownNumber())) {
+            if (number.equals(be.ownNumber()) && sameSide(caller, be) && caller.canReach(be)) {
                 return be;
             }
         }

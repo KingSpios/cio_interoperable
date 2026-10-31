@@ -7,6 +7,8 @@ import com.cio.createinteroperable.compat.Mods;
 import com.cio.createinteroperable.grid.GridConnection;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -36,7 +38,10 @@ import java.util.Set;
  * this stays the single source of truth for both backends; only the
  * connection persistence + grid registration below are gated to the native path.</p>
  */
-@Mixin(targets = "com.berksire.furniture.core.block.entity.GramophoneBlockEntity")
+@Mixin(targets = {
+        "com.berksire.furniture.core.block.entity.GramophoneBlockEntity",
+        "net.satisfy.furniture.core.block.entity.GramophoneBlockEntity" // Let's Do Furniture 1.1.7+ (repackaged)
+})
 public abstract class GramophoneNodeMixin implements ApplianceNode, MeteredAppliance {
 
     @Shadow private ItemStack recordItem;
@@ -101,11 +106,11 @@ public abstract class GramophoneNodeMixin implements ApplianceNode, MeteredAppli
         be.setChanged();
         Level level = be.getLevel();
         if (level != null && !level.isClientSide) {
-            level.sendBlockUpdated(be.getBlockPos(), be.getBlockState(), be.getBlockState(), 2);
             if (!powered && this.isPlaying) {
                 this.stopPlaying();
                 this.cioNode$wantsPlay = true;
             }
+            cioNode$sync();
         }
     }
 
@@ -129,13 +134,29 @@ public abstract class GramophoneNodeMixin implements ApplianceNode, MeteredAppli
     // --- client sync (the vanilla BlockEntity ships none) -------------
 
     @Nullable
-    public ClientboundBlockEntityDataPacket getUpdatePacket() {
+    public Packet<ClientGamePacketListener> getUpdatePacket() { // Packet, as BlockEntity declares it: a narrower return type would not override it from a mixin
         return ClientboundBlockEntityDataPacket.create(cioNode$be());
     }
 
     public CompoundTag getUpdateTag(HolderLookup.Provider provider) {
         cioNode$ensureRegistered();
-        return cioNode$be().saveWithoutMetadata(provider);
+        CompoundTag tag = cioNode$be().saveWithoutMetadata(provider);
+        // The client copy only needs IsPlaying (disc spin) and the node state. Shipping the song
+        // position wakes the client's own JukeboxSongPlayer, which then runs on its own: it is
+        // never cleared again, and when its stale copy runs out it stops the jukebox sound locally,
+        // cutting off a repeat loop the server has just restarted.
+        tag.remove("ticks_since_song_started");
+        return tag;
+    }
+
+    /** Pushes the BE to watching clients, so the renderer sees {@code isPlaying} change. */
+    @Unique
+    private void cioNode$sync() {
+        BlockEntity be = cioNode$be();
+        Level level = be.getLevel();
+        if (level != null && !level.isClientSide) {
+            level.sendBlockUpdated(be.getBlockPos(), be.getBlockState(), be.getBlockState(), 2);
+        }
     }
 
     // --- power-gated playback ----------------------------------------
@@ -164,29 +185,43 @@ public abstract class GramophoneNodeMixin implements ApplianceNode, MeteredAppli
         }
     }
 
+    // Let's Do never syncs playback to the client (its disc spins on HAS_RECORD alone).
+    @Inject(method = "startPlaying", at = @At("TAIL"), require = 0)
+    private void cioNode$syncStart(CallbackInfo ci) {
+        cioNode$sync();
+    }
+
+    @Inject(method = "stopPlaying", at = @At("TAIL"), require = 0)
+    private void cioNode$syncStop(CallbackInfo ci) {
+        cioNode$sync();
+    }
+
     @Inject(method = "popOutRecord", at = @At("RETURN"), require = 0)
     private void cioNode$clearWantsPlay(CallbackInfo ci) {
         this.cioNode$wantsPlay = false;
     }
 
-    // --- native persistence / registration (gated to the no-Crayfish path) ---
+    // --- persistence: connections + registration are native-path only; the power/play flags
+    // are saved on both backends (unsaved, a reload read powered=false on the first tick, so a
+    // playing disc was stopped and restarted from the top every time its chunk loaded, and a
+    // disc waiting for power was forgotten) ---
 
     @Inject(method = "saveAdditional", at = @At("TAIL"))
     private void cioNode$save(CompoundTag tag, HolderLookup.Provider provider, CallbackInfo ci) {
         if (!Mods.REFURBISHED_FURNITURE.present()) {
             writeApplianceNbt(tag);
-            tag.putBoolean("CioPowered", this.cioNode$powered);
-            tag.putBoolean("CioWantsPlay", this.cioNode$wantsPlay);
         }
+        tag.putBoolean("CioPowered", this.cioNode$powered);
+        tag.putBoolean("CioWantsPlay", this.cioNode$wantsPlay);
     }
 
     @Inject(method = "loadAdditional", at = @At("TAIL"))
     private void cioNode$load(CompoundTag tag, HolderLookup.Provider provider, CallbackInfo ci) {
         if (!Mods.REFURBISHED_FURNITURE.present()) {
             readApplianceNbt(tag);
-            this.cioNode$powered = tag.getBoolean("CioPowered");
-            this.cioNode$wantsPlay = tag.getBoolean("CioWantsPlay");
         }
+        this.cioNode$powered = tag.getBoolean("CioPowered");
+        this.cioNode$wantsPlay = tag.getBoolean("CioWantsPlay");
         cioNode$ensureRegistered();
     }
 }

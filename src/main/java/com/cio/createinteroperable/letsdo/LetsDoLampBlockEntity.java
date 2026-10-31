@@ -53,7 +53,13 @@ public class LetsDoLampBlockEntity extends BlockEntity implements ApplianceNode,
     private final Set<GridConnection> connections = new HashSet<>();
 
     public LetsDoLampBlockEntity(net.minecraft.core.BlockPos pos, BlockState state) {
-        super(CIOBlockEntities.LETSDO_LAMP.get(), pos, state);
+        this(CIOBlockEntities.LETSDO_LAMP.get(), pos, state);
+    }
+
+    /** For a lamp of another type with its own rated load (Urban Decor's lanterns, {@code UrbanLanternBlockEntity}). */
+    protected LetsDoLampBlockEntity(net.minecraft.world.level.block.entity.BlockEntityType<?> type,
+                                    net.minecraft.core.BlockPos pos, BlockState state) {
+        super(type, pos, state);
     }
 
     // --- ApplianceNode -------------------------------------------------

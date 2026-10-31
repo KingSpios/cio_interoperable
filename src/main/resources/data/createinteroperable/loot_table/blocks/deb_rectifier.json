@@ -17,7 +17,16 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "createinteroperable:deb_rectifier"
+          "name": "createinteroperable:deb_rectifier",
+          "functions": [
+            {
+              "function": "minecraft:copy_state",
+              "block": "createinteroperable:deb_rectifier",
+              "properties": [
+                "color"
+              ]
+            }
+          ]
         }
       ],
       "rolls": 1.0

@@ -1,9 +1,9 @@
 {
 	"format_version": "1.9.0",
 	"credit": "Made with Blockbench by KingSpios",
-	"texture_size": [32, 32],
 	"textures": {
 		"0": "createinteroperable:block/deb_rectifier_tier3",
+		"3": "createinteroperable:block/e_stop_plate",
 		"7": "createinteroperable:block/deb_rectifier_tier3_white",
 		"particle": "createinteroperable:block/deb_rectifier_tier3"
 	},
@@ -285,6 +285,34 @@
 				"west": {"uv": [0, 12.5, 0.5, 13], "texture": "#0"},
 				"up": {"uv": [6, 8, 6.5, 8.5], "rotation": 90, "texture": "#0"},
 				"down": {"uv": [4, 8.5, 4.5, 9], "rotation": 270, "texture": "#0"}
+			}
+		},
+		{
+			"name": "e_stop_button",
+			"from": [12.875, 11, 3.125],
+			"to": [14.875, 13, 5.125],
+			"rotation": {"angle": 0, "axis": "y", "origin": [14, 12, 4.125]},
+			"faces": {
+				"north": {"uv": [4, 0, 6, 2], "texture": "#3"},
+				"east": {"uv": [4, 2, 6, 4], "texture": "#3"},
+				"south": {"uv": [4, 4, 6, 6], "texture": "#3"},
+				"west": {"uv": [6, 0, 8, 2], "texture": "#3"},
+				"up": {"uv": [6, 2, 8, 4], "texture": "#3"},
+				"down": {"uv": [4, 6, 6, 8], "texture": "#3"}
+			}
+		},
+		{
+			"name": "e_stop_plate",
+			"from": [13.875, 10, 2.125],
+			"to": [14.375, 14, 6.125],
+			"rotation": {"angle": 0, "axis": "y", "origin": [14, 12, 4.125]},
+			"faces": {
+				"north": {"uv": [6, 4, 7, 8], "texture": "#3"},
+				"east": {"uv": [0, 0, 4, 4], "texture": "#3"},
+				"south": {"uv": [7, 4, 8, 8], "texture": "#3"},
+				"west": {"uv": [0, 4, 4, 8], "texture": "#3"},
+				"up": {"uv": [0, 8, 1, 12], "texture": "#3"},
+				"down": {"uv": [8, 0, 9, 4], "texture": "#3"}
 			}
 		}
 	],

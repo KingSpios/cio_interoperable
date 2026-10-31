@@ -36,7 +36,8 @@ import java.util.zip.ZipInputStream;
 /**
  * Boots a real NeoForge dedicated server once per mod-set profile and checks
  * that CIO comes up cleanly on it: the server reaches "Done", no crash report,
- * no class-loading / mixin error mentioning CIO, and CIO's "modules enabled"
+ * no class-loading / mixin error mentioning CIO, no CIO recipe / data file
+ * rejected, and CIO's "modules enabled"
  * log line lists exactly the modules that mod set should enable.
  *
  * <p>Mod jars come from a local mods folder (normally a real instance's); each
@@ -56,6 +57,10 @@ public final class SmokeRunner {
                     + "NoSuchMethodError|NoSuchFieldError|IncompatibleClassChangeError|VerifyError");
 
     private static final Pattern BENIGN = Pattern.compile("WARN\\] \\[mixin/\\]: Error loading class: ");
+
+    /** A CIO data file the server refused (e.g. a recipe naming an unregistered condition type). */
+    private static final Pattern DATA_ERROR = Pattern.compile(
+            "(Parsing error loading recipe|Couldn't parse data file) createinteroperable:");
 
     record Profile(String name, List<String> mods, Set<String> expectedModules) {
     }
@@ -387,6 +392,10 @@ public final class SmokeRunner {
         for (int i = 0; i < lines.size(); i++) {
             // Mixin's own WARN when an optional (required=false) config's target mod is absent: expected.
             if (BENIGN.matcher(lines.get(i)).find()) {
+                continue;
+            }
+            if (DATA_ERROR.matcher(lines.get(i)).find()) {
+                problems.add("CIO data error: " + lines.get(i).strip());
                 continue;
             }
             if (LOAD_ERROR.matcher(lines.get(i)).find()) {

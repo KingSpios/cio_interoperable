@@ -82,9 +82,24 @@ repositories {
     maven { url = "https://jitpack.io" }
     // Simple Voice Chat's API artifact (compileOnly below).
     maven { url = "https://maven.maxhenkel.de/repository/public" }
+    // CC: Tweaked's API artifacts (compileOnly below).
+    maven {
+        url = "https://maven.squiddev.cc"
+        content { includeGroup "cc.tweaked" }
+    }
     // JUnit / ASM / Gson for the load-safety bytecode test (test scope only).
     mavenCentral()
 }
+
+// Compile-only signature stubs of the ComputerCraft CEE Addon classes CIO calls (see the
+// dependency block below). Compiled against Minecraft + CC's API + Electro Energetics,
+// put on main's compile classpath only, never into the jar.
+sourceSets {
+    ccceStubs {
+        java.srcDir "src/ccceStubs/java"
+    }
+}
+neoForge.addModdingDependenciesTo(sourceSets.ccceStubs)
 
 dependencies {
     implementation("com.simibubi.create:create-${minecraft_version}:${create_version}:slim") { transitive = false }
@@ -171,6 +186,18 @@ dependencies {
     // when it is installed.
     compileOnly "de.maxhenkel.voicechat:voicechat-api:${voicechat_api_version}"
 
+    // --- CC: Tweaked + the ComputerCraft CEE Addon -------------------------
+    // Both optional: compileOnly, so nothing of either is required at runtime.
+    // Only com.cio.createinteroperable.computer.ccee, modules.ComputerModule and the
+    // mixin.ccee packages touch them, all gated on both mods (and Electro Energetics,
+    // which the addon itself requires). The addon is on no maven, so CIO compiles
+    // against signature stubs of the handful of its classes it calls (src/ccceStubs,
+    // never packaged); its real classes are what run in game.
+    compileOnly "cc.tweaked:cc-tweaked-${minecraft_version}-forge-api:${cc_tweaked_version}"
+    compileOnly sourceSets.ccceStubs.output
+    ccceStubsCompileOnly "cc.tweaked:cc-tweaked-${minecraft_version}-forge-api:${cc_tweaked_version}"
+    ccceStubsCompileOnly "curse.maven:create-electro-energetics-1443327:8345582"
+
     // --- Immersive Vehicles (formerly MTS) -----------------------------
     // PURELY EXPERIMENTAL integration, experimental branch only.
     // Mod id "mts". Soft (optional) dependency: compileOnly, pulled from
@@ -189,6 +216,11 @@ dependencies {
     testImplementation "org.ow2.asm:asm:9.8"
     testImplementation "com.google.code.gson:gson:2.10.1"
 }
+
+// InverterAcSolveTest runs Electro Energetics' own circuit solver off-line, which uses Minecraft's
+// BlockPos and fastutil: the tests see what the main code compiles against (no game is started).
+sourceSets.test.compileClasspath += sourceSets.main.compileClasspath
+sourceSets.test.runtimeClasspath += sourceSets.main.compileClasspath
 
 // --- Dedicated-server smoke test --------------------------------------------
 // ./gradlew smokeTest boots a real NeoForge dedicated server once per mod set
@@ -271,7 +303,9 @@ var generateModMetadata = tasks.register("generateModMetadata", ProcessResources
             refurbished_furniture_version_range: refurbished_furniture_version_range,
             cold_sweat_version_range        : cold_sweat_version_range,
             pipes_n_physics_version_range   : pipes_n_physics_version_range,
-            voicechat_version_range         : voicechat_version_range
+            voicechat_version_range         : voicechat_version_range,
+            cc_tweaked_version_range        : cc_tweaked_version_range,
+            ccee_addon_version_range        : ccee_addon_version_range
     ]
     inputs.properties replaceProperties
     expand replaceProperties
@@ -281,6 +315,889 @@ var generateModMetadata = tasks.register("generateModMetadata", ProcessResources
 
 sourceSets.main.resources.srcDir generateModMetadata
 neoForge.ideSyncTask generateModMetadata
+
+// Power Kit master switches (PowerKitSwitch): each OFF pose is the artist's own
+// model with one named element shifted, generated here rather than committed so
+// a Blockbench re-export of the ON model can never leave a stale OFF copy behind.
+// model -> [element name, dx, dy, dz] in model pixels, plus an optional new
+// rotation angle for the element (a lever that tips rather than slides).
+var powerKitSwitchPoses = [
+        deb_rectifier_tier_1: ["flip_switch_lever", 0, 0, 0, 22.5], // flip switch tips from up (-22.5) to down
+        deb_rectifier_tier_2: ["plate_switch", 0, -1, 0],     // slide switch drops 1 px
+        deb_rectifier_tier_3: ["e_stop_button", -0.4, 0, 0],  // E-Stop retreats 0.4 px west (0.5 left it flush with its plate: z-fighting)
+]
+var powerKitModelDir = file("src/main/resources/assets/createinteroperable/models/block")
+var generatePowerKitSwitchModels = tasks.register("generatePowerKitSwitchModels") {
+    var outDir = layout.buildDirectory.dir("generated/sources/powerKitSwitchModels")
+    inputs.files(powerKitSwitchPoses.keySet().collect { new File(powerKitModelDir, "${it}.json") })
+    inputs.property("poses", powerKitSwitchPoses.toString())
+    outputs.dir(outDir)
+    doLast {
+        powerKitSwitchPoses.each { model, pose ->
+            var json = new groovy.json.JsonSlurper().parse(new File(powerKitModelDir, "${model}.json"))
+            var element = json.elements.find { it.name == pose[0] }
+            if (element == null) {
+                throw new GradleException("${model}.json has no element named '${pose[0]}' (Power Kit switch pose)")
+            }
+            var delta = pose[1..3]
+            element.from = (0..2).collect { element.from[it] + delta[it] }
+            element.to = (0..2).collect { element.to[it] + delta[it] }
+            if (element.rotation?.origin != null) {
+                element.rotation.origin = (0..2).collect { element.rotation.origin[it] + delta[it] }
+            }
+            if (pose.size() > 4) {
+                element.rotation.angle = pose[4]
+            }
+            var out = outDir.get().file("assets/createinteroperable/models/block/${model}_off.json").asFile
+            out.parentFile.mkdirs()
+            out.setText(groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(json)), "UTF-8")
+        }
+    }
+}
+sourceSets.main.resources.srcDir generatePowerKitSwitchModels
+neoForge.ideSyncTask generatePowerKitSwitchModels
+
+// Tier-1 needle: the renderer spins this sub-model (block/power_kit/pointer) about
+// clock_pin, so it is cut out of the artist's deb_rectifier_tier_1.json by element
+// name rather than kept as a second copy that goes stale on a re-export (it did,
+// after the model's new texture sheet). Only the textures the element uses are kept.
+var generatePowerKitPointerModel = tasks.register("generatePowerKitPointerModel") {
+    var outDir = layout.buildDirectory.dir("generated/sources/powerKitPointerModel")
+    var tier1 = new File(powerKitModelDir, "deb_rectifier_tier_1.json")
+    inputs.file(tier1)
+    outputs.dir(outDir)
+    doLast {
+        var json = new groovy.json.JsonSlurper().parse(tier1)
+        var element = json.elements.find { it.name == "pointer_facing_up" }
+        if (element == null) {
+            throw new GradleException("deb_rectifier_tier_1.json has no element named 'pointer_facing_up' (Power Kit needle)")
+        }
+        element.remove("rotation") // the renderer does the turning
+        var used = element.faces.values().collect { it.texture.substring(1) } as Set
+        var textures = json.textures.findAll { key, value -> key in used }
+        textures.particle = textures[used.first()]
+        var out = outDir.get().file("assets/createinteroperable/models/block/power_kit/pointer.json").asFile
+        out.parentFile.mkdirs()
+        out.setText(groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(
+                [credit: "pointer_facing_up element of deb_rectifier_tier_1, generated for the needle spin", textures: textures, elements: [element]])), "UTF-8")
+    }
+}
+sourceSets.main.resources.srcDir generatePowerKitPointerModel
+neoForge.ideSyncTask generatePowerKitPointerModel
+
+// Mini Grid Coupler (bridge/MiniGridCoupler*): the artist's mini_grid_coupler_tier_1.json
+// split by element name. The block models drop the two parts the renderer turns
+// (pointer_facing_up = load needle, indicator_lever = flow indicator) and come in
+// four looks: switch on/off x intact/burnt (burnt = texture #9 swapped for
+// mini_coupler_burnt). The glass lid is translucent, so every model is too.
+var miniGridCouplerModel = file("src/main/resources/assets/createinteroperable/models/block/mini_grid_coupler_tier_1.json")
+var generateMiniGridCouplerModels = tasks.register("generateMiniGridCouplerModels") {
+    var outDir = layout.buildDirectory.dir("generated/sources/miniGridCouplerModels")
+    inputs.file(miniGridCouplerModel)
+    outputs.dir(outDir)
+    doLast {
+        var source = new groovy.json.JsonSlurper().parse(miniGridCouplerModel)
+        var copy = { Object o -> new groovy.json.JsonSlurper().parseText(groovy.json.JsonOutput.toJson(o)) }
+        var animated = ["pointer_facing_up", "indicator_lever"]
+        animated.each { name ->
+            if (source.elements.find { it.name == name } == null) {
+                throw new GradleException("mini_grid_coupler_tier_1.json has no element named '${name}' (Mini Grid Coupler)")
+            }
+        }
+        if (source.elements.find { it.name == "flip_switch_lever" } == null) {
+            throw new GradleException("mini_grid_coupler_tier_1.json has no element named 'flip_switch_lever' (Mini Grid Coupler)")
+        }
+        var write = { String path, Map json ->
+            var out = outDir.get().file("assets/createinteroperable/models/${path}.json").asFile
+            out.parentFile.mkdirs()
+            out.setText(groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(json)), "UTF-8")
+        }
+        var model = { boolean on, boolean burnt ->
+            var textures = copy(source.textures)
+            if (burnt) {
+                textures["9"] = "createinteroperable:block/mini_coupler_burnt"
+            }
+            var elements = copy(source.elements.findAll { !(it.name in animated) })
+            if (!on) {
+                elements.find { it.name == "flip_switch_lever" }.rotation.angle = 22.5 // tips down
+            }
+            [render_type: "minecraft:translucent", textures: textures, elements: elements]
+        }
+        write("block/mini_grid_coupler/body", model(true, false))
+        write("block/mini_grid_coupler/body_off", model(false, false))
+        write("block/mini_grid_coupler/body_burnt", model(true, true))
+        write("block/mini_grid_coupler/body_burnt_off", model(false, true))
+        // The item shows the whole model, needle and indicator included.
+        write("block/mini_grid_coupler/full", [render_type: "minecraft:translucent", textures: copy(source.textures), elements: copy(source.elements)])
+        animated.each { name ->
+            var element = copy(source.elements.find { it.name == name })
+            element.remove("rotation") // the renderer does the turning
+            var used = element.faces.values().collect { it.texture.substring(1) } as Set
+            var textures = source.textures.findAll { key, value -> key in used }
+            textures.particle = textures[used.first()]
+            write("block/mini_grid_coupler/${name == "pointer_facing_up" ? "pointer" : "indicator"}",
+                    [textures: textures, elements: [element]])
+        }
+    }
+}
+sourceSets.main.resources.srcDir generateMiniGridCouplerModels
+neoForge.ideSyncTask generateMiniGridCouplerModels
+
+// Utility Pole transformer bracket (pole/UtilityPoleModel Part.TRANSFORMER_MOUNT /
+// TRANSFORMER_BANDS): the artist's utility_pole_transformer_mount.json split by element
+// name into the two part models the pole assembles. Bands go in their own part, drawn once
+// however many sides carry the bracket; the two at y 1-2 and 14-15 are left out because
+// they are the MID's own bands, which a transformer bracket switches on. Every face takes
+// mount_south_full, whatever path Blockbench saved for it.
+var utilityPoleTransformerMount = file("src/main/resources/assets/createinteroperable/models/block/utility_pole_transformer_mount.json")
+var generateUtilityPoleTransformerMount = tasks.register("generateUtilityPoleTransformerMount") {
+    var outDir = layout.buildDirectory.dir("generated/sources/utilityPoleTransformerMount")
+    inputs.file(utilityPoleTransformerMount)
+    outputs.dir(outDir)
+    doLast {
+        var source = new groovy.json.JsonSlurper().parse(utilityPoleTransformerMount)
+        var copy = { Object o -> new groovy.json.JsonSlurper().parseText(groovy.json.JsonOutput.toJson(o)) }
+        var textures = ["2": "createinteroperable:block/utility_pole/mount_south_full",
+                        particle: "createinteroperable:block/utility_pole/oak_tree16"]
+        var isBand = { e -> e.name != null && e.name.contains("band") }
+        var isMidBand = { e -> (e.from[1] == 1 && e.to[1] == 2) || (e.from[1] == 14 && e.to[1] == 15) }
+        var mount = copy(source.elements.findAll { !isBand(it) })
+        var bands = copy(source.elements.findAll { isBand(it) && !isMidBand(it) })
+        if (mount.isEmpty() || bands.isEmpty()) {
+            throw new GradleException("utility_pole_transformer_mount.json: expected bracket and band elements (names with 'band')")
+        }
+        [mount, bands].flatten().each { e -> e.faces.values().each { it.texture = "#2"; it.remove("cullface") } }
+        var write = { String name, List elements ->
+            var out = outDir.get().file("assets/createinteroperable/models/block/utility_pole/${name}.json").asFile
+            out.parentFile.mkdirs()
+            out.setText(groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson([textures: textures, elements: elements])), "UTF-8")
+        }
+        write("transformer_mount", mount)
+        write("transformer_bands", bands)
+    }
+}
+sourceSets.main.resources.srcDir generateUtilityPoleTransformerMount
+neoForge.ideSyncTask generateUtilityPoleTransformerMount
+
+// Fence-post brackets (pole/client/FenceMountRenderer): the Utility Pole's own bracket parts
+// (tall: mid_block_mount + mid_bands; fixture plate: fixture_mount + fixture_bands), redrawn
+// for a post that isn't a pole - a fence (4 px, the pole's own width: the parts unchanged), a
+// wall or concrete pole (8 px) or iron bars (2 px). Bands wrap the post 1 px out and the arms
+// run from them to the plate; everything else keeps its place. Faces stay 1 texel per pixel
+// inside mount_south's painted area: a 2 px post's band is a solid 4x4 box (its corner), an
+// 8 px post's a ring of four 1 px slabs (a solid 10x10 would sample the unpainted texels).
+var fenceMountParts = ["mid_block_mount", "mid_bands", "fixture_mount", "fixture_bands"].collect {
+    file("src/main/resources/assets/createinteroperable/models/block/utility_pole/${it}.json")
+}
+var generateFenceMountModels = tasks.register("generateFenceMountModels") {
+    var outDir = layout.buildDirectory.dir("generated/sources/fenceMountModels")
+    inputs.files(fenceMountParts)
+    outputs.dir(outDir)
+    doLast {
+        var slurp = { String name -> new groovy.json.JsonSlurper().parse(file("src/main/resources/assets/createinteroperable/models/block/utility_pole/${name}.json")) }
+        var copy = { Object o -> new groovy.json.JsonSlurper().parseText(groovy.json.JsonOutput.toJson(o)) }
+        var isBand = { e -> e.name != null && e.name.contains("band") }
+        var isArm = { e -> e.name != null && e.name.contains("arm") }
+        // A box's six faces, each uv starting at (u0, v0) and sized to its face: 1 texel per pixel.
+        var box = { String name, List from, List to, int u0, int v0 ->
+            var sx = to[0] - from[0], sy = to[1] - from[1], sz = to[2] - from[2]
+            var face = { w, h -> [uv: [u0, v0, u0 + w, v0 + h], texture: "#6"] }
+            [name: name, from: from, to: to,
+             faces: [north: face(sx, sy), south: face(sx, sy), east: face(sz, sy), west: face(sz, sy),
+                     up: face(sx, sz), down: face(sx, sz)]]
+        }
+        var band = { Map e, int post ->
+            int y0 = e.from[1], y1 = e.to[1]
+            int lo = 8 - post.intdiv(2) - 1, hi = 8 + post.intdiv(2) + 1
+            if (post <= 4) {
+                return [box(e.name, [lo, y0, lo], [hi, y1, hi], 0, 0).with { it.faces.each { k, f ->
+                    // Sides take the band's own strip (row 1), as the pole's do.
+                    if (!(k in ["up", "down"])) { f.uv = [0, 1, hi - lo, 2] } }; it }]
+            }
+            return [box(e.name, [lo, y0, lo], [hi, y1, lo + 1], 0, 2),
+                    box(e.name, [lo, y0, hi - 1], [hi, y1, hi], 0, 2),
+                    box(e.name, [lo, y0, lo + 1], [lo + 1, y1, hi - 1], 0, 2),
+                    box(e.name, [hi - 1, y0, lo + 1], [hi, y1, hi - 1], 0, 2)]
+        }
+        var arm = { Map e, int post ->
+            var a = copy(e)
+            int start = 8 + post.intdiv(2) + 1, length = 15 - start
+            a.from[2] = start
+            a.faces.east.uv = [1, 0, 1 + length, 1]
+            a.faces.west.uv = [1, 0, 1 + length, 1]
+            a.faces.up.uv = [0, 1, 2, 1 + length]
+            a.faces.down.uv = [0, 1, 2, 1 + length]
+            return [a]
+        }
+        var posts = [fence: 4, wide: 8, thin: 2]
+        var kinds = [block: ["mid_block_mount", "mid_bands"], fixture: ["fixture_mount", "fixture_bands"]]
+        kinds.each { kind, parts ->
+            var source = parts.collect { slurp(it) }
+            var elements = source.collectMany { it.elements }
+            if (!elements.any(isBand) || !elements.any(isArm)) {
+                throw new GradleException("${parts}: expected band and arm elements (names with 'band' / 'arm')")
+            }
+            posts.each { postName, int post ->
+                var out = elements.collectMany { e ->
+                    post == 4 ? [copy(e)] : isBand(e) ? band(e, post) : isArm(e) ? arm(e, post) : [copy(e)]
+                }
+                var file = outDir.get().file("assets/createinteroperable/models/block/fence_mount/${kind}_${postName}.json").asFile
+                file.parentFile.mkdirs()
+                file.setText(groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(
+                        [credit: "Generated from utility_pole/${parts.join(' + ')} for a ${post} px post",
+                         textures: source[0].textures, elements: out])), "UTF-8")
+            }
+        }
+    }
+}
+sourceSets.main.resources.srcDir generateFenceMountModels
+neoForge.ideSyncTask generateFenceMountModels
+
+// Utility Pole street sign (pole/UtilityPoleModel Part.STREET_SIGN*): the artist's
+// utility_pole_street_sign.json split by element name. "street_sign" (the plate) and
+// "sign_hinge" make the per-side part; its two bands are separate parts drawn once (the
+// low one, y 1-2, only where the MID's own bands aren't on). Texture #4 is the sign face
+// (textures/block/utility_pole/street_sign.png), #2 the bracket metal, whatever paths
+// Blockbench saved. StreetSignRenderer draws the dye and the text over the plate's
+// east and west faces.
+var utilityPoleStreetSign = file("src/main/resources/assets/createinteroperable/models/block/utility_pole_street_sign.json")
+var generateUtilityPoleStreetSign = tasks.register("generateUtilityPoleStreetSign") {
+    var outDir = layout.buildDirectory.dir("generated/sources/utilityPoleStreetSign")
+    inputs.file(utilityPoleStreetSign)
+    outputs.dir(outDir)
+    doLast {
+        var source = new groovy.json.JsonSlurper().parse(utilityPoleStreetSign)
+        var copy = { Object o -> new groovy.json.JsonSlurper().parseText(groovy.json.JsonOutput.toJson(o)) }
+        var textures = ["2": "createinteroperable:block/utility_pole/mount_south_full",
+                        "4": "createinteroperable:block/utility_pole/street_sign",
+                        particle: "createinteroperable:block/utility_pole/oak_tree16"]
+        var isBand = { e -> e.name != null && e.name.contains("band") }
+        var sign = copy(source.elements.findAll { it.name == "street_sign" || it.name == "sign_hinge" })
+        var band = copy(source.elements.findAll { isBand(it) && it.from[1] == 3 })
+        var lowBand = copy(source.elements.findAll { isBand(it) && it.from[1] == 1 })
+        if (sign.size() != 2 || band.size() != 1 || lowBand.size() != 1) {
+            throw new GradleException("utility_pole_street_sign.json: expected street_sign, sign_hinge and bands at y 1 and y 3")
+        }
+        [sign, band, lowBand].flatten().each { e -> e.faces.values().each { it.remove("cullface") } }
+        var write = { String name, List elements ->
+            var out = outDir.get().file("assets/createinteroperable/models/block/utility_pole/${name}.json").asFile
+            out.parentFile.mkdirs()
+            out.setText(groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson([textures: textures, elements: elements])), "UTF-8")
+        }
+        write("street_sign", sign)
+        write("street_sign_band", band)
+        write("street_sign_low_band", lowBand)
+    }
+}
+sourceSets.main.resources.srcDir generateUtilityPoleStreetSign
+neoForge.ideSyncTask generateUtilityPoleStreetSign
+
+// Embedded Connector (embedded/): the artist's embedded_connector.json, split by
+// element name into the parts its blockstates combine, generated here so a
+// Blockbench re-export is the only file to touch. "copy_walls" are drawn from
+// the casing's block at runtime (EmbeddedConnectorModel), so the block parts
+// leave them out and only the item models keep them, in polished andesite.
+// The open lid is the closed lid turned about flat_lid's own pivot by NeoForge's
+// root transform (vanilla element rotations stop at 45 degrees).
+var embeddedConnectorModel = file("src/main/resources/assets/createinteroperable/models/block/embedded_connector.json")
+var embeddedConnectorLidOpenDegrees = 120
+var generateEmbeddedConnectorModels = tasks.register("generateEmbeddedConnectorModels") {
+    var outDir = layout.buildDirectory.dir("generated/sources/embeddedConnectorModels")
+    inputs.file(embeddedConnectorModel)
+    inputs.property("lidOpenDegrees", embeddedConnectorLidOpenDegrees)
+    outputs.dir(outDir)
+    doLast {
+        var source = new groovy.json.JsonSlurper().parse(embeddedConnectorModel)
+        // element name -> part (an unnamed element is an error: name it in Blockbench)
+        var partOf = { String name ->
+            switch (name) {
+                case "copy_walls": return "walls"
+                case "flat_lid": return "lid"
+                case "hinges": return "hinges"
+                case "west_pin": case "east_pin": case "insulators": return "pins"
+                default: throw new GradleException("embedded_connector.json: unknown element '${name}' (add it to generateEmbeddedConnectorModels)")
+            }
+        }
+        var copy = { Object o -> new groovy.json.JsonSlurper().parseText(groovy.json.JsonOutput.toJson(o)) }
+        var part = { String name ->
+            copy(source.elements.findAll { partOf(it.name) == name }).each { element ->
+                element.faces.values().each { it.remove("cullface") }
+            }
+        }
+        var lidTexture = source.textures["0"]
+        // Power Grid's wire_connector.png: copper for the pins, grey for the insulators
+        var cpgPins = part("pins").each { element ->
+            element.faces.each { side, face ->
+                if (element.name == "insulators") {
+                    face.uv = side in ["up", "down"] ? [4, 7, 6, 9] : [4, 7, 6, 7.5]
+                } else {
+                    face.uv = [5, 4, 6, 5]
+                }
+            }
+        }
+        var walls = part("walls").each { element ->
+            element.faces.values().each { it.texture = "#wall"; it.remove("uv") }
+        }
+        var pivot = source.elements.find { it.name == "flat_lid" }.rotation.origin
+        var write = { String path, Map json ->
+            var out = outDir.get().file("assets/createinteroperable/models/${path}.json").asFile
+            out.parentFile.mkdirs()
+            out.setText(groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(json)), "UTF-8")
+        }
+        var lidTextures = ["0": lidTexture, particle: lidTexture]
+        write("block/embedded_connector/lid", [textures: lidTextures, elements: part("lid")])
+        write("block/embedded_connector/lid_open", [
+                loader   : "neoforge:elements",
+                transform: [rotation: [y: embeddedConnectorLidOpenDegrees], origin: pivot.collect { it / 16 }],
+                textures : lidTextures,
+                elements : part("lid")])
+        write("block/embedded_connector/hinges", [textures: lidTextures, elements: part("hinges")])
+        var grids = [cee: [texture: "electroenergetics:block/connector", pins: part("pins")],
+                     cpg: [texture: "powergrid:block/wire_connector", pins: cpgPins]]
+        grids.each { grid, spec ->
+            write("block/embedded_connector/${grid}_pins", [textures: ["1": spec.texture, particle: spec.texture], elements: spec.pins])
+            write("item/${grid}_embedded_connector", [
+                    parent  : "minecraft:block/block",
+                    textures: ["0": lidTexture, "1": spec.texture, wall: "minecraft:block/polished_andesite",
+                               particle: "minecraft:block/polished_andesite"],
+                    elements: walls + part("lid") + part("hinges") + spec.pins,
+                    // the opening faces south in the model: turn it toward the viewer
+                    display : [gui  : [rotation: [30, 45, 0], translation: [0, 0, 0], scale: [0.625, 0.625, 0.625]],
+                               fixed: [rotation: [0, 180, 0], translation: [0, 0, 0], scale: [0.5, 0.5, 0.5]]]])
+        }
+    }
+}
+sourceSets.main.resources.srcDir generateEmbeddedConnectorModels
+neoForge.ideSyncTask generateEmbeddedConnectorModels
+
+// Radio Telephone (telephone/ccee): the artist's radio_telephone.json split by element
+// name, plus its blockstate and item model. The body takes the paint (texture 3, one
+// model per PowerKitPaint colour, sheets from generateDyedTextures); the two visor lids
+// are their own part, glowing while the phone is powered (visor_lid_on + NeoForge's
+// block/sky light 15); the frequency pointer is a partial RadioTelephoneRenderer turns.
+var radioTelephoneModel = file("src/main/resources/assets/createinteroperable/models/block/radio_telephone.json")
+var generateRadioTelephoneModels = tasks.register("generateRadioTelephoneModels") {
+    var outDir = layout.buildDirectory.dir("generated/sources/radioTelephoneModels")
+    inputs.file(radioTelephoneModel)
+    inputs.file(file("src/main/resources/assets/createinteroperable/models/item/cee_telephone.json"))
+    outputs.dir(outDir)
+    doLast {
+        var source = new groovy.json.JsonSlurper().parse(radioTelephoneModel)
+        var copy = { Object o -> new groovy.json.JsonSlurper().parseText(groovy.json.JsonOutput.toJson(o)) }
+        var lids = ["info_plate_bottom_lid", "info_plate_top_lid"]
+        var pointer = "freq_pointer"
+        var dial = "freq_dial"
+        (lids + [pointer, dial, "body_box", "body_box_back"]).each { name ->
+            if (source.elements.find { it.name == name } == null) {
+                throw new GradleException("radio_telephone.json has no element named '${name}' (Radio Telephone)")
+            }
+        }
+        var write = { String path, Map json ->
+            var out = outDir.get().file("assets/createinteroperable/${path}.json").asFile
+            out.parentFile.mkdirs()
+            out.setText(groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(json)), "UTF-8")
+        }
+        // PowerKitPaint.Color, in order
+        var paints = ["factory", "white", "orange", "magenta", "light_blue", "yellow", "lime", "pink", "gray",
+                      "light_gray", "cyan", "purple", "blue", "brown", "green", "red", "black"]
+        // The frequency knob turns as one piece (dial + pointer) about the dial's centre, so
+        // the pointer is moved to stand on that centre: its foot on it, its width centred on
+        // it. RadioTelephoneRenderer turns the knob about the same point.
+        var dialElement = source.elements.find { it.name == dial }
+        double dialY = (dialElement.from[1] + dialElement.to[1]) / 2.0
+        double dialZ = (dialElement.from[2] + dialElement.to[2]) / 2.0
+        var centred = { Map needle ->
+            double dz = dialZ - (needle.from[2] + needle.to[2]) / 2.0
+            double dy = dialY - needle.from[1]
+            needle.from = [needle.from[0], needle.from[1] + dy, needle.from[2] + dz]
+            needle.to = [needle.to[0], needle.to[1] + dy, needle.to[2] + dz]
+            needle.remove("rotation") // the renderer does the turning
+            needle
+        }
+        var body = source.elements.findAll { !(it.name in lids) && it.name != pointer && it.name != dial }
+        paints.each { paint ->
+            var textures = copy(source.textures)
+            if (paint != "factory") {
+                textures["3"] = "createinteroperable:block/radio_telephone/body_${paint}"
+            }
+            write("models/block/radio_telephone/body_${paint}",
+                    [render_type: "minecraft:translucent", textures: textures, elements: copy(body)])
+        }
+        var lidTextures = ["1": source.textures["1"], "4": source.textures["4"], particle: source.textures["1"]]
+        write("models/block/radio_telephone/lid", [render_type: "minecraft:translucent", textures: lidTextures,
+                                                   elements: copy(source.elements.findAll { it.name in lids })])
+        var glowing = copy(source.elements.findAll { it.name in lids }).each { element ->
+            element.shade = false
+            element.neoforge_data = [block_light: 15, sky_light: 15, ambient_occlusion: false]
+        }
+        write("models/block/radio_telephone/lid_on", [render_type: "minecraft:translucent",
+                                                      textures: lidTextures + ["1": "createinteroperable:block/visor_lid_on"],
+                                                      elements: glowing])
+        var knob = [copy(dialElement), centred(copy(source.elements.find { it.name == pointer }))]
+        knob[0].remove("rotation")
+        var used = knob.collectMany { it.faces.values().collect { face -> face.texture.substring(1) } } as Set
+        var knobTextures = source.textures.findAll { key, value -> key in used }
+        knobTextures.particle = knobTextures[used.first()]
+        write("models/block/radio_telephone/pointer", [textures: knobTextures, elements: knob])
+        write("models/block/radio_telephone/full", [render_type: "minecraft:translucent", textures: copy(source.textures),
+                                                    elements: copy(source.elements).collect { it.name == pointer ? centred(it) : it }])
+        // Same in-hand / inventory framing as the other telephones.
+        var display = new groovy.json.JsonSlurper().parse(file("src/main/resources/assets/createinteroperable/models/item/cee_telephone.json")).display
+        write("models/item/radio_telephone", [parent: "createinteroperable:block/radio_telephone/full", display: display])
+        var facings = [north: 0, east: 90, south: 180, west: 270]
+        var parts = []
+        facings.each { facing, y ->
+            paints.each { paint ->
+                parts << [when: [facing: facing, color: paint], apply: [model: "createinteroperable:block/radio_telephone/body_${paint}", y: y]]
+            }
+            parts << [when: [facing: facing, powered: "false"], apply: [model: "createinteroperable:block/radio_telephone/lid", y: y]]
+            parts << [when: [facing: facing, powered: "true"], apply: [model: "createinteroperable:block/radio_telephone/lid_on", y: y]]
+        }
+        write("blockstates/radio_telephone", [multipart: parts])
+    }
+}
+sourceSets.main.resources.srcDir generateRadioTelephoneModels
+neoForge.ideSyncTask generateRadioTelephoneModels
+
+// Radio Telephone Interconnect (telephone/ccee, id comms_relay): the artist's comms_relay.json
+// split by element name. The body is static; visor_plate is its own part, unlit (visor_off)
+// without power and lit + glowing (visor_on, NeoForge's block/sky light 15) with it, moved a
+// hundredth of a pixel off the body's front so the two don't z-fight; knob_1 is the knob
+// partial CommsRelayRenderer turns, at knob_1 and (4 px east) at knob_2.
+var commsRelayModel = file("src/main/resources/assets/createinteroperable/models/block/comms_relay.json")
+var generateCommsRelayModels = tasks.register("generateCommsRelayModels") {
+    var outDir = layout.buildDirectory.dir("generated/sources/commsRelayModels")
+    inputs.file(commsRelayModel)
+    outputs.dir(outDir)
+    doLast {
+        var source = new groovy.json.JsonSlurper().parse(commsRelayModel)
+        var copy = { Object o -> new groovy.json.JsonSlurper().parseText(groovy.json.JsonOutput.toJson(o)) }
+        var visor = "visor_plate"
+        var knobs = ["knob_1", "knob_2"]
+        ([visor] + knobs + ["body_box", "back_plate"]).each { name ->
+            if (source.elements.find { it.name == name } == null) {
+                throw new GradleException("comms_relay.json has no element named '${name}' (Radio Telephone Interconnect)")
+            }
+        }
+        var write = { String path, Map json ->
+            var out = outDir.get().file("assets/createinteroperable/${path}.json").asFile
+            out.parentFile.mkdirs()
+            out.setText(groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(json)), "UTF-8")
+        }
+        var lifted = { Map element ->
+            element.from = [element.from[0], element.from[1], element.from[2] + 0.01]
+            element.to = [element.to[0], element.to[1], element.to[2] + 0.01]
+            element
+        }
+        var texturesOf = { List elements ->
+            var used = elements.collectMany { it.faces.values().collect { face -> face.texture.substring(1) } } as Set
+            var t = source.textures.findAll { key, value -> key in used }
+            t.particle = source.textures["2"]
+            t
+        }
+        var body = source.elements.findAll { it.name != visor && !(it.name in knobs) }
+        write("models/block/comms_relay/body", [render_type: "minecraft:cutout", textures: texturesOf(body), elements: copy(body)])
+        var visorElement = source.elements.find { it.name == visor }
+        write("models/block/comms_relay/visor_off", [render_type: "minecraft:cutout",
+                                                     textures: texturesOf([visorElement]),
+                                                     elements: [lifted(copy(visorElement))]])
+        var lit = lifted(copy(visorElement))
+        lit.shade = false
+        lit.neoforge_data = [block_light: 15, sky_light: 15, ambient_occlusion: false]
+        write("models/block/comms_relay/visor_on", [render_type: "minecraft:cutout",
+                                                    textures: texturesOf([visorElement]) + ["5": "createinteroperable:block/comms_relay/visor_on"],
+                                                    elements: [lit]])
+        var knob = copy(source.elements.find { it.name == knobs[0] })
+        knob.remove("rotation")
+        write("models/block/comms_relay/knob", [textures: texturesOf([knob]), elements: [knob]])
+        write("models/block/comms_relay/full", [render_type: "minecraft:cutout", textures: copy(source.textures) + [particle: source.textures["2"]],
+                                                elements: copy(source.elements).collect { it.name == visor ? lifted(it) : it }])
+        // The model faces south: the telephones' framing turned half round.
+        write("models/item/comms_relay", [parent: "createinteroperable:block/comms_relay/full", display: [
+                // Translation centres the projected box (12 x 16 x 4, centred at x 8, z 2) in the slot:
+                // the old [2.5, 0] sat ~1.7 px high and ~0.9 px left.
+                gui: [rotation: [30, 45, 0], translation: [3.4, -1.7, 0], scale: [0.8, 0.8, 0.8]],
+                ground: [rotation: [0, 0, 0], translation: [0, 3, 0], scale: [0.25, 0.25, 0.25]],
+                fixed: [rotation: [0, 180, 0], translation: [0, 0, 0], scale: [0.5, 0.5, 0.5]],
+                thirdperson_righthand: [rotation: [75, 225, 0], translation: [0, 2.5, 0], scale: [0.375, 0.375, 0.375]],
+                firstperson_righthand: [rotation: [0, 225, 0], translation: [0, 0, 0], scale: [0.4, 0.4, 0.4]],
+                firstperson_lefthand: [rotation: [0, 45, 0], translation: [0, 0, 0], scale: [0.4, 0.4, 0.4]]]])
+        // CommsRelayBlock.angleFor: the model faces south.
+        var facings = [south: 0, west: 90, north: 180, east: 270]
+        var parts = []
+        facings.each { facing, y ->
+            parts << [when: [facing: facing], apply: [model: "createinteroperable:block/comms_relay/body", y: y]]
+            parts << [when: [facing: facing, powered: "false"], apply: [model: "createinteroperable:block/comms_relay/visor_off", y: y]]
+            parts << [when: [facing: facing, powered: "true"], apply: [model: "createinteroperable:block/comms_relay/visor_on", y: y]]
+        }
+        write("blockstates/comms_relay", [multipart: parts])
+    }
+}
+sourceSets.main.resources.srcDir generateCommsRelayModels
+neoForge.ideSyncTask generateCommsRelayModels
+
+// DC to AC Inverter (inverter/cee, id cee_inverter): the artist's dc_to_ac_inverter.json (the
+// interconnect's box with a side pin) split by element name, as the interconnect's. The body is
+// static; visor_plate is its own part, unlit (visor_off) while the DC input is dead and lit +
+// glowing (visor_on) with it, lifted a hundredth of a pixel off the body; knob_1 (west) is the
+// frequency knob InverterRenderer turns about its centre, knob_2 (east) the push button it
+// slides in while switched on, both at their own places in the model.
+var inverterModel = file("src/main/resources/assets/createinteroperable/models/block/dc_to_ac_inverter.json")
+var generateInverterModels = tasks.register("generateInverterModels") {
+    var outDir = layout.buildDirectory.dir("generated/sources/inverterModels")
+    inputs.file(inverterModel)
+    outputs.dir(outDir)
+    doLast {
+        var source = new groovy.json.JsonSlurper().parse(inverterModel)
+        var copy = { Object o -> new groovy.json.JsonSlurper().parseText(groovy.json.JsonOutput.toJson(o)) }
+        var visor = "visor_plate"
+        var knob = "knob_1"
+        var button = "knob_2"
+        ([visor, knob, button, "body_box", "back_plate", "topside_west_pin"]).each { name ->
+            if (source.elements.find { it.name == name } == null) {
+                throw new GradleException("dc_to_ac_inverter.json has no element named '${name}' (DC to AC Inverter)")
+            }
+        }
+        var write = { String path, Map json ->
+            var out = outDir.get().file("assets/createinteroperable/${path}.json").asFile
+            out.parentFile.mkdirs()
+            out.setText(groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(json)), "UTF-8")
+        }
+        var lifted = { Map element ->
+            element.from = [element.from[0], element.from[1], element.from[2] + 0.01]
+            element.to = [element.to[0], element.to[1], element.to[2] + 0.01]
+            element
+        }
+        var texturesOf = { List elements ->
+            var used = elements.collectMany { it.faces.values().collect { face -> face.texture.substring(1) } } as Set
+            var t = source.textures.findAll { key, value -> key in used }
+            t.particle = source.textures["2"]
+            t
+        }
+        var unrotated = { Map element ->
+            var e = copy(element)
+            e.remove("rotation")
+            e
+        }
+        var body = source.elements.findAll { !(it.name in [visor, knob, button]) }
+        write("models/block/cee_inverter/body", [render_type: "minecraft:cutout", textures: texturesOf(body), elements: copy(body)])
+        var visorElement = source.elements.find { it.name == visor }
+        write("models/block/cee_inverter/visor_off", [render_type: "minecraft:cutout",
+                                                      textures: texturesOf([visorElement]),
+                                                      elements: [lifted(copy(visorElement))]])
+        var lit = lifted(copy(visorElement))
+        lit.shade = false
+        lit.neoforge_data = [block_light: 15, sky_light: 15, ambient_occlusion: false]
+        write("models/block/cee_inverter/visor_on", [render_type: "minecraft:cutout",
+                                                     textures: texturesOf([visorElement]) + ["5": "createinteroperable:block/comms_relay/visor_on"],
+                                                     elements: [lit]])
+        var knobElement = unrotated(source.elements.find { it.name == knob })
+        write("models/block/cee_inverter/knob", [textures: texturesOf([knobElement]), elements: [knobElement]])
+        var buttonElement = unrotated(source.elements.find { it.name == button })
+        write("models/block/cee_inverter/button", [textures: texturesOf([buttonElement]), elements: [buttonElement]])
+        write("models/block/cee_inverter/full", [render_type: "minecraft:cutout", textures: copy(source.textures) + [particle: source.textures["2"]],
+                                                 elements: copy(source.elements).collect { it.name == visor ? lifted(it) : it }])
+        // The model faces south, as the interconnect's: the same item framing.
+        write("models/item/cee_inverter", [parent: "createinteroperable:block/cee_inverter/full", display: [
+                gui: [rotation: [30, 45, 0], translation: [3.4, -1.7, 0], scale: [0.8, 0.8, 0.8]],
+                ground: [rotation: [0, 0, 0], translation: [0, 3, 0], scale: [0.25, 0.25, 0.25]],
+                fixed: [rotation: [0, 180, 0], translation: [0, 0, 0], scale: [0.5, 0.5, 0.5]],
+                thirdperson_righthand: [rotation: [75, 225, 0], translation: [0, 2.5, 0], scale: [0.375, 0.375, 0.375]],
+                firstperson_righthand: [rotation: [0, 225, 0], translation: [0, 0, 0], scale: [0.4, 0.4, 0.4]],
+                firstperson_lefthand: [rotation: [0, 45, 0], translation: [0, 0, 0], scale: [0.4, 0.4, 0.4]]]])
+        // InverterBlock.angleFor: the model faces south.
+        var facings = [south: 0, west: 90, north: 180, east: 270]
+        var parts = []
+        facings.each { facing, y ->
+            parts << [when: [facing: facing], apply: [model: "createinteroperable:block/cee_inverter/body", y: y]]
+            parts << [when: [facing: facing, powered: "false"], apply: [model: "createinteroperable:block/cee_inverter/visor_off", y: y]]
+            parts << [when: [facing: facing, powered: "true"], apply: [model: "createinteroperable:block/cee_inverter/visor_on", y: y]]
+        }
+        write("blockstates/cee_inverter", [multipart: parts])
+    }
+}
+sourceSets.main.resources.srcDir generateInverterModels
+neoForge.ideSyncTask generateInverterModels
+
+// CEE Inverter (inverter/cee, id cee_style_inverter): the artist's cee_style_inverter.json, the
+// synchroscope's case. Its texture is the artist's inverter_cee_style.png, shipped as
+// createinteroperable:block/cee_style_inverter. The knob the artist named "west" is the frequency
+// knob, "east" the push button: both partials CeeStyleInverterRenderer moves, left in place. The
+// model faces north and turns as the synchroscope's blockstate does (east 90, south 180, west 270).
+var ceeStyleInverterModel = file("src/main/resources/assets/createinteroperable/models/block/cee_style_inverter.json")
+var generateCeeStyleInverterModels = tasks.register("generateCeeStyleInverterModels") {
+    var outDir = layout.buildDirectory.dir("generated/sources/ceeStyleInverterModels")
+    inputs.file(ceeStyleInverterModel)
+    outputs.dir(outDir)
+    doLast {
+        var source = new groovy.json.JsonSlurper().parse(ceeStyleInverterModel)
+        var copy = { Object o -> new groovy.json.JsonSlurper().parseText(groovy.json.JsonOutput.toJson(o)) }
+        var knob = "west"
+        var button = "east"
+        ([knob, button, "visor", "top_rail", "bottom_rail", "data"]).each { name ->
+            if (source.elements.find { it.name == name } == null) {
+                throw new GradleException("cee_style_inverter.json has no element named '${name}' (CEE Inverter)")
+            }
+        }
+        var texture = "createinteroperable:block/cee_style_inverter"
+        var textures = ["2": texture, particle: texture]
+        var write = { String path, Map json ->
+            var out = outDir.get().file("assets/createinteroperable/${path}.json").asFile
+            out.parentFile.mkdirs()
+            out.setText(groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(json)), "UTF-8")
+        }
+        var unrotated = { Map element ->
+            var e = copy(element)
+            e.remove("rotation")
+            e
+        }
+        var body = source.elements.findAll { !(it.name in [knob, button]) }
+        write("models/block/cee_style_inverter/body", [render_type: "minecraft:cutout", textures: textures, elements: copy(body)])
+        write("models/block/cee_style_inverter/knob", [textures: textures, elements: [unrotated(source.elements.find { it.name == knob })]])
+        write("models/block/cee_style_inverter/button", [textures: textures, elements: [unrotated(source.elements.find { it.name == button })]])
+        write("models/block/cee_style_inverter/full", [render_type: "minecraft:cutout", textures: textures, elements: copy(source.elements)])
+        write("models/item/cee_style_inverter", [parent: "createinteroperable:block/cee_style_inverter/full", display: copy(source.display)])
+        var variants = [:]
+        [north: 0, east: 90, south: 180, west: 270].each { facing, y ->
+            ["false", "true"].each { powered ->
+                variants["facing=${facing},powered=${powered}".toString()] = y == 0
+                        ? [model: "createinteroperable:block/cee_style_inverter/body"]
+                        : [model: "createinteroperable:block/cee_style_inverter/body", y: y]
+            }
+        }
+        write("blockstates/cee_style_inverter", [variants: variants])
+    }
+}
+sourceSets.main.resources.srcDir generateCeeStyleInverterModels
+neoForge.ideSyncTask generateCeeStyleInverterModels
+
+// Microphone (microphone/ccee, id microphone): the artist's microphone.json, its Blockbench
+// texture names (computercraft_cee_addon:block/*) pointed at CIO's copies in
+// textures/block/microphone/, turned per facing (MicrophoneBlock.angleFor: the model faces
+// south). indicator_light is its own part: indicator_off unlit, indicator_on lit and glowing
+// (NeoForge's block/sky light 15) while the block is LIT. The item's gui is centred in the
+// slot (board angle, 1.4x).
+var microphoneModel = file("src/main/resources/assets/createinteroperable/models/block/microphone.json")
+var generateMicrophoneModels = tasks.register("generateMicrophoneModels") {
+    var outDir = layout.buildDirectory.dir("generated/sources/microphoneModels")
+    inputs.file(microphoneModel)
+    outputs.dir(outDir)
+    doLast {
+        var source = new groovy.json.JsonSlurper().parse(microphoneModel)
+        var write = { String path, Map json ->
+            var out = outDir.get().file("assets/createinteroperable/${path}.json").asFile
+            out.parentFile.mkdirs()
+            out.setText(groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(json)), "UTF-8")
+        }
+        var textures = source.textures.collectEntries { key, value ->
+            var name = value.toString().substring(value.toString().lastIndexOf('/') + 1)
+            [(key): "createinteroperable:block/microphone/${name}".toString()]
+        }
+        textures.particle = textures["2"]
+        var copy = { Object o -> new groovy.json.JsonSlurper().parseText(groovy.json.JsonOutput.toJson(o)) }
+        var indicator = source.elements.find { it.name == "indicator_light" }
+        if (indicator == null) {
+            throw new GradleException("microphone.json has no element named 'indicator_light' (Microphone)")
+        }
+        var indicatorTexture = indicator.faces.values().first().texture.substring(1)
+        var body = source.elements.findAll { it.name != "indicator_light" }
+        write("models/block/microphone/body", [render_type: "minecraft:cutout", textures: textures, elements: copy(body)])
+        write("models/block/microphone/indicator_off", [render_type: "minecraft:cutout", textures: textures,
+                                                       elements: [copy(indicator)]])
+        var lit = copy(indicator)
+        lit.shade = false
+        lit.neoforge_data = [block_light: 15, sky_light: 15, ambient_occlusion: false]
+        write("models/block/microphone/indicator_on", [render_type: "minecraft:cutout",
+                                                      textures: textures + [(indicatorTexture): "createinteroperable:block/microphone/indicator_on"],
+                                                      elements: [lit]])
+        write("models/block/microphone/full", [render_type: "minecraft:cutout", textures: textures, elements: source.elements])
+        write("models/item/microphone", [parent: "createinteroperable:block/microphone/full", display: [
+                gui: [rotation: [30, 45, 0], translation: [0.49, 5.25, 0], scale: [1.4, 1.4, 1.4]],
+                ground: [rotation: [0, 0, 0], translation: [0, 3, 0], scale: [0.5, 0.5, 0.5]],
+                fixed: [rotation: [0, 180, 0], translation: [0, 0, 0], scale: [1, 1, 1]],
+                thirdperson_righthand: [rotation: [75, 225, 0], translation: [0, 2.5, 0], scale: [0.6, 0.6, 0.6]],
+                firstperson_righthand: [rotation: [0, 225, 0], translation: [0, 2, 0], scale: [0.8, 0.8, 0.8]],
+                firstperson_lefthand: [rotation: [0, 45, 0], translation: [0, 2, 0], scale: [0.8, 0.8, 0.8]]]])
+        var facings = [south: 0, west: 90, north: 180, east: 270]
+        var parts = []
+        facings.each { facing, y ->
+            parts << [when: [facing: facing], apply: [model: "createinteroperable:block/microphone/body", y: y]]
+            parts << [when: [facing: facing, lit: "false"], apply: [model: "createinteroperable:block/microphone/indicator_off", y: y]]
+            parts << [when: [facing: facing, lit: "true"], apply: [model: "createinteroperable:block/microphone/indicator_on", y: y]]
+        }
+        write("blockstates/microphone", [multipart: parts])
+    }
+}
+sourceSets.main.resources.srcDir generateMicrophoneModels
+neoForge.ideSyncTask generateMicrophoneModels
+
+// Radio Goggles rings of emission (goggles/client/RadioRingRenderer): one model per ring
+// texture in textures/block/radio_ring/ (ring_NxN.png, N blocks square, any whole number of
+// px per block: 16 today), built only from quads over its non-transparent pixels, so no part
+// of the square around the ring is drawn (an additive or emissive quad lights its transparent
+// texels too under some shader packs). Each row's runs of lit pixels, stacked into rectangles
+// where consecutive rows repeat the same run; every rectangle is a flat element facing up and
+// down at y 8, centred on the block, UVs on exactly its pixels. Every ring also gets a
+// greyscale twin, ring_rx_NxN (texture + model), for antennas receiving. Repaint the PNG and
+// the geometry and the twin follow.
+var radioRingTextures = file("src/main/resources/assets/createinteroperable/textures/block/radio_ring")
+var generateRadioRingModels = tasks.register("generateRadioRingModels") {
+    var outDir = layout.buildDirectory.dir("generated/sources/radioRingModels")
+    inputs.dir(radioRingTextures)
+    outputs.dir(outDir)
+    doLast {
+        var round = { double v -> Math.round(v * 1.0e6) / 1.0e6 }
+        var assets = outDir.get().dir("assets/createinteroperable").asFile
+        var sources = radioRingTextures.listFiles().findAll { it.name ==~ /ring_(\d)x\1\.png/ }
+        if (sources.isEmpty()) {
+            throw new GradleException("no ring_NxN.png in ${radioRingTextures} (Radio Goggles)")
+        }
+        sources.each { File source ->
+            int n = (source.name =~ /ring_(\d)x/)[0][1] as int
+            var image = javax.imageio.ImageIO.read(source)
+            int size = image.width
+            int perBlock = size.intdiv(n)
+            if (image.height != size || perBlock * n != size || perBlock < 1) {
+                throw new GradleException("${source.name} must be square, a whole number of px per block for ${n} blocks (Radio Goggles)")
+            }
+            var rects = []       // [x0, x1, y0, y1], pixel edges
+            var open = [:]       // [x0, x1] -> first row
+            for (int y = 0; y <= size; y++) {
+                var runs = []
+                if (y < size) {
+                    int x = 0
+                    while (x < size) {
+                        if ((image.getRGB(x, y) >>> 24) != 0) {
+                            int x0 = x
+                            while (x < size && (image.getRGB(x, y) >>> 24) != 0) {
+                                x++
+                            }
+                            runs << [x0, x]
+                        } else {
+                            x++
+                        }
+                    }
+                }
+                var next = [:]
+                runs.each { run -> next[run] = open.containsKey(run) ? open[run] : y }
+                open.each { run, y0 -> if (!next.containsKey(run)) rects << [run[0], run[1], y0, y] }
+                open = next
+            }
+            double unit = 16.0 / perBlock   // model units per pixel
+            double origin = -8.0 * (n - 1)  // the square is centred on the block
+            double uv = 16.0 / size
+            var elements = rects.collect { r ->
+                int x0 = r[0], x1 = r[1], y0 = r[2], y1 = r[3]
+                [from: [round(origin + x0 * unit), 8, round(origin + y0 * unit)],
+                 to: [round(origin + x1 * unit), 8, round(origin + y1 * unit)],
+                 shade: false,
+                 faces: [up: [uv: [round(x0 * uv), round(y0 * uv), round(x1 * uv), round(y1 * uv)], texture: "#ring"],
+                         // a down face's v runs south to north: flipped so it shows the same pixels
+                         down: [uv: [round(x0 * uv), round(y1 * uv), round(x1 * uv), round(y0 * uv)], texture: "#ring"]]]
+            }
+            var writeModel = { String name ->
+                var texture = "createinteroperable:block/radio_ring/${name}".toString()
+                var out = new File(assets, "models/block/radio_ring/${name}.json")
+                out.parentFile.mkdirs()
+                out.setText(groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson([
+                        ambientocclusion: false,
+                        textures: [ring: texture, particle: texture],
+                        elements: elements])), "UTF-8")
+            }
+            writeModel("ring_${n}x${n}")
+            writeModel("ring_rx_${n}x${n}")
+
+            // The greyscale twin: each pixel's luminance, alpha kept (the art is premultiplied for additive blending).
+            var grey = new java.awt.image.BufferedImage(size, size, java.awt.image.BufferedImage.TYPE_INT_ARGB)
+            for (int y = 0; y < size; y++) {
+                for (int x = 0; x < size; x++) {
+                    int argb = image.getRGB(x, y)
+                    int l = Math.round(0.299f * ((argb >> 16) & 0xFF) + 0.587f * ((argb >> 8) & 0xFF) + 0.114f * (argb & 0xFF))
+                    grey.setRGB(x, y, (int) (((argb >>> 24) << 24) | (l << 16) | (l << 8) | l)) // (0xFF000000 is a Long in Groovy)
+                }
+            }
+            var greyFile = new File(assets, "textures/block/radio_ring/ring_rx_${n}x${n}.png")
+            greyFile.parentFile.mkdirs()
+            javax.imageio.ImageIO.write(grey, "png", greyFile)
+        }
+    }
+}
+sourceSets.main.resources.srcDir generateRadioRingModels
+neoForge.ideSyncTask generateRadioRingModels
+
+// Dyed textures (Power Kit panels, telephones): one sheet per Minecraft dye from
+// a neutral (white) sheet, a paint mask and src/main/dyeable/palette.json — see
+// targets.json there. Painted pixels take the dye scaled by their own brightness
+// against the panel's average, so the neutral's noise carries over.
+var dyeableDir = file("src/main/dyeable")
+var generateDyedTextures = tasks.register("generateDyedTextures") {
+    var outDir = layout.buildDirectory.dir("generated/sources/dyedTextures")
+    inputs.dir(dyeableDir)
+    inputs.dir("src/main/resources/assets/createinteroperable/textures/block")
+    outputs.dir(outDir)
+    doLast {
+        var assets = file("src/main/resources/assets/createinteroperable")
+        var read = { String path ->
+            javax.imageio.ImageIO.read(path.startsWith("dyeable:") ? new File(dyeableDir, path.substring(8)) : new File(assets, path))
+        }
+        var lum = { int argb -> 0.299 * ((argb >> 16) & 0xFF) + 0.587 * ((argb >> 8) & 0xFF) + 0.114 * (argb & 0xFF) }
+        var clamp = { double v -> Math.max(0, Math.min(255, (int) Math.round(v))) }
+        var palette = new groovy.json.JsonSlurper().parse(new File(dyeableDir, "palette.json"))
+        var config = new groovy.json.JsonSlurper().parse(new File(dyeableDir, "targets.json"))
+        config.targets.each { target ->
+            var base = read(target.base)
+            var neutral = read(target.neutral)
+            var mask = read("dyeable:" + target.mask)
+            int w = base.width, h = base.height
+            // the painted panel's average brightness and its brightest pixel, relative to it
+            var painted = []
+            for (int x = 0; x < w; x++) for (int y = 0; y < h; y++) if (((mask.getRGB(x, y) >> 16) & 0xFF) > 0) painted << lum(neutral.getRGB(x, y))
+            double mean = painted.sum() / painted.size()
+            double brightest = painted.max() / mean
+            // how much the paint covers the neutral; the rest is the neutral's own texture showing through
+            double opacity = target.opacity != null ? (target.opacity as double) : 1.0
+            palette.each { String dye, String hex ->
+                int rgb = Integer.parseInt(hex.substring(1), 16)
+                double[] colour = [(rgb >> 16) & 0xFF, (rgb >> 8) & 0xFF, rgb & 0xFF] as double[]
+                double peak = colour.max()
+                // a near-white dye would clip the bright pixels flat: keep their noise
+                double headroom = Math.min(1, 255 / (peak * brightest))
+                var out = new java.awt.image.BufferedImage(w, h, java.awt.image.BufferedImage.TYPE_INT_ARGB)
+                for (int x = 0; x < w; x++) {
+                    for (int y = 0; y < h; y++) {
+                        int m = mask.getRGB(x, y)
+                        int paint = (m >> 16) & 0xFF, glaze = (m >> 8) & 0xFF, accent = m & 0xFF
+                        int n = neutral.getRGB(x, y)
+                        double[] np = [(n >> 16) & 0xFF, (n >> 8) & 0xFF, n & 0xFF] as double[]
+                        int argb
+                        if (paint > 0) {
+                            double f = lum(n) / mean * headroom
+                            argb = (n & 0xFF000000) | ((0..2).collect { i -> clamp(np[i] * (1 - opacity) + colour[i] * f * opacity) }
+                                    .inject(0) { acc, c -> (acc << 8) | c })
+                        } else if (glaze > 0) {
+                            double k = glaze / 255.0
+                            argb = (n & 0xFF000000) | ((0..2).collect { i -> clamp(np[i] * (1 - k + k * colour[i] / 255)) }
+                                    .inject(0) { acc, c -> (acc << 8) | c })
+                        } else if (accent > 0) {
+                            double k = accent / 255.0
+                            argb = (n & 0xFF000000) | ((0..2).collect { i -> clamp(np[i] * (1 - k) + colour[i] * 255 / peak * k) }
+                                    .inject(0) { acc, c -> (acc << 8) | c })
+                        } else {
+                            argb = base.getRGB(x, y)
+                        }
+                        out.setRGB(x, y, argb)
+                    }
+                }
+                var name = target.names?.get(dye) ?: dye
+                var file = outDir.get().file("assets/createinteroperable/" + String.format(target.out, name)).asFile
+                file.parentFile.mkdirs()
+                javax.imageio.ImageIO.write(out, "png", file)
+            }
+        }
+    }
+}
+sourceSets.main.resources.srcDir generateDyedTextures
+neoForge.ideSyncTask generateDyedTextures
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'

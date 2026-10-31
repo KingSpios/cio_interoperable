@@ -80,6 +80,10 @@ public final class CIOModules {
             PantographsAndWiresModule.register(modEventBus);
             markEnabled("PantographsAndWiresModule");
         }
+        if (isEnabled(ComputerModule.REQUIRES)) {
+            ComputerModule.register(modEventBus);
+            markEnabled("ComputerModule");
+        }
         // See ColdSweatIntegration's own doc for why this is a runtime-gated
         // call rather than @EventBusSubscriber: that annotation would let
         // NeoForge's classpath scanner load the class (and touch Cold-Sweat-only

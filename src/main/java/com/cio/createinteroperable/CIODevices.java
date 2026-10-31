@@ -2,8 +2,11 @@ package com.cio.createinteroperable;
 
 import com.cio.createinteroperable.bridge.InteroperableDevice;
 import com.cio.createinteroperable.cee.CeeCompactTransformerDevice;
-import com.cio.createinteroperable.cee.CeeStreetlightDevice;
 import com.cio.createinteroperable.compat.PnwTerminalDevice;
+import com.cio.createinteroperable.inverter.cee.InverterDevice;
+import com.cio.createinteroperable.computer.cee.SignalNubDevice;
+import com.cio.createinteroperable.pole.cee.CeeUtilityPoleDevice;
+import com.cio.createinteroperable.streetlight.cee.CeeStreetlightDevice;
 import com.cio.createinteroperable.compat.Mods;
 import com.cio.createinteroperable.powerkit.cee.DebCeeDevice;
 import com.cio.createinteroperable.telephone.cee.TelephoneDevice;
@@ -66,7 +69,17 @@ public class CIODevices {
             DEVICES.register("compact_transformer", () -> new SimulatedDeviceType<>(CreateInteroperable.rl("compact_transformer"),
                     ((type, level, pos, sd) -> new CeeCompactTransformerDevice(level, pos, sd, type))));
 
-    /** Electro Energetics side of the CEE-only Streetlight (a 120 V / 25 W photocell lamp). */
+    /** Electro Energetics side of the CIO Inverter: a micro-ticked three-phase source fed from a DC load, 15 kW. */
+    public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<InverterDevice>> INVERTER =
+            DEVICES.register("inverter", () -> new SimulatedDeviceType<>(CreateInteroperable.rl("inverter"),
+                    ((type, level, pos, sd) -> new InverterDevice(level, pos, sd, type, InverterDevice.CIO_MAX_POWER))));
+
+    /** The CEE Inverter (the synchroscope-cased one): the same device, 20 kW. */
+    public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<InverterDevice>> CEE_STYLE_INVERTER =
+            DEVICES.register("cee_style_inverter", () -> new SimulatedDeviceType<>(CreateInteroperable.rl("cee_style_inverter"),
+                    ((type, level, pos, sd) -> new InverterDevice(level, pos, sd, type, InverterDevice.CEE_STYLE_MAX_POWER))));
+
+    /** Electro Energetics side of the CEE Streetlight (a 120 V / 25 W photocell lamp). */
     public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<CeeStreetlightDevice>> STREETLIGHT =
             DEVICES.register("streetlight", () -> new SimulatedDeviceType<>(CreateInteroperable.rl("streetlight"),
                     ((type, level, pos, sd) -> new CeeStreetlightDevice(level, pos, sd, type))));
@@ -76,10 +89,29 @@ public class CIODevices {
             DEVICES.register("mini_connector", () -> new SimulatedDeviceType<>(CreateInteroperable.rl("mini_connector"),
                     ((type, level, pos, sd) -> new DoubleConnectorDevice(level, pos, sd, type))));
 
+    /** CEE Embedded Connector: likewise CEE's own DoubleConnectorDevice, its two pins inside a wall box. */
+    public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<DoubleConnectorDevice>> EMBEDDED_CONNECTOR =
+            DEVICES.register("embedded_connector", () -> new SimulatedDeviceType<>(CreateInteroperable.rl("embedded_connector"),
+                    ((type, level, pos, sd) -> new DoubleConnectorDevice(level, pos, sd, type))));
+
+    /** Utility Pole and its extended arms: every pin its own node, bridged only inside the BASE's junction box. */
+    public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<CeeUtilityPoleDevice>> UTILITY_POLE =
+            DEVICES.register("utility_pole", () -> new SimulatedDeviceType<>(CreateInteroperable.rl("utility_pole"),
+                    ((type, level, pos, sd) -> new CeeUtilityPoleDevice(level, pos, sd, type))));
+
     /** Inert device for Pantographs &amp; Wires connectors; see {@link PnwTerminalDevice}. */
     public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<PnwTerminalDevice>> PNW_TERMINAL =
             DEVICES.register("pnw_terminal", () -> new SimulatedDeviceType<>(CreateInteroperable.rl("pnw_terminal"),
                     ((type, level, pos, sd) -> new PnwTerminalDevice(level, pos, sd, type))));
+
+    /**
+     * Inert device behind the signal node the CPG Power Kits and CPG Telephone get with the
+     * ComputerCraft CEE Addon installed; see {@link SignalNubDevice}. Registered on every CEE
+     * install so the registry doesn't depend on the addon.
+     */
+    public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<SignalNubDevice>> SIGNAL_NUB =
+            DEVICES.register("signal_nub", () -> new SimulatedDeviceType<>(CreateInteroperable.rl("signal_nub"),
+                    ((type, level, pos, sd) -> new SignalNubDevice(level, pos, sd, type))));
 
     public static void register(IEventBus modEventBus) {
         DEVICES.register(modEventBus);

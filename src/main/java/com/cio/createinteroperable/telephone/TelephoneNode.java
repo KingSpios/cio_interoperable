@@ -38,6 +38,25 @@ public interface TelephoneNode {
         return false;
     }
 
+    /**
+     * True while this phone's call (ringing, placed or answered) has a computer at the far
+     * end instead of another phone, e.g. a radio link: see {@code TelephoneCore#computerRingExternal}.
+     * {@link #callPartnerPos()} is then null.
+     */
+    default boolean isExternalCall() {
+        return false;
+    }
+
+    /**
+     * On an external call: the phone at the far end, when the call's carriers told this
+     * phone where it is (two Radio Telephones joined through TeleLink computers). Both
+     * ends naming each other get their voice relayed directly. Null otherwise.
+     */
+    @org.jetbrains.annotations.Nullable
+    default BlockPos voicePartnerPos() {
+        return null;
+    }
+
     /** The other end of this phone's current call, or {@code null} when there isn't one. */
     @org.jetbrains.annotations.Nullable
     default BlockPos callPartnerPos() {
@@ -84,6 +103,34 @@ public interface TelephoneNode {
     default void setPulse(boolean pulse) {
     }
 
+    /** A radio telephone's channel and transmit level; null for a phone that only works on wires. */
+    @org.jetbrains.annotations.Nullable
+    default RadioTuning radioTuning() {
+        return null;
+    }
+
+    /**
+     * How much louder than the configured line noise this phone's earpiece hisses: 1 on a
+     * wire; a Radio Telephone on a radio call raises it as the signal weakens or another
+     * transmitter interferes.
+     */
+    default float lineNoiseFactor() {
+        return 1f;
+    }
+
+    /** Retunes a radio telephone; ignored by every other phone. */
+    default void setRadioTuning(RadioTuning tuning) {
+    }
+
+    /** A radio telephone set to keep its chunk loaded (so it works with nobody nearby); false for every other phone. */
+    default boolean keepsChunkLoaded() {
+        return false;
+    }
+
+    /** Sets a radio telephone's "keep chunk loaded"; ignored by every other phone. */
+    default void setKeepChunkLoaded(boolean keep) {
+    }
+
     void setLabel(String label);
 
     /** Returns false (no change applied) when the combination is already taken by another loaded phone. */
@@ -107,13 +154,22 @@ public interface TelephoneNode {
     boolean ceeTapReaches(BlockPos otherPos);
 
     /**
-     * Real dialing/busy/call-still-connected reachability: true for self,
-     * true if both sides share a live PG tap network, else whatever this
-     * side's own CEE tap-graph walk finds. PG and CEE are deliberately never
-     * bridged — either protocol's own tap connectivity is independently
-     * sufficient.
+     * Real dialing/busy/call-still-connected reachability: the wire
+     * ({@link #canReachByWire}), or a bridge between two kinds of line
+     * ({@link TelephoneBridges}: a Radio Telephone Interconnect joining a radio
+     * phone to the wired phones on its tap).
      */
     default boolean canReach(TelephoneNode other) {
+        return canReachByWire(other) || TelephoneBridges.reaches(this, other);
+    }
+
+    /**
+     * Reachability over the tap wire alone: true for self, true if both sides share a live
+     * PG tap network, else whatever this side's own CEE tap-graph walk finds. PG and CEE are
+     * deliberately never bridged — either protocol's own tap connectivity is independently
+     * sufficient.
+     */
+    default boolean canReachByWire(TelephoneNode other) {
         if (other == this) {
             return true;
         }
@@ -122,5 +178,16 @@ public interface TelephoneNode {
             return true;
         }
         return ceeTapReaches(other.telephonePos());
+    }
+
+    /**
+     * Whether a call from {@code caller} can't reach this phone because its radio channel
+     * is taken (a Radio Telephone called from a wired phone through an interconnect whose
+     * band is full, or a wired phone called over an interconnect trunk with no channel
+     * free). Called by the caller's dial, after its own check; the caller then hears a busy
+     * tone.
+     */
+    default boolean channelBusyForIncoming(TelephoneNode caller) {
+        return !canReachByWire(caller) && TelephoneBridges.channelBusy(caller, this);
     }
 }

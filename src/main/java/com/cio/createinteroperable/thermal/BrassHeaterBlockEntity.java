@@ -250,7 +250,7 @@ public class BrassHeaterBlockEntity extends KineticBlockEntity {
      * — cruder, but keeps the FREEZING texture meaningful even on a
      * Cold-Sweat-less install.
      */
-    static boolean isCold(net.minecraft.world.level.Level level, BlockPos pos) {
+    public static boolean isCold(net.minecraft.world.level.Level level, BlockPos pos) {
         if (Mods.COLD_SWEAT.present()) {
             return ColdSweatWorldTemp.getWorldTemperatureC(level, pos) < 0;
         }

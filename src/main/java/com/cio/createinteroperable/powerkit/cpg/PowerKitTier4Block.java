@@ -2,10 +2,18 @@ package com.cio.createinteroperable.powerkit.cpg;
 
 import com.cio.createinteroperable.modules.PowerGridModule;
 import com.cio.createinteroperable.powerkit.PowerKitGeometry;
+import com.cio.createinteroperable.powerkit.PowerKitSignalNub;
+import com.cio.createinteroperable.powerkit.PowerKitSwitch;
 import com.cio.createinteroperable.powerkit.PowerKitLabels;
+import com.cio.createinteroperable.powerkit.PowerKitPanel;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.patryk3211.powergrid.electricity.base.DirectionalElectricBlock;
 import org.patryk3211.powergrid.electricity.base.IDecoratedTerminal;
 import org.patryk3211.powergrid.electricity.base.TerminalBoundingBox;
 
@@ -62,7 +70,31 @@ public class PowerKitTier4Block extends DebRectifierBlock {
     public PowerKitTier4Block(Properties properties) {
         super(properties);
         // Overwrite the tier-2 terminal collection the super constructor set.
-        setTerminalCollection(DirectionalElectricBlock.directionalNorthTerminals(this, TIER4_TERMINALS, TIER4_SHAPE, TIER4_SHAPE));
+        setKitTerminals(TIER4_TERMINALS, TIER4_SHAPE);
+    }
+
+    /** Right-click with an empty hand opens the control panel ({@link PowerKitPanel}). */
+    @Override
+    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
+        InteractionResult result = PowerKitPanel.tryOpen(level, pos, player);
+        return result != InteractionResult.PASS ? result : super.useWithoutItem(state, level, pos, player, hit);
+    }
+
+    /** The tier-4 model has no master switch; its main lever is on the control panel. */
+    @Override
+    public PowerKitSwitch.Kind masterSwitch() {
+        return PowerKitSwitch.Kind.NONE;
+    }
+
+    /** The Industrial kit keeps its own look: no paint. */
+    @Override
+    public boolean dyeable() {
+        return false;
+    }
+
+    @Override
+    public double[] signalNubBox() {
+        return PowerKitSignalNub.TIER4_BOX;
     }
 
     @Override

@@ -1,27 +1,39 @@
 package com.cio.createinteroperable.powerkit.cpg;
 
+import com.cio.createinteroperable.powerkit.PowerKitPaint;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.ItemInteractionResult;
 import com.cio.createinteroperable.modules.PowerGridModule;
 import com.cio.createinteroperable.powerkit.PowerKitGeometry;
 import com.cio.createinteroperable.powerkit.PowerKitLabels;
+import com.cio.createinteroperable.powerkit.PowerKitSignalNub;
+import org.jetbrains.annotations.Nullable;
+import com.cio.createinteroperable.powerkit.PowerKitSwitch;
 import com.simibubi.create.foundation.block.IBE;
-import net.createmod.catnip.math.VoxelShaper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.patryk3211.powergrid.electricity.base.DirectionalElectricBlock;
 import org.patryk3211.powergrid.electricity.base.IDecoratedTerminal;
 import org.patryk3211.powergrid.electricity.base.TerminalBoundingBox;
+import org.patryk3211.powergrid.electricity.base.terminals.BlockStateTerminalCollection;
 
 import java.util.List;
 
@@ -46,9 +58,9 @@ import java.util.List;
  *
  * Terminal boxes and the outline shape are authored here in the NORTH
  * reference orientation, matching {@code models/block/deb_rectifier_tier_2.json}
- * as the artist built it (back plate at z=0). PG's
- * {@code directionalNorthTerminals(...)} rotates both for the other five
- * facings; the blockstate JSON applies the matching model rotation.
+ * as the artist built it (back plate at z=0). {@link #setKitTerminals} turns
+ * both for every other mount (six facings, plus {@link PowerKitGeometry#TOP}
+ * on a floor or ceiling); the blockstate JSON applies the matching model rotation.
  */
 public class DebRectifierBlock extends DirectionalElectricBlock implements IBE<DebRectifierBlockEntity> {
 
@@ -97,13 +109,90 @@ public class DebRectifierBlock extends DirectionalElectricBlock implements IBE<D
     // CEE-only install (this was a real crash, not a theoretical one).
     static final VoxelShape SHAPE = PowerKitGeometry.TIER2_SHAPE;
 
-    /** {@link #SHAPE} rotated for all six facings &mdash; used for collision so entities catch on the model, not a full cube. */
-    private static final VoxelShaper SHAPE_SHAPER =
-            VoxelShaper.forDirectional(SHAPE, Direction.NORTH).withVerticalShapes(SHAPE);
+    /** This tier's outline turned for every mount &mdash; also the collision shape, so entities catch on the model, not a full cube. */
+    private PowerKitGeometry.OrientedShape outline;
 
     public DebRectifierBlock(Properties properties) {
         super(properties);
-        setTerminalCollection(DirectionalElectricBlock.directionalNorthTerminals(this, TERMINALS, SHAPE, SHAPE));
+        setKitTerminals(TERMINALS, SHAPE);
+        if (masterSwitch().present()) {
+            registerDefaultState(defaultBlockState().setValue(PowerKitSwitch.ENABLED, true));
+        }
+    }
+
+    /**
+     * Install this tier's terminals and outline, both turned by
+     * {@link PowerKitGeometry#orient}'s rotation &mdash; the blockstate JSON's own
+     * &mdash; so they sit on the model on every mount. PG's
+     * {@code directionalNorthTerminals} can't be used: its outline (Create's
+     * {@code VoxelShaper}) lands on the far side of the block on a floor or
+     * ceiling, and it knows nothing of {@link PowerKitGeometry#TOP}.
+     */
+    protected final void setKitTerminals(TerminalBoundingBox[] terminals, VoxelShape northShape) {
+        outline = new PowerKitGeometry.OrientedShape(northShape);
+        setTerminalCollection(BlockStateTerminalCollection.builder(this)
+                .forAllStates(state -> BlockStateTerminalCollection.each(terminals, t -> {
+                    int x = PowerKitGeometry.modelX(state);
+                    return (x != 0 ? t.rotateAroundX(x) : t).rotateAroundY(PowerKitGeometry.modelY(state));
+                }))
+                .withShapeMapper(outline::get)
+                .build());
+    }
+
+    /**
+     * The master switch this tier's model carries: tier 2's slide switch.
+     * Tier subclasses override. Must return a constant &mdash; it is read from
+     * {@link #createBlockStateDefinition}, i.e. during the super constructor.
+     */
+    public PowerKitSwitch.Kind masterSwitch() {
+        return PowerKitSwitch.Kind.SLIDE_SWITCH;
+    }
+
+    /**
+     * Whether a dye repaints this tier's body box ({@link PowerKitPaint}): the
+     * Domestic and Commercial kits. Tier subclasses override. Must return a
+     * constant &mdash; it is read from {@link #createBlockStateDefinition},
+     * i.e. during the super constructor.
+     */
+    public boolean dyeable() {
+        return true;
+    }
+
+    /**
+     * This tier's signal nub box ({@link PowerKitSignalNub}), NORTH-authored px, or
+     * null for none. Tier subclasses override. The nub exists only with the
+     * ComputerCraft CEE Addon installed ({@link PowerKitSignalNub#present()}).
+     */
+    @Nullable
+    public double[] signalNubBox() {
+        return PowerKitSignalNub.TIER2_BOX;
+    }
+
+    @Override
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        super.createBlockStateDefinition(builder);
+        builder.add(PowerKitGeometry.TOP);
+        if (masterSwitch().present()) {
+            builder.add(PowerKitSwitch.ENABLED);
+        }
+        if (dyeable()) {
+            builder.add(PowerKitPaint.COLOR);
+        }
+    }
+
+    /** A dye repaints a dyeable kit; anything else goes to Power Grid (wires and the like). */
+    @Override
+    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player,
+                                              InteractionHand hand, BlockHitResult hit) {
+        ItemInteractionResult dyed = PowerKitPaint.tryDye(stack, state, level, pos, player);
+        return dyed != null ? dyed : super.useItemOn(stack, state, level, pos, player, hand, hit);
+    }
+
+    /** A right-click on the master switch flips it; anywhere else falls through to Power Grid. */
+    @Override
+    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
+        InteractionResult result = PowerKitSwitch.tryToggle(masterSwitch(), state, level, pos, hit, null);
+        return result != InteractionResult.PASS ? result : super.useWithoutItem(state, level, pos, player, hit);
     }
 
     /**
@@ -114,7 +203,18 @@ public class DebRectifierBlock extends DirectionalElectricBlock implements IBE<D
      */
     @Override
     public VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return SHAPE_SHAPER.get(state.getValue(FACING));
+        return outline.get(state);
+    }
+
+    /** Back plate against the clicked surface, not PG's look-direction pick; see {@link PowerKitGeometry#placed}. */
+    @Override
+    public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
+        return PowerKitGeometry.placed(defaultBlockState(), context);
+    }
+
+    @Override
+    public BlockState rotate(BlockState state, Rotation rotation) {
+        return PowerKitGeometry.rotate(state, rotation);
     }
 
     /**

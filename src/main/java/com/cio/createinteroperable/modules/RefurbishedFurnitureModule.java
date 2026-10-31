@@ -20,6 +20,11 @@ public final class RefurbishedFurnitureModule {
     }
 
     static void register(IEventBus modEventBus) {
+        // Its fridge and freezer in the universal appliance wrapper.
+        com.cio.createinteroperable.appliance.Appliances.register(com.cio.createinteroperable.appliance.CrayfishAppliances.create());
+        // Sitting on Refurbished Furniture's toilet cleanses like Urban Decor's (see CrayfishToilets).
+        net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(
+                com.cio.createinteroperable.appliance.CrayfishToilets::onPlayerTick);
         if (FMLEnvironment.dist.isClient()) {
             RefurbishedFurnitureModuleClient.register(modEventBus);
         }
